@@ -39,6 +39,16 @@ from app.models import (
 PASSWORD_DEMO = "demo1234"
 
 
+def fra_giorni(giorni: int, ora_utc: int) -> datetime:
+    """Una data futura a un'ora sensata invece che "adesso più N ore".
+
+    L'ora è in UTC: 7 e 12 diventano le 9 e le 14 in Italia d'estate, orari
+    plausibili per un turno in piscina in entrambi i fusi.
+    """
+    d = datetime.now(timezone.utc) + timedelta(days=giorni)
+    return d.replace(hour=ora_utc, minute=0, second=0, microsecond=0)
+
+
 def main() -> None:
     init_db()
 
@@ -114,15 +124,14 @@ def main() -> None:
             referente_telefono="+39 06 5551234",
         )
 
-        # --- Annuncio -----------------------------------------------------
-        inizio = datetime.now(timezone.utc) + timedelta(days=2, hours=8)
+        # --- Annunci -------------------------------------------------------
         annuncio = Annuncio(
             autore=u_piscina,
             piscina=piscina,
             tipo=TipoAnnuncio.PISCINA_CERCA_BAGNINO,
             titolo="Sostituzione urgente turno pomeridiano",
-            data_inizio=inizio,
-            data_fine=inizio + timedelta(hours=5),
+            data_inizio=fra_giorni(2, 12),
+            data_fine=fra_giorni(2, 17),
             zona=eur,
             indirizzo="Viale America 50",
             compenso=Decimal("12.50"),
@@ -134,9 +143,52 @@ def main() -> None:
             stato=StatoAnnuncio.APERTO,
         )
 
+        # Qualche altro turno, così i filtri della bacheca hanno su cosa lavorare.
+        altri = [
+            Annuncio(
+                autore=u_piscina,
+                piscina=piscina,
+                tipo=TipoAnnuncio.PISCINA_CERCA_BAGNINO,
+                titolo="Turno mattutino corsie libere",
+                data_inizio=fra_giorni(4, 7),
+                data_fine=fra_giorni(4, 12),
+                zona=eur,
+                compenso=Decimal("13.00"),
+                tipo_turno=TipoTurno.TURNO_FISSO,
+                brevetto_richiesto=TipoBrevetto.P,
+                note="Turno fisso, si valuta anche continuativo per la stagione.",
+            ),
+            Annuncio(
+                autore=u_piscina,
+                piscina=piscina,
+                tipo=TipoAnnuncio.PISCINA_CERCA_BAGNINO,
+                titolo="Festa privata a bordo vasca",
+                data_inizio=fra_giorni(6, 17),
+                data_fine=fra_giorni(6, 22),
+                zona=ostia,
+                compenso=Decimal("90.00"),
+                compenso_tipo=TipoCompenso.A_TURNO,
+                tipo_turno=TipoTurno.EVENTO_SERALE,
+                brevetto_richiesto=TipoBrevetto.MIP,
+                note="Evento con circa 60 invitati, richiesto brevetto MIP.",
+            ),
+            # Il verso opposto: è un bagnino a cercare chi lo copre.
+            Annuncio(
+                autore=u_bagnino,
+                tipo=TipoAnnuncio.BAGNINO_CERCA_SOSTITUZIONE,
+                titolo="Cerco sostituto per sabato mattina",
+                data_inizio=fra_giorni(5, 7),
+                data_fine=fra_giorni(5, 13),
+                zona=ostia,
+                compenso=Decimal("12.00"),
+                tipo_turno=TipoTurno.WEEKEND,
+                note="Turno che copro di solito io, cerco un collega per un sabato.",
+            ),
+        ]
+
         # Un secondo turno, già svolto e chiuso: è quello a cui si aggancia
         # la recensione, dato che si recensisce solo dopo un turno concluso.
-        passato = datetime.now(timezone.utc) - timedelta(days=20)
+        passato = fra_giorni(-20, 17)
         concluso = Annuncio(
             autore=u_piscina,
             piscina=piscina,
@@ -178,7 +230,7 @@ def main() -> None:
         )
 
         db.add_all(
-            [u_bagnino, bagnino, u_piscina, piscina, u_giulia, giulia, annuncio, concluso]
+            [u_bagnino, bagnino, u_piscina, piscina, u_giulia, giulia, annuncio, concluso, *altri]
         )
         db.flush()
 

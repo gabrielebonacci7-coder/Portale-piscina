@@ -1,0 +1,907 @@
+/* Portale Piscina — foglio di stile unico.
+
+   Palette presa dal mondo della piscina: il fondo è il bianco sporco della
+   fuga fra le piastrelle, l'inchiostro è l'acqua vista in profondità,
+   l'accento è la laguna. Il rosso è solo semantico: urgenza, come il
+   salvagente — non lo si usa mai per decorare.
+
+   Il carattere è quello di sistema: su iPhone è SF Pro, e per una app che
+   deve stare sulla schermata home sembrare nativa è una scelta, non un
+   ripiego. Il monospazio serve dove le cifre devono incolonnarsi.
+*/
+
+/* ---------- Token: tema chiaro (predefinito) ---------- */
+:root {
+  --ground: #edf2f1;
+  --surface: #ffffff;
+  --surface-2: #f5f9f8;
+  --ink: #0c2a2e;
+  --ink-2: #35545a;
+  --muted: #607c80;
+  --line: #d5e1e0;
+  --line-forte: #b9cbc9;
+
+  --accent: #0b6e7f;
+  --accent-scuro: #085764;
+  --accent-su: #ffffff;
+  --accent-tenue: #dcedf0;
+
+  --urgente: #c4381f;
+  --urgente-tenue: #fbe7e2;
+  --ok: #2a6e52;
+  --ok-tenue: #ddefe6;
+  --warn: #8a5b12;
+  --warn-tenue: #f8eeda;
+  --neutro-tenue: #e6ecec;
+
+  --ombra: 0 1px 2px rgba(12, 42, 46, 0.06), 0 4px 12px rgba(12, 42, 46, 0.05);
+  --ombra-alta: 0 8px 32px rgba(12, 42, 46, 0.16);
+
+  --r-s: 8px;
+  --r-m: 12px;
+  --r-l: 18px;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-dati: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --barra-h: 56px;
+  --tab-h: 56px;
+}
+
+/* Il tema scuro va ridefinito due volte: una per chi non ha scelto nulla e
+   segue il sistema, una per chi ha scelto esplicitamente lo scuro. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0a181b;
+    --surface: #122a2e;
+    --surface-2: #163338;
+    --ink: #e4eeec;
+    --ink-2: #b7cbcb;
+    --muted: #8ca6a9;
+    --line: #1e3b40;
+    --line-forte: #2c5158;
+
+    --accent: #45b4c4;
+    --accent-scuro: #6bcbd8;
+    --accent-su: #06282e;
+    --accent-tenue: #143a42;
+
+    --urgente: #ff7059;
+    --urgente-tenue: #3b1a15;
+    --ok: #5bb98c;
+    --ok-tenue: #123028;
+    --warn: #d9a441;
+    --warn-tenue: #33280f;
+    --neutro-tenue: #1b3438;
+
+    --ombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+    --ombra-alta: 0 8px 32px rgba(0, 0, 0, 0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0a181b;
+  --surface: #122a2e;
+  --surface-2: #163338;
+  --ink: #e4eeec;
+  --ink-2: #b7cbcb;
+  --muted: #8ca6a9;
+  --line: #1e3b40;
+  --line-forte: #2c5158;
+
+  --accent: #45b4c4;
+  --accent-scuro: #6bcbd8;
+  --accent-su: #06282e;
+  --accent-tenue: #143a42;
+
+  --urgente: #ff7059;
+  --urgente-tenue: #3b1a15;
+  --ok: #5bb98c;
+  --ok-tenue: #123028;
+  --warn: #d9a441;
+  --warn-tenue: #33280f;
+  --neutro-tenue: #1b3438;
+
+  --ombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+  --ombra-alta: 0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.45;
+  /* Su iOS evita il rimbalzo elastico che scopre il fondo bianco. */
+  overscroll-behavior-y: none;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  text-wrap: balance;
+  letter-spacing: -0.015em;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 650;
+}
+h3 {
+  font-size: 17px;
+  font-weight: 620;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Etichette e dati ---------- */
+/* Maiuscoletto spaziato in monospazio: richiama il tabellone dei tempi
+   a bordo vasca, e distingue le etichette dal contenuto. */
+.etichetta {
+  font-family: var(--font-dati);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dato {
+  font-family: var(--font-dati);
+  font-variant-numeric: tabular-nums;
+}
+
+.sommesso {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* ---------- Struttura ---------- */
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--barra-h);
+  padding: var(--sp-2) var(--sp-4);
+  padding-top: calc(var(--sp-2) + env(safe-area-inset-top));
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.barra h1 {
+  flex: 1;
+  font-size: 20px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contenuto {
+  flex: 1;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--tab-h) + var(--sp-6) + env(safe-area-inset-bottom));
+  max-width: 720px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* ---------- Barra delle schede ---------- */
+.tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: var(--tab-h);
+  padding: var(--sp-1);
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+  cursor: pointer;
+  position: relative;
+}
+
+.tab[aria-current="page"] {
+  color: var(--accent);
+}
+
+.tab svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tab .pallino {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  margin-left: 6px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--urgente);
+  color: #fff;
+  font-family: var(--font-dati);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+
+/* ---------- Schede annuncio ---------- */
+.elenco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.scheda {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  box-shadow: var(--ombra);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* La striscia rossa compare solo sugli urgenti: è stato, non decorazione. */
+.scheda.urgente::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  background: var(--urgente);
+}
+
+.scheda.urgente {
+  padding-inline-start: calc(var(--sp-4) + 4px);
+}
+
+.scheda-testa {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.scheda-testa h3 {
+  flex: 1;
+  min-width: 0;
+}
+
+.compenso {
+  font-family: var(--font-dati);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.compenso small {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.riga-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.riga-meta .dato {
+  font-size: 13px;
+}
+
+/* ---------- Chip di stato ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--neutro-tenue);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chip.rosso {
+  background: var(--urgente-tenue);
+  color: var(--urgente);
+}
+.chip.verde {
+  background: var(--ok-tenue);
+  color: var(--ok);
+}
+.chip.ambra {
+  background: var(--warn-tenue);
+  color: var(--warn);
+}
+.chip.acqua {
+  background: var(--accent-tenue);
+  color: var(--accent-scuro);
+}
+
+/* ---------- Pulsanti ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: 46px;
+  padding: 0 var(--sp-4);
+  border: 1px solid transparent;
+  border-radius: var(--r-m);
+  background: var(--accent);
+  color: var(--accent-su);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.largo {
+  width: 100%;
+}
+
+.btn.secondario {
+  background: var(--surface);
+  border-color: var(--line-forte);
+  color: var(--ink);
+}
+
+.btn.fantasma {
+  background: none;
+  border-color: transparent;
+  color: var(--accent);
+  min-height: 38px;
+  padding: 0 var(--sp-2);
+}
+
+.btn.pericolo {
+  background: var(--surface);
+  border-color: var(--urgente);
+  color: var(--urgente);
+}
+
+/* Le icone dentro i pulsanti pieni: senza queste regole l'SVG non ha
+   dimensione né tratto e il pulsante resta visivamente vuoto. */
+.btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn.piccolo {
+  min-height: 36px;
+  padding: 0 var(--sp-3);
+  font-size: 14px;
+  border-radius: var(--r-s);
+}
+
+.btn-icona {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--r-s);
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.btn-icona svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+.azioni .btn {
+  flex: 1;
+  min-width: 130px;
+}
+
+/* I pulsanti piccoli si adattano al testo: forzarli a 130px li mandava a capo. */
+.azioni .btn.piccolo,
+.azioni .btn.fantasma {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* ---------- Moduli ---------- */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--sp-4);
+}
+
+.campo > label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.campo .aiuto {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="search"],
+select,
+textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px var(--sp-3);
+  border: 1px solid var(--line-forte);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  /* 16px minimo: sotto questa soglia iOS ingrandisce da solo la pagina. */
+  font-size: 16px;
+}
+
+textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.riga-campi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+
+.interruttore {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.interruttore input {
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  accent-color: var(--accent);
+}
+
+/* ---------- Segmenti ---------- */
+.segmenti {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-m);
+  background: var(--neutro-tenue);
+  margin-bottom: var(--sp-4);
+}
+
+.segmenti button {
+  flex: 1;
+  min-height: 36px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmenti button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--ombra);
+}
+
+/* ---------- Pannello (filtri, dettagli) ---------- */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(6, 24, 27, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.pannello {
+  width: 100%;
+  max-width: 720px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--sp-5) + env(safe-area-inset-bottom));
+  border-radius: var(--r-l) var(--r-l) 0 0;
+  background: var(--ground);
+  box-shadow: var(--ombra-alta);
+  animation: sali 0.22s ease;
+}
+
+@keyframes sali {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+}
+
+.pannello-testa {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.pannello-testa h2 {
+  flex: 1;
+}
+
+/* ---------- Blocchi di contenuto ---------- */
+.blocco {
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  margin-bottom: var(--sp-3);
+}
+
+.blocco > .etichetta {
+  display: block;
+  margin-bottom: var(--sp-2);
+}
+
+.voce {
+  display: flex;
+  /* Senza questo i chip a fine riga si stirerebbero in altezza. */
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.voce:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.voce:first-of-type {
+  padding-top: 0;
+}
+
+.voce-corpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.vuoto {
+  padding: var(--sp-6) var(--sp-4);
+  text-align: center;
+  color: var(--muted);
+}
+
+.vuoto svg {
+  width: 40px;
+  height: 40px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.4;
+  opacity: 0.5;
+  margin-bottom: var(--sp-3);
+}
+
+/* ---------- Stelle ---------- */
+.stelle {
+  display: inline-flex;
+  gap: 1px;
+  color: var(--warn);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+
+.stelle .spenta {
+  color: var(--line-forte);
+}
+
+.voti-stelle {
+  display: flex;
+  gap: var(--sp-1);
+}
+
+.voti-stelle button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: none;
+  color: var(--line-forte);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.voti-stelle button[aria-pressed="true"] {
+  color: var(--warn);
+}
+
+/* ---------- Chat ---------- */
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-4);
+}
+
+.bolla {
+  max-width: 78%;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-m);
+  font-size: 16px;
+  line-height: 1.35;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.bolla.mia {
+  align-self: flex-end;
+  background: var(--accent);
+  color: var(--accent-su);
+  border-bottom-right-radius: var(--sp-1);
+}
+
+.bolla.altrui {
+  align-self: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: var(--sp-1);
+}
+
+.bolla .ora {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-dati);
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.composizione {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  padding-bottom: calc(var(--sp-3) + env(safe-area-inset-bottom));
+  background: var(--ground);
+  border-top: 1px solid var(--line);
+}
+
+.composizione textarea {
+  flex: 1;
+  min-height: 46px;
+  max-height: 120px;
+  resize: none;
+}
+
+/* ---------- Avvisi ---------- */
+.avviso {
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-radius: var(--r-m);
+  font-size: 15px;
+  margin-bottom: var(--sp-3);
+}
+
+.avviso.errore {
+  background: var(--urgente-tenue);
+  color: var(--urgente);
+}
+.avviso.ok {
+  background: var(--ok-tenue);
+  color: var(--ok);
+}
+.avviso.info {
+  background: var(--accent-tenue);
+  color: var(--accent-scuro);
+}
+
+/* Messaggio che scompare da solo dopo un'azione riuscita. */
+.brindisi {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--tab-h) + var(--sp-4) + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 60;
+  max-width: calc(100% - 32px);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-m);
+  background: var(--ink);
+  color: var(--ground);
+  font-size: 15px;
+  font-weight: 550;
+  box-shadow: var(--ombra-alta);
+  animation: sali 0.2s ease;
+}
+
+/* ---------- Accesso ---------- */
+.accesso {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  max-width: 460px;
+  margin-inline: auto;
+}
+
+.marchio {
+  text-align: center;
+  margin-bottom: var(--sp-4);
+}
+
+.marchio svg {
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--sp-3);
+}
+
+.marchio p {
+  color: var(--muted);
+  font-size: 15px;
+  margin-top: var(--sp-1);
+}
+
+.caricamento {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-6);
+  color: var(--muted);
+}
+
+/* ---------- Schermi larghi ---------- */
+@media (min-width: 760px) {
+  .contenuto {
+    padding: var(--sp-5);
+    padding-bottom: calc(var(--tab-h) + var(--sp-6));
+  }
+  .tabs {
+    grid-template-columns: repeat(4, minmax(0, 160px));
+    justify-content: center;
+  }
+}

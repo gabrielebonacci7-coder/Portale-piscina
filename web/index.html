@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <!-- viewport-fit=cover: su iPhone la pagina arriva sotto il notch e la
+         barra inferiore, che poi compensiamo con env(safe-area-inset-*). -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Portale Piscina</title>
+    <meta name="description" content="Bacheca turni per bagnini e piscine a Roma." />
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/css/stile.css" />
+    <link rel="icon" href="/icone/icona.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icone/icona-180.png" />
+
+    <!-- Colore della barra di sistema, diverso nei due temi. -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#122a2e" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Piscina" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  </head>
+  <body>
+    <div class="app" id="radice">
+      <div class="caricamento">Caricamento…</div>
+    </div>
+    <noscript>
+      <div style="padding: 24px">
+        Per usare il Portale Piscina serve JavaScript attivo nel browser.
+      </div>
+    </noscript>
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

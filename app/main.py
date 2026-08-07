@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect
 
 from app import __version__
@@ -17,7 +18,7 @@ from app.api.routers import (
     recensioni,
     zone,
 )
-from app.core.config import settings
+from app.core.config import BASE_DIR, settings
 from app.db.init_db import init_db
 from app.db.session import engine
 
@@ -71,3 +72,11 @@ def schema_db() -> dict:
         tabella: [c["name"] for c in inspector.get_columns(tabella)]
         for tabella in sorted(inspector.get_table_names())
     }
+
+
+# La PWA è servita dallo stesso processo dell'API: una sola porta da avviare,
+# nessun problema di CORS e il service worker vede tutto sotto la stessa origine.
+# Il montaggio va per ultimo: cattura ciò che non è già stato preso dalle rotte.
+CARTELLA_WEB = BASE_DIR / "web"
+if CARTELLA_WEB.is_dir():
+    app.mount("/", StaticFiles(directory=CARTELLA_WEB, html=True), name="web")

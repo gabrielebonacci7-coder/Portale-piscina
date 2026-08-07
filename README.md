@@ -2,9 +2,8 @@
 
 Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma.
 
-Stato attuale: **passo 4 — chat interna**. Il backend è completo: modello dati,
-API, autenticazione, il giro annuncio → candidatura → assegnazione → recensione,
-messaggi diretti con blocco, e i test. Manca l'interfaccia (PWA).
+Stato attuale: **passo 5 — la PWA**. Il progetto è utilizzabile: backend
+completo e interfaccia mobile installabile sul telefono.
 
 **La bacheca è riservata agli iscritti**: senza login si può solo registrarsi e
 leggere l'elenco delle zone (serve al modulo di iscrizione).
@@ -17,21 +16,76 @@ pip install -r requirements.txt
 python -m app.db.init_db      # crea le tabelle e inserisce le zone di Roma
 python -m scripts.seed_demo   # (facoltativo) dati di esempio
 
-uvicorn app.main:app --reload # http://127.0.0.1:8000/docs
+uvicorn app.main:app --reload
 ```
 
-Su `/docs` c'è la documentazione interattiva: si fa login con il pulsante
-**Authorize** e da lì si provano tutte le chiamate. Gli account di esempio sono
-`marco.rossi@example.com`, `giulia.conti@example.com` e
-`info@aquacenter.example`, tutti con password `demo1234`.
+Poi si apre **http://127.0.0.1:8000** — è l'app vera e propria. Un solo
+processo serve sia l'API sia l'interfaccia: nessuna porta in più da avviare,
+nessun problema di CORS, e il service worker vede tutto sotto la stessa origine.
+
+Account di esempio, tutti con password `demo1234`:
+
+| Email | Chi è |
+|---|---|
+| `marco.rossi@example.com` | bagnino con brevetto MIP |
+| `giulia.conti@example.com` | bagnina con brevetto P |
+| `info@aquacenter.example` | struttura che pubblica turni |
+
+Su **/docs** resta la documentazione interattiva dell'API, per provare le
+chiamate una per una.
 
 ```bash
 pytest        # 91 test end-to-end sulle regole di dominio
 ```
 
+## L'app (PWA)
+
+Interfaccia mobile-first: il bersaglio è un bagnino che guarda il telefono fra
+un turno e l'altro. Su iPhone si aggiunge alla schermata home da Safari
+(*Condividi → Aggiungi alla schermata Home*) e si apre a tutto schermo, senza
+barra del browser.
+
+- **Bacheca** — i turni, urgenti in cima, con ricerca e filtri per zona, tipo,
+  compenso minimo. Il segmentato in alto passa all'elenco dei bagnini.
+- **Candidature** (bagnino) / **I miei turni** (struttura) — da un lato dove ci
+  si è candidati e com'è andata, dall'altro i propri annunci con quante
+  risposte hanno ricevuto.
+- **Messaggi** — le conversazioni, con il contatore dei non letti sull'icona.
+- **Profilo** — brevetti, esperienze, disponibilità, recensioni ricevute e
+  utenti bloccati.
+
+Scelte tecniche:
+
+- **Niente framework e niente passo di compilazione.** JavaScript a moduli ES
+  serviti così come sono: per installare basta `pip install`, senza npm né
+  bundler. A questa dimensione è un vantaggio, non una rinuncia.
+- **Il carattere è quello di sistema** (su iPhone è SF Pro): per un'app che
+  vive sulla schermata home, sembrare nativa è una scelta. Il monospazio
+  tabellare è riservato a compensi, orari e date, dove le cifre si incolonnano.
+- **Il rosso è solo semantico**: urgenza e scadenze, mai decorazione. La
+  striscia rossa a lato di una scheda vuol dire "urgente", niente altro.
+- **Tema chiaro e scuro**, entrambi disegnati, che seguono il sistema.
+- **Il service worker mette in cache il guscio, mai i dati.** Le risposte
+  dell'API sono legate al token di chi le ha chieste: salvarle in cache
+  significherebbe mostrare a un utente i dati di un altro.
+- `web/js/api.js` è **l'unico punto che parla con il backend**: se cambia
+  l'indirizzo dell'API o il modo di autenticarsi, si tocca solo quel file.
+
 ## Struttura del progetto
 
 ```
+web/                     la PWA
+├── index.html
+├── manifest.webmanifest  nome, icone, avvio a tutto schermo
+├── sw.js                 service worker
+├── css/stile.css
+└── js/
+    ├── api.js            il client HTTP: unico punto di contatto col backend
+    ├── stato.js          sessione e dati condivisi
+    ├── ui.js             pezzi riusabili: date, chip, stelle, pannelli
+    ├── app.js            guscio e navigazione fra le schede
+    └── viste/            una per schermata
+
 app/
 ├── core/
 │   ├── config.py        impostazioni (DATABASE_URL, SECRET_KEY...) da env o .env
@@ -48,7 +102,9 @@ app/
 │   ├── deps.py          utente autenticato e controlli di ruolo
 │   └── routers/         gli endpoint, raggruppati per area
 └── main.py              app FastAPI
-scripts/seed_demo.py     dati di esempio
+scripts/
+├── seed_demo.py         dati di esempio
+└── genera_icone.py      icone PNG della PWA
 tests/                   test end-to-end
 ```
 
@@ -221,8 +277,10 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
 
 ## Prossimi passi
 
-1. **La PWA**: interfaccia mobile-first, service worker, installazione su
-   telefono. È l'unico pezzo che manca perché il progetto sia usabile.
+1. **Recensioni dall'app**: il backend le gestisce già, l'interfaccia le mostra
+   ma non permette ancora di scriverle.
 2. Segnalazione degli abusi allo staff: oggi si può bloccare, ma non segnalare.
-3. Notifiche per i turni urgenti nelle proprie zone.
+3. Notifiche push per i turni urgenti nelle proprie zone.
 4. Migrazioni con Alembic al posto di `create_all`.
+5. Messa in produzione: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
+   posto di SQLite, HTTPS (senza il quale il service worker non parte).
