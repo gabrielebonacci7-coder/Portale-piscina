@@ -63,10 +63,12 @@ def test_bacheca_nasconde_i_turni_passati(client, piscina):
     pubblica(client, piscina["token"], titolo="Futuro")
     pubblica(client, piscina["token"], titolo="Passato", data_inizio=fra_giorni(-5))
 
-    aperti = client.get("/annunci").json()
+    aperti = client.get("/annunci", headers=auth(piscina["token"])).json()
     assert [a["titolo"] for a in aperti["elementi"]] == ["Futuro"]
 
-    tutti = client.get("/annunci", params={"solo_aperti": False}).json()
+    tutti = client.get(
+        "/annunci", params={"solo_aperti": False}, headers=auth(piscina["token"])
+    ).json()
     assert tutti["totale"] == 2
 
 
@@ -74,7 +76,8 @@ def test_urgenti_in_cima(client, piscina):
     pubblica(client, piscina["token"], titolo="Normale", data_inizio=fra_giorni(1))
     pubblica(client, piscina["token"], titolo="Urgente", data_inizio=fra_giorni(9), urgente=True)
 
-    titoli = [a["titolo"] for a in client.get("/annunci").json()["elementi"]]
+    bacheca = client.get("/annunci", headers=auth(piscina["token"])).json()
+    titoli = [a["titolo"] for a in bacheca["elementi"]]
     assert titoli == ["Urgente", "Normale"]
 
 
@@ -83,7 +86,9 @@ def test_filtri_bacheca(client, piscina):
     pubblica(client, piscina["token"], titolo="Fisso Ostia", tipo_turno="turno_fisso", zona_id=2)
 
     def totale(**params):
-        return client.get("/annunci", params=params).json()["totale"]
+        return client.get(
+            "/annunci", params=params, headers=auth(piscina["token"])
+        ).json()["totale"]
 
     assert totale(zona_id=1) == 1
     assert totale(tipo_turno="evento_serale") == 1
@@ -97,7 +102,9 @@ def test_paginazione(client, piscina):
     for i in range(5):
         pubblica(client, piscina["token"], titolo=f"Turno {i}", data_inizio=fra_giorni(i + 1))
 
-    pagina = client.get("/annunci", params={"skip": 2, "limit": 2}).json()
+    pagina = client.get(
+        "/annunci", params={"skip": 2, "limit": 2}, headers=auth(piscina["token"])
+    ).json()
     assert pagina["totale"] == 5  # il totale è quello complessivo
     assert len(pagina["elementi"]) == 2
     assert [a["titolo"] for a in pagina["elementi"]] == ["Turno 2", "Turno 3"]
@@ -117,7 +124,9 @@ def test_solo_l_autore_modifica_ed_elimina(client, piscina, bagnino):
     )
     assert r.status_code == 200 and r.json()["titolo"] == "Corretto"
     assert client.delete(f"/annunci/{annuncio_id}", headers=auth(piscina["token"])).status_code == 204
-    assert client.get(f"/annunci/{annuncio_id}").status_code == 404
+    assert client.get(
+        f"/annunci/{annuncio_id}", headers=auth(piscina["token"])
+    ).status_code == 404
 
 
 def test_assegnazione(client, piscina, bagnino):

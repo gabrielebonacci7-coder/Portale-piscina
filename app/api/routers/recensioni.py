@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.api.deps import CurrentUser, DbSession, HTTP_422_DATI_NON_VALIDI
+from app.api.deps import CurrentUser, DbSession, HTTP_422_DATI_NON_VALIDI, richiede_login
 from app.crud import annuncio as crud_annuncio
 from app.crud import recensione as crud
 from app.models import Recensione, Utente
@@ -61,7 +61,11 @@ def scrivi(dati: RecensioneCreate, utente: CurrentUser, db: DbSession):
     return _con_nome_autore(crud.crea(db, utente, dati))
 
 
-@router.get("/utenti/{utente_id}/recensioni", response_model=RiepilogoRecensioni)
+@router.get(
+    "/utenti/{utente_id}/recensioni",
+    response_model=RiepilogoRecensioni,
+    dependencies=[richiede_login],
+)
 def ricevute(
     utente_id: int,
     db: DbSession,

@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.api.deps import CurrentPiscina, CurrentUser, DbSession
+from app.api.deps import CurrentPiscina, CurrentUser, DbSession, richiede_login
 from app.crud import piscina as crud
 from app.models import TipoStruttura, TipoUtente
 from app.schemas.pagina import Pagina
@@ -21,7 +21,7 @@ def crea_profilo(dati: ProfiloPiscinaCreate, utente: CurrentUser, db: DbSession)
     return crud.crea(db, utente.id, dati)
 
 
-@router.get("", response_model=Pagina[ProfiloPiscinaRead])
+@router.get("", response_model=Pagina[ProfiloPiscinaRead], dependencies=[richiede_login])
 def cerca_piscine(
     db: DbSession,
     citta: str | None = None,
@@ -51,7 +51,7 @@ def aggiorna_profilo(dati: ProfiloPiscinaUpdate, profilo: CurrentPiscina, db: Db
     return crud.aggiorna(db, profilo, dati)
 
 
-@router.get("/{piscina_id}", response_model=ProfiloPiscinaRead)
+@router.get("/{piscina_id}", response_model=ProfiloPiscinaRead, dependencies=[richiede_login])
 def dettaglio_piscina(piscina_id: int, db: DbSession):
     profilo = crud.get(db, piscina_id)
     if profilo is None:

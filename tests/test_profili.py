@@ -73,15 +73,18 @@ def test_filtro_solo_abilitati(client, bagnino):
     token = login(client, "nobrevetto@test.it")
     client.post("/bagnini", json={"nome": "Sen", "cognome": "Za"}, headers=auth(token))
 
-    assert client.get("/bagnini").json()["totale"] == 2
-    solo_abilitati = client.get("/bagnini", params={"solo_abilitati": True}).json()
+    assert client.get("/bagnini", headers=auth(token)).json()["totale"] == 2
+    solo_abilitati = client.get(
+        "/bagnini", params={"solo_abilitati": True}, headers=auth(token)
+    ).json()
     assert solo_abilitati["totale"] == 1
     assert solo_abilitati["elementi"][0]["nome"] == "Marco"
 
 
 def test_filtro_per_zona(client, bagnino):
-    assert client.get("/bagnini", params={"zona_id": 1}).json()["totale"] == 1
-    assert client.get("/bagnini", params={"zona_id": 2}).json()["totale"] == 0
+    tok = bagnino["token"]
+    assert client.get("/bagnini", params={"zona_id": 1}, headers=auth(tok)).json()["totale"] == 1
+    assert client.get("/bagnini", params={"zona_id": 2}, headers=auth(tok)).json()["totale"] == 0
 
 
 def test_non_si_cancella_il_brevetto_di_un_altro(client, bagnino):
@@ -98,5 +101,10 @@ def test_piscina_profilo_e_ricerca(client, piscina):
     r = client.get("/piscine/me", headers=auth(piscina["token"]))
     assert r.json()["nome_struttura"] == "Aqua Test"
 
-    assert client.get("/piscine", params={"tipo_struttura": "hotel"}).json()["totale"] == 1
-    assert client.get("/piscine", params={"tipo_struttura": "comunale"}).json()["totale"] == 0
+    tok = piscina["token"]
+    assert client.get(
+        "/piscine", params={"tipo_struttura": "hotel"}, headers=auth(tok)
+    ).json()["totale"] == 1
+    assert client.get(
+        "/piscine", params={"tipo_struttura": "comunale"}, headers=auth(tok)
+    ).json()["totale"] == 0

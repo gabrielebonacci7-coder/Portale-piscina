@@ -2,9 +2,12 @@
 
 Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma.
 
-Stato attuale: **passo 3 — candidature**. Il backend è completo: modello dati,
+Stato attuale: **passo 4 — chat interna**. Il backend è completo: modello dati,
 API, autenticazione, il giro annuncio → candidatura → assegnazione → recensione,
-e i test. Manca l'interfaccia (PWA).
+messaggi diretti con blocco, e i test. Manca l'interfaccia (PWA).
+
+**La bacheca è riservata agli iscritti**: senza login si può solo registrarsi e
+leggere l'elenco delle zone (serve al modulo di iscrizione).
 
 ## Avvio rapido
 
@@ -23,7 +26,7 @@ Su `/docs` c'è la documentazione interattiva: si fa login con il pulsante
 `info@aquacenter.example`, tutti con password `demo1234`.
 
 ```bash
-pytest        # 58 test end-to-end sulle regole di dominio
+pytest        # 91 test end-to-end sulle regole di dominio
 ```
 
 ## Struttura del progetto
@@ -108,6 +111,17 @@ Filtri della bacheca: `tipo`, `citta`, `zona_id`, `tipo_turno`,
 `compenso_min`, `testo`, `skip`, `limit`. L'ordinamento mette gli urgenti in
 cima, poi i turni più vicini nel tempo.
 
+### Messaggi
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| POST | `/conversazioni` | scrive a un iscritto (riusa la chat se esiste) |
+| GET | `/conversazioni` | le proprie chat, con non letti e ultimo messaggio |
+| GET | `/conversazioni/non-letti` | contatore complessivo, per il pallino |
+| GET | `/conversazioni/{id}/messaggi` | i messaggi; aprirli li segna come letti |
+| POST | `/conversazioni/{id}/messaggi` | risponde |
+| POST/DELETE | `/blocchi/{utente_id}` | blocca / sblocca un utente |
+| GET | `/blocchi` | chi hai bloccato |
+
 ### Recensioni
 | Metodo | Percorso | Cosa fa |
 |---|---|---|
@@ -128,6 +142,10 @@ cima, poi i turni più vicini nel tempo.
 | `bagnino_zone` | quali zone copre un bagnino (molti-a-molti) |
 | `annunci` | il cuore della bacheca: chi pubblica, quando, dove, quanto, che tipo |
 | `candidature` | chi ha risposto a un annuncio, con stato e messaggio |
+| `conversazioni` | una chat fra due utenti |
+| `partecipanti_conversazione` | chi ne fa parte e fin dove ha letto |
+| `messaggi` | i messaggi di una conversazione |
+| `blocchi` | chi ha bloccato chi |
 | `recensioni` | recensioni incrociate piscina ↔ bagnino, 1-5 stelle |
 
 ### Scelte di modellazione
@@ -182,6 +200,12 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
 - **Accettare una candidatura** assegna il turno e rifiuta le altre in attesa,
   in un'unica transazione: un turno assegnato senza candidatura accettata
   sarebbe uno stato incoerente.
+- **Fra due persone la conversazione è una sola**, anche se nasce da annunci
+  diversi. Chi non partecipa riceve 404, non 403: non deve nemmeno sapere che
+  quella conversazione esiste.
+- **Il blocco vale in entrambi i versi.** Chi blocca non vuole essere
+  contattato, e chi è bloccato non deve poter aggirare la cosa scrivendo per
+  primo da una chat nuova.
 
 ## Sicurezza
 
@@ -197,8 +221,8 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
 
 ## Prossimi passi
 
-1. **La PWA**: interfaccia, service worker, installazione su telefono e tablet.
-   È l'unico pezzo che manca perché il progetto sia usabile da una persona.
-2. Messaggistica interna fra le due parti di un turno.
+1. **La PWA**: interfaccia mobile-first, service worker, installazione su
+   telefono. È l'unico pezzo che manca perché il progetto sia usabile.
+2. Segnalazione degli abusi allo staff: oggi si può bloccare, ma non segnalare.
 3. Notifiche per i turni urgenti nelle proprie zone.
 4. Migrazioni con Alembic al posto di `create_all`.

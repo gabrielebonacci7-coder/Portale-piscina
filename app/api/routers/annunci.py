@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.api.deps import CurrentUser, DbSession, HTTP_422_DATI_NON_VALIDI
+from app.api.deps import CurrentUser, DbSession, HTTP_422_DATI_NON_VALIDI, richiede_login
 from app.crud import annuncio as crud
 from app.models import Annuncio, StatoAnnuncio, TipoAnnuncio, TipoBrevetto, TipoTurno, Utente
 from app.schemas.annuncio import AnnuncioCreate, AnnuncioRead, AnnuncioUpdate
@@ -39,7 +39,7 @@ def pubblica(dati: AnnuncioCreate, utente: CurrentUser, db: DbSession):
     return crud.crea(db, utente, dati)
 
 
-@router.get("", response_model=Pagina[AnnuncioRead])
+@router.get("", response_model=Pagina[AnnuncioRead], dependencies=[richiede_login])
 def bacheca(
     db: DbSession,
     tipo: TipoAnnuncio | None = None,
@@ -92,7 +92,7 @@ def miei_annunci(
     return Pagina(totale=totale, skip=skip, limit=limit, elementi=elementi)
 
 
-@router.get("/{annuncio_id}", response_model=AnnuncioRead)
+@router.get("/{annuncio_id}", response_model=AnnuncioRead, dependencies=[richiede_login])
 def dettaglio(annuncio_id: int, db: DbSession):
     annuncio = crud.get(db, annuncio_id)
     if annuncio is None:

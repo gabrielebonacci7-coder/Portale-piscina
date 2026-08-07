@@ -157,7 +157,9 @@ def test_riepilogo_con_medie(client, piscina, bagnino, turno_concluso):
         headers=auth(piscina["token"]),
     )
 
-    r = client.get(f"/utenti/{bagnino['utente_id']}/recensioni")
+    r = client.get(
+        f"/utenti/{bagnino['utente_id']}/recensioni", headers=auth(piscina["token"])
+    )
     assert r.status_code == 200
     corpo = r.json()
     assert corpo["totale"] == 1

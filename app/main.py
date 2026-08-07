@@ -7,7 +7,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect
 
 from app import __version__
-from app.api.routers import annunci, auth, bagnini, candidature, piscine, recensioni, zone
+from app.api.routers import (
+    annunci,
+    auth,
+    bagnini,
+    candidature,
+    messaggi,
+    piscine,
+    recensioni,
+    zone,
+)
 from app.core.config import settings
 from app.db.init_db import init_db
 from app.db.session import engine
@@ -41,6 +50,7 @@ app.include_router(bagnini.router)
 app.include_router(piscine.router)
 app.include_router(annunci.router)
 app.include_router(candidature.router)
+app.include_router(messaggi.router)
 app.include_router(recensioni.router)
 app.include_router(zone.router)
 

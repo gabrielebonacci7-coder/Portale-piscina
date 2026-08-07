@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.api.deps import CurrentBagnino, CurrentUser, DbSession
+from app.api.deps import CurrentBagnino, CurrentUser, DbSession, richiede_login
 from app.crud import bagnino as crud
 from app.models import Brevetto, Disponibilita, Esperienza, TipoUtente
 from app.schemas.bagnino import (
@@ -32,7 +32,7 @@ def crea_profilo(dati: ProfiloBagninoCreate, utente: CurrentUser, db: DbSession)
     return crud.crea(db, utente.id, dati)
 
 
-@router.get("", response_model=Pagina[ProfiloBagninoSintesi])
+@router.get("", response_model=Pagina[ProfiloBagninoSintesi], dependencies=[richiede_login])
 def cerca_bagnini(
     db: DbSession,
     citta: str | None = None,
@@ -67,7 +67,7 @@ def aggiorna_profilo(dati: ProfiloBagninoUpdate, profilo: CurrentBagnino, db: Db
     return crud.aggiorna(db, profilo, dati)
 
 
-@router.get("/{bagnino_id}", response_model=ProfiloBagninoRead)
+@router.get("/{bagnino_id}", response_model=ProfiloBagninoRead, dependencies=[richiede_login])
 def dettaglio_bagnino(bagnino_id: int, db: DbSession):
     profilo = crud.get(db, bagnino_id)
     if profilo is None:

@@ -19,6 +19,7 @@ from app.models.enums import (
     TipoUtente,
     brevetto_copre,
 )
+from app.models.messaggistica import Blocco, Conversazione, Messaggio, Partecipante
 from app.models.piscina import ProfiloPiscina
 from app.models.recensione import Recensione
 from app.models.utente import Utente
@@ -27,10 +28,14 @@ from app.models.zona import Zona, bagnino_zone
 __all__ = [
     "Base",
     "Annuncio",
+    "Blocco",
     "Brevetto",
     "Candidatura",
+    "Conversazione",
     "Disponibilita",
     "Esperienza",
+    "Messaggio",
+    "Partecipante",
     "ProfiloBagnino",
     "ProfiloPiscina",
     "Recensione",

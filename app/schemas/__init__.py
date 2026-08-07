@@ -20,6 +20,15 @@ from app.schemas.candidatura import (
     CandidaturaCreate,
     CandidaturaRead,
 )
+from app.schemas.messaggistica import (
+    BloccoCreate,
+    BloccoRead,
+    ConversazioneAvvia,
+    ConversazioneRead,
+    InterlocutoreSintesi,
+    MessaggioCreate,
+    MessaggioRead,
+)
 from app.schemas.pagina import Pagina
 from app.schemas.piscina import ProfiloPiscinaCreate, ProfiloPiscinaRead, ProfiloPiscinaUpdate
 from app.schemas.recensione import RecensioneCreate, RecensioneRead, RiepilogoRecensioni
@@ -31,6 +40,8 @@ __all__ = [
     "AnnuncioRead",
     "AnnuncioUpdate",
     "AutoreSintesi",
+    "BloccoCreate",
+    "BloccoRead",
     "BrevettoCreate",
     "BrevettoRead",
     "CambioPassword",
@@ -38,11 +49,16 @@ __all__ = [
     "CandidaturaConAnnuncio",
     "CandidaturaCreate",
     "CandidaturaRead",
+    "ConversazioneAvvia",
+    "ConversazioneRead",
     "DisponibilitaCreate",
     "DisponibilitaRead",
     "EsperienzaCreate",
     "EsperienzaRead",
+    "InterlocutoreSintesi",
     "LoginRequest",
+    "MessaggioCreate",
+    "MessaggioRead",
     "Pagina",
     "ProfiloBagninoCreate",
     "ProfiloBagninoRead",

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from app.models.annuncio import Annuncio
     from app.models.bagnino import ProfiloBagnino
     from app.models.candidatura import Candidatura
+    from app.models.messaggistica import Blocco, Partecipante
     from app.models.piscina import ProfiloPiscina
     from app.models.recensione import Recensione
 
@@ -61,6 +62,20 @@ class Utente(TimestampMixin, Base):
 
     candidature: Mapped[list[Candidatura]] = relationship(
         back_populates="candidato", cascade="all, delete-orphan"
+    )
+
+    partecipazioni: Mapped[list[Partecipante]] = relationship(
+        back_populates="utente", cascade="all, delete-orphan"
+    )
+    blocchi_effettuati: Mapped[list[Blocco]] = relationship(
+        back_populates="bloccante",
+        foreign_keys="Blocco.bloccante_id",
+        cascade="all, delete-orphan",
+    )
+    blocchi_subiti: Mapped[list[Blocco]] = relationship(
+        back_populates="bloccato",
+        foreign_keys="Blocco.bloccato_id",
+        cascade="all, delete-orphan",
     )
 
     recensioni_scritte: Mapped[list[Recensione]] = relationship(

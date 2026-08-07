@@ -15,8 +15,11 @@ from app.models import (
     Annuncio,
     Brevetto,
     Candidatura,
+    Conversazione,
     Disponibilita,
     Esperienza,
+    Messaggio,
+    Partecipante,
     ProfiloBagnino,
     ProfiloPiscina,
     Recensione,
@@ -195,6 +198,29 @@ def main() -> None:
                 ),
             ]
         )
+
+        # --- Una conversazione già avviata ---------------------------------
+        scambio = [
+            (u_piscina.id, "Ciao Giulia, ho visto la tua candidatura. Sei libera giovedì?"),
+            (u_giulia.id, "Sì, dalle 14 in poi sono disponibile."),
+        ]
+        conversazione = Conversazione(
+            annuncio_id=annuncio.id,
+            ultimo_messaggio_il=datetime.now(timezone.utc),
+        )
+        conversazione.partecipanti = [
+            Partecipante(utente_id=u_piscina.id),
+            Partecipante(utente_id=u_giulia.id),
+        ]
+        conversazione.messaggi = [
+            Messaggio(
+                mittente_id=mittente,
+                testo=testo,
+                creato_il=datetime.now(timezone.utc) - timedelta(minutes=30 - i * 10),
+            )
+            for i, (mittente, testo) in enumerate(scambio)
+        ]
+        db.add(conversazione)
 
         # --- Recensione incrociata ----------------------------------------
         db.add(

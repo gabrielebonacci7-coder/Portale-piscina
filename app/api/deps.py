@@ -45,6 +45,10 @@ def get_current_user(
 
 CurrentUser = Annotated[Utente, Depends(get_current_user)]
 
+# Da mettere in `dependencies=[...]` sulle rotte che richiedono il login ma non
+# hanno bisogno dell'oggetto utente. La bacheca è riservata agli iscritti.
+richiede_login = Depends(get_current_user)
+
 
 def get_current_bagnino(utente: CurrentUser) -> ProfiloBagnino:
     """L'utente deve essere un bagnino e avere già creato il profilo."""

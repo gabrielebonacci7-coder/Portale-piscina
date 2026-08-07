@@ -144,7 +144,7 @@ def test_accettare_assegna_il_turno_e_rifiuta_gli_altri(client, piscina, bagnino
     assert r.status_code == 200 and r.json()["stato"] == "accettata"
 
     # L'annuncio risulta assegnato al candidato scelto.
-    dettaglio = client.get(f"/annunci/{annuncio}").json()
+    dettaglio = client.get(f"/annunci/{annuncio}", headers=auth(piscina["token"])).json()
     assert dettaglio["stato"] == "assegnato"
     assert dettaglio["assegnato_a_id"] == bagnino["utente_id"]
 
@@ -188,7 +188,9 @@ def test_rifiuto_esplicito(client, piscina, bagnino, annuncio):
     )
     assert r.status_code == 200 and r.json()["stato"] == "rifiutata"
     # L'annuncio resta aperto per altri.
-    assert client.get(f"/annunci/{annuncio}").json()["stato"] == "aperto"
+    assert client.get(
+        f"/annunci/{annuncio}", headers=auth(piscina["token"])
+    ).json()["stato"] == "aperto"
 
 
 def test_ritiro_candidatura(client, piscina, bagnino, annuncio):
