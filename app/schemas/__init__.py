@@ -14,6 +14,12 @@ from app.schemas.bagnino import (
     ProfiloBagninoSintesi,
     ProfiloBagninoUpdate,
 )
+from app.schemas.candidatura import (
+    CandidatoSintesi,
+    CandidaturaConAnnuncio,
+    CandidaturaCreate,
+    CandidaturaRead,
+)
 from app.schemas.pagina import Pagina
 from app.schemas.piscina import ProfiloPiscinaCreate, ProfiloPiscinaRead, ProfiloPiscinaUpdate
 from app.schemas.recensione import RecensioneCreate, RecensioneRead, RiepilogoRecensioni
@@ -28,6 +34,10 @@ __all__ = [
     "BrevettoCreate",
     "BrevettoRead",
     "CambioPassword",
+    "CandidatoSintesi",
+    "CandidaturaConAnnuncio",
+    "CandidaturaCreate",
+    "CandidaturaRead",
     "DisponibilitaCreate",
     "DisponibilitaRead",
     "EsperienzaCreate",

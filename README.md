@@ -2,8 +2,9 @@
 
 Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma.
 
-Stato attuale: **passo 2 — API CRUD con autenticazione**. Ci sono modelli,
-database SQLite, endpoint completi e test. Manca ancora l'interfaccia (PWA).
+Stato attuale: **passo 3 — candidature**. Il backend è completo: modello dati,
+API, autenticazione, il giro annuncio → candidatura → assegnazione → recensione,
+e i test. Manca l'interfaccia (PWA).
 
 ## Avvio rapido
 
@@ -18,10 +19,11 @@ uvicorn app.main:app --reload # http://127.0.0.1:8000/docs
 
 Su `/docs` c'è la documentazione interattiva: si fa login con il pulsante
 **Authorize** e da lì si provano tutte le chiamate. Gli account di esempio sono
-`marco.rossi@example.com` e `info@aquacenter.example`, password `demo1234`.
+`marco.rossi@example.com`, `giulia.conti@example.com` e
+`info@aquacenter.example`, tutti con password `demo1234`.
 
 ```bash
-pytest        # 40 test end-to-end sulle regole di dominio
+pytest        # 58 test end-to-end sulle regole di dominio
 ```
 
 ## Struttura del progetto
@@ -88,8 +90,18 @@ stanno su disco. Così la stessa regola non finisce scritta in tre posti.
 | GET | `/annunci` | **la bacheca**, con tutti i filtri |
 | GET | `/annunci/miei` | i propri, compresi chiusi e scaduti |
 | GET | `/annunci/{id}` · PATCH · DELETE | dettaglio e gestione (solo l'autore) |
-| POST | `/annunci/{id}/assegna` | assegna il turno alla controparte |
+| POST | `/annunci/{id}/assegna` | assegnazione diretta, senza candidatura |
 | POST | `/annunci/{id}/chiudi` | turno concluso, si può recensire |
+
+### Candidature
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| POST | `/annunci/{id}/candidature` | candidati a un turno |
+| GET | `/annunci/{id}/candidature` | chi ha risposto (solo per chi ha pubblicato) |
+| POST | `/annunci/{id}/candidature/{cid}/accetta` | assegna il turno e rifiuta le altre |
+| POST | `/annunci/{id}/candidature/{cid}/rifiuta` | scarta una candidatura, l'annuncio resta aperto |
+| GET | `/candidature/mie` | le proprie candidature, con titolo e data del turno |
+| DELETE | `/candidature/{id}` | ritira la propria candidatura |
 
 Filtri della bacheca: `tipo`, `citta`, `zona_id`, `tipo_turno`,
 `brevetto_richiesto`, `solo_urgenti`, `solo_aperti`, `data_da`, `data_a`,
@@ -115,6 +127,7 @@ cima, poi i turni più vicini nel tempo.
 | `zone` | municipi/quartieri, per i filtri geografici |
 | `bagnino_zone` | quali zone copre un bagnino (molti-a-molti) |
 | `annunci` | il cuore della bacheca: chi pubblica, quando, dove, quanto, che tipo |
+| `candidature` | chi ha risposto a un annuncio, con stato e messaggio |
 | `recensioni` | recensioni incrociate piscina ↔ bagnino, 1-5 stelle |
 
 ### Scelte di modellazione
@@ -161,6 +174,14 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
 - **I voti di dettaglio seguono il verso:** la struttura vota puntualità e
   professionalità, il bagnino ambiente e pagamento.
 - **Un profilo per account**, del tipo giusto; senza profilo non si pubblica.
+- **Ci si candida solo dalla controparte**, una volta sola per annuncio, e solo
+  finché il turno è aperto e non è ancora iniziato.
+- **Il brevetto richiesto è gerarchico:** P ⊂ IP ⊂ MIP, quindi chi ha il MIP
+  copre un turno che chiede il P, ma non viceversa. I brevetti scaduti non
+  contano. `ALTRO` non è confrontabile e va verificato a mano dallo staff.
+- **Accettare una candidatura** assegna il turno e rifiuta le altre in attesa,
+  in un'unica transazione: un turno assegnato senza candidatura accettata
+  sarebbe uno stato incoerente.
 
 ## Sicurezza
 
@@ -176,7 +197,8 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
 
 ## Prossimi passi
 
-1. Candidature agli annunci (oggi l'assegnazione è diretta) e messaggistica interna.
-2. Notifiche per i turni urgenti in zona.
-3. Migrazioni con Alembic al posto di `create_all`.
-4. La PWA vera e propria: frontend, service worker, installazione su telefono.
+1. **La PWA**: interfaccia, service worker, installazione su telefono e tablet.
+   È l'unico pezzo che manca perché il progetto sia usabile da una persona.
+2. Messaggistica interna fra le due parti di un turno.
+3. Notifiche per i turni urgenti nelle proprie zone.
+4. Migrazioni con Alembic al posto di `create_all`.

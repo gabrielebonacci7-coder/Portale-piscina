@@ -7,14 +7,17 @@ Importare questo pacchetto registra tutte le tabelle su `Base.metadata`:
 from app.db.base_class import Base
 from app.models.annuncio import Annuncio
 from app.models.bagnino import Brevetto, Disponibilita, Esperienza, ProfiloBagnino
+from app.models.candidatura import Candidatura
 from app.models.enums import (
     StatoAnnuncio,
+    StatoCandidatura,
     TipoAnnuncio,
     TipoBrevetto,
     TipoCompenso,
     TipoStruttura,
     TipoTurno,
     TipoUtente,
+    brevetto_copre,
 )
 from app.models.piscina import ProfiloPiscina
 from app.models.recensione import Recensione
@@ -25,6 +28,7 @@ __all__ = [
     "Base",
     "Annuncio",
     "Brevetto",
+    "Candidatura",
     "Disponibilita",
     "Esperienza",
     "ProfiloBagnino",
@@ -34,10 +38,12 @@ __all__ = [
     "Zona",
     "bagnino_zone",
     "StatoAnnuncio",
+    "StatoCandidatura",
     "TipoAnnuncio",
     "TipoBrevetto",
     "TipoCompenso",
     "TipoStruttura",
     "TipoTurno",
     "TipoUtente",
+    "brevetto_copre",
 ]

@@ -36,6 +36,28 @@ class TipoBrevetto(str, Enum):
     ALTRO = "altro"  # Altri enti (SNS, Misericordie, ...) o casi particolari
 
 
+# I brevetti FIN sono inclusivi: chi ha MIP può fare anche quello che fa un P.
+# `ALTRO` non è confrontabile in automatico e non copre nulla: va verificato
+# a mano dallo staff (campo `Brevetto.verificato`).
+LIVELLO_BREVETTO: dict[str, int] = {"P": 1, "IP": 2, "MIP": 3, "altro": 0}
+
+
+def brevetto_copre(posseduto: "TipoBrevetto", richiesto: "TipoBrevetto") -> bool:
+    """True se `posseduto` è sufficiente per un turno che richiede `richiesto`."""
+    livello_posseduto = LIVELLO_BREVETTO[posseduto.value]
+    livello_richiesto = LIVELLO_BREVETTO[richiesto.value]
+    if livello_posseduto == 0 or livello_richiesto == 0:
+        return posseduto == richiesto
+    return livello_posseduto >= livello_richiesto
+
+
+class StatoCandidatura(str, Enum):
+    INVIATA = "inviata"
+    ACCETTATA = "accettata"
+    RIFIUTATA = "rifiutata"
+    RITIRATA = "ritirata"
+
+
 class TipoStruttura(str, Enum):
     COMUNALE = "comunale"
     HOTEL = "hotel"

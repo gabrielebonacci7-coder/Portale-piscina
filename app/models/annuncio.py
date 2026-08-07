@@ -20,6 +20,7 @@ from app.models.enums import (
 )
 
 if TYPE_CHECKING:
+    from app.models.candidatura import Candidatura
     from app.models.piscina import ProfiloPiscina
     from app.models.recensione import Recensione
     from app.models.utente import Utente
@@ -94,6 +95,9 @@ class Annuncio(TimestampMixin, Base):
     piscina: Mapped[ProfiloPiscina | None] = relationship(back_populates="annunci")
     zona: Mapped[Zona | None] = relationship()
     recensioni: Mapped[list[Recensione]] = relationship(back_populates="annuncio")
+    candidature: Mapped[list[Candidatura]] = relationship(
+        back_populates="annuncio", cascade="all, delete-orphan"
+    )
 
     @property
     def scaduto(self) -> bool:

@@ -13,6 +13,7 @@ from app.models.enums import TipoUtente, enum_col
 if TYPE_CHECKING:
     from app.models.annuncio import Annuncio
     from app.models.bagnino import ProfiloBagnino
+    from app.models.candidatura import Candidatura
     from app.models.piscina import ProfiloPiscina
     from app.models.recensione import Recensione
 
@@ -56,6 +57,10 @@ class Utente(TimestampMixin, Base):
     )
     annunci_assegnati: Mapped[list[Annuncio]] = relationship(
         back_populates="assegnato_a", foreign_keys="Annuncio.assegnato_a_id"
+    )
+
+    candidature: Mapped[list[Candidatura]] = relationship(
+        back_populates="candidato", cascade="all, delete-orphan"
     )
 
     recensioni_scritte: Mapped[list[Recensione]] = relationship(

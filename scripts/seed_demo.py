@@ -14,6 +14,7 @@ from app.db.session import SessionLocal
 from app.models import (
     Annuncio,
     Brevetto,
+    Candidatura,
     Disponibilita,
     Esperienza,
     ProfiloBagnino,
@@ -148,8 +149,52 @@ def main() -> None:
             assegnato_a=u_bagnino,
         )
 
-        db.add_all([u_bagnino, bagnino, u_piscina, piscina, annuncio, concluso])
+        # --- Un secondo bagnino, che si candida al turno aperto -------------
+        u_giulia = Utente(
+            email="giulia.conti@example.com",
+            telefono="+39 347 9998887",
+            password_hash=hash_password(PASSWORD_DEMO),
+            tipo=TipoUtente.BAGNINO,
+        )
+        giulia = ProfiloBagnino(
+            utente=u_giulia,
+            nome="Giulia",
+            cognome="Conti",
+            data_nascita=date(2001, 11, 3),
+            anni_esperienza=2,
+            bio="Due stagioni in piscina scoperta, disponibile nei weekend.",
+            zone=[z for z in (eur,) if z is not None],
+        )
+        giulia.brevetti.append(
+            Brevetto(
+                tipo=TipoBrevetto.P,
+                ente="FIN",
+                data_rilascio=date.today() - timedelta(days=400),
+                data_scadenza=date.today() + timedelta(days=330),
+            )
+        )
+
+        db.add_all(
+            [u_bagnino, bagnino, u_piscina, piscina, u_giulia, giulia, annuncio, concluso]
+        )
         db.flush()
+
+        # Il turno aperto chiede un brevetto P: Giulia ce l'ha, Marco ha il MIP
+        # che lo contiene. Entrambi possono candidarsi.
+        db.add_all(
+            [
+                Candidatura(
+                    annuncio_id=annuncio.id,
+                    candidato_id=u_giulia.id,
+                    messaggio="Sono libera quel pomeriggio, abito all'EUR.",
+                ),
+                Candidatura(
+                    annuncio_id=annuncio.id,
+                    candidato_id=u_bagnino.id,
+                    messaggio="Disponibile, ho già lavorato da voi.",
+                ),
+            ]
+        )
 
         # --- Recensione incrociata ----------------------------------------
         db.add(
@@ -171,6 +216,7 @@ def main() -> None:
         print(f"\nAccessi di prova (password: {PASSWORD_DEMO}):")
         print(f"  bagnino  -> {u_bagnino.email}")
         print(f"  piscina  -> {u_piscina.email}")
+        print(f"  bagnino2 -> {u_giulia.email}")
 
 
 if __name__ == "__main__":
