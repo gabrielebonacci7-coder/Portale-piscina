@@ -2,7 +2,7 @@
 
 import { api } from "../api.js";
 import { caricaZone, eBagnino } from "../stato.js";
-import { avviso, brindisi, el, pannello } from "../ui.js";
+import { avviso, brindisi, el, opzioniZone, pannello } from "../ui.js";
 
 /** Da datetime-local (ora locale) a ISO con fuso: il backend vuole un istante preciso. */
 function aIso(valore) {
@@ -30,13 +30,10 @@ export async function apriPubblica(alFatto) {
   });
   const inizio = el("input", { type: "datetime-local", required: true, value: fraDueOre() });
   const fine = el("input", { type: "datetime-local" });
-  const zona = el(
-    "select",
-    {},
-    [el("option", { value: "", testo: "—" })].concat(
-      zone.map((z) => el("option", { value: z.id, testo: z.nome })),
-    ),
-  );
+  const zona = el("select", {}, [
+    el("option", { value: "", testo: "—" }),
+    ...opzioniZone(zone),
+  ]);
   const indirizzo = el("input", { type: "text", maxlength: 200 });
   const compenso = el("input", { type: "number", min: 0, step: "0.5", placeholder: "es. 13" });
   const compensoTipo = el(

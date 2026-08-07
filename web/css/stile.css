@@ -725,6 +725,48 @@ textarea {
   accent-color: var(--accent);
 }
 
+/* ---------- Scelta delle zone ---------- */
+.zone-scelta {
+  max-height: 230px;
+  overflow-y: auto;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line-forte);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+.zone-scelta > .etichetta {
+  display: block;
+  position: sticky;
+  top: 0;
+  padding: var(--sp-2) 0 var(--sp-1);
+  background: var(--surface);
+}
+
+.zone-griglia {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.zone-griglia label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 4px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.zone-griglia input {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+}
+
 /* ---------- Segmenti ---------- */
 .segmenti {
   display: flex;

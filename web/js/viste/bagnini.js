@@ -10,6 +10,7 @@ import {
   chip,
   el,
   etichetta,
+  opzioniZone,
   oraBreve,
   pannello,
   stelle,
@@ -26,9 +27,7 @@ export function vistaBagnini(navigazione) {
   const selZona = el("select", { style: "margin-bottom:12px" }, [
     el("option", { value: "", testo: "Tutte le zone" }),
   ]);
-  caricaZone().then((zone) =>
-    selZona.append(...zone.map((z) => el("option", { value: z.id, testo: z.nome }))),
-  );
+  caricaZone().then((zone) => selZona.append(...opzioniZone(zone, filtri.zona_id)));
   selZona.addEventListener("change", () => {
     filtri.zona_id = selZona.value;
     carica();

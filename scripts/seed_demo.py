@@ -64,6 +64,7 @@ def main() -> None:
 
         eur = db.scalar(select(Zona).where(Zona.nome == "EUR"))
         ostia = db.scalar(select(Zona).where(Zona.nome == "Ostia / Acilia"))
+        frascati = db.scalar(select(Zona).where(Zona.nome == "Frascati"))
 
         # --- Bagnino ------------------------------------------------------
         u_bagnino = Utente(
@@ -230,6 +231,54 @@ def main() -> None:
             assegnato_a=u_bagnino,
         )
 
+        # --- Una struttura fuori Roma, ai Castelli --------------------------
+        u_castelli = Utente(
+            email="direzione@villaverde.example",
+            telefono="+39 06 9412345",
+            password_hash=hash_password(PASSWORD_DEMO),
+            tipo=TipoUtente.PISCINA,
+        )
+        villa = ProfiloPiscina(
+            utente=u_castelli,
+            nome_struttura="Piscina Villa Verde",
+            tipo_struttura=TipoStruttura.PRIVATA,
+            citta="Frascati",
+            zona=frascati,
+            indirizzo="Via Tuscolana 12",
+            numero_vasche=1,
+            referente_nome="Paolo Rinaldi",
+            referente_ruolo="Direttore",
+        )
+        villa.foto = [
+            FotoPiscina(
+                percorso=salva_immagine(foto_demo.ingresso("VILLA VERDE"), "piscine"),
+                tipo=TipoFoto.INGRESSO,
+                didascalia="Cancello su Via Tuscolana, subito dopo il bivio",
+                ordine=0,
+            ),
+            FotoPiscina(
+                percorso=salva_immagine(foto_demo.salvagente(), "piscine"),
+                tipo=TipoFoto.ALTRO,
+                ordine=1,
+            ),
+        ]
+        turno_castelli = Annuncio(
+            autore=u_castelli,
+            piscina=villa,
+            tipo=TipoAnnuncio.PISCINA_CERCA_BAGNINO,
+            titolo="Stagione estiva, weekend a Frascati",
+            data_inizio=fra_giorni(7, 8),
+            data_fine=fra_giorni(7, 18),
+            citta="Frascati",
+            zona=frascati,
+            indirizzo="Via Tuscolana 12",
+            compenso=Decimal("110.00"),
+            compenso_tipo=TipoCompenso.GIORNALIERO,
+            tipo_turno=TipoTurno.STAGIONALE,
+            brevetto_richiesto=TipoBrevetto.P,
+            note="Vasca scoperta, servizio da giugno a settembre nei fine settimana.",
+        )
+
         # --- Un secondo bagnino, che si candida al turno aperto -------------
         u_giulia = Utente(
             email="giulia.conti@example.com",
@@ -257,7 +306,8 @@ def main() -> None:
         )
 
         db.add_all(
-            [u_bagnino, bagnino, u_piscina, piscina, u_giulia, giulia, annuncio, concluso, *altri]
+            [u_bagnino, bagnino, u_piscina, piscina, u_giulia, giulia, annuncio, concluso, *altri,
+             u_castelli, villa, turno_castelli]
         )
         db.flush()
 
@@ -322,6 +372,7 @@ def main() -> None:
         print(f"  bagnino  -> {u_bagnino.email}")
         print(f"  piscina  -> {u_piscina.email}")
         print(f"  bagnino2 -> {u_giulia.email}")
+        print(f"  piscina2 -> {u_castelli.email} (Castelli Romani)")
 
 
 if __name__ == "__main__":

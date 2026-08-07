@@ -12,6 +12,7 @@ import {
   etichetta,
   euro,
   galleria,
+  opzioniZone,
   pannello,
   quando,
   quandoEsteso,
@@ -393,9 +394,7 @@ export async function apriFiltri(alApplica) {
   const selZona = el(
     "select",
     { name: "zona" },
-    [el("option", { value: "", testo: "Tutte le zone" })].concat(
-      zone.map((z) => el("option", { value: z.id, testo: z.nome, selected: String(z.id) === String(filtri.zona_id) })),
-    ),
+    [el("option", { value: "", testo: "Tutte le zone" }), ...opzioniZone(zone, filtri.zona_id)],
   );
 
   const selTurno = el(

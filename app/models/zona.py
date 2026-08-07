@@ -28,9 +28,15 @@ class Zona(Base):
     __table_args__ = (UniqueConstraint("citta", "nome", name="uq_zona_citta_nome"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    # Il quartiere ("EUR") o il comune ("Frascati").
     nome: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    # Il comune vero: "Roma" per i quartieri romani, il comune stesso per i
+    # paesi fuori Roma. Serve perché "Frascati" non è Roma e non va detto che lo sia.
     citta: Mapped[str] = mapped_column(String(80), nullable=False, default="Roma", index=True)
-    # Es. "Municipio II"; utile a Roma per raggruppare i quartieri.
+    # Il raggruppamento con cui la zona si sceglie nell'app: "Roma",
+    # "Castelli Romani", e in futuro "Litorale", "Tivoli e dintorni"...
+    area: Mapped[str] = mapped_column(String(80), nullable=False, default="Roma", index=True)
+    # Sotto-etichetta, usata dove ha senso: a Roma è il municipio.
     macro_area: Mapped[str | None] = mapped_column(String(80))
 
     bagnini: Mapped[list[ProfiloBagnino]] = relationship(

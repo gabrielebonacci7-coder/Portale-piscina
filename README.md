@@ -1,8 +1,9 @@
 # Portale Piscina
 
-Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma.
+Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma
+e nei Castelli Romani.
 
-Stato attuale: **passo 6 — le foto**. Il progetto è utilizzabile: backend
+Stato attuale: **passo 7 — i Castelli Romani**. Il progetto è utilizzabile: backend
 completo, interfaccia mobile installabile sul telefono, foto profilo per i
 bagnini e galleria per le strutture.
 
@@ -36,7 +37,7 @@ Su **/docs** resta la documentazione interattiva dell'API, per provare le
 chiamate una per una.
 
 ```bash
-pytest        # 108 test end-to-end sulle regole di dominio
+pytest        # 110 test end-to-end sulle regole di dominio
 ```
 
 ## L'app (PWA)
@@ -105,7 +106,9 @@ app/
 └── main.py              app FastAPI
 scripts/
 ├── seed_demo.py         dati di esempio
-└── genera_icone.py      icone PNG della PWA
+├── foto_demo.py         immagini disegnate per il seed
+├── genera_icone.py      icone PNG della PWA
+└── aggiorna_zone.py     aggiunge le aree a un database preesistente
 tests/                   test end-to-end
 ```
 
@@ -206,7 +209,7 @@ stesso nome più `-p`.
 | `esperienze` | curriculum: struttura, mansione, periodo, stagioni |
 | `disponibilita` | fasce orarie ricorrenti (giorno 0-6 + ora inizio/fine) |
 | `profili_piscina` | struttura, tipo, indirizzo, dati del referente che pubblica |
-| `zone` | municipi/quartieri, per i filtri geografici |
+| `zone` | quartieri e comuni, raggruppati per area, per i filtri geografici |
 | `bagnino_zone` | quali zone copre un bagnino (molti-a-molti) |
 | `annunci` | il cuore della bacheca: chi pubblica, quando, dove, quanto, che tipo |
 | `candidature` | chi ha risposto a un annuncio, con stato e messaggio |
@@ -231,6 +234,12 @@ stesso nome più `-p`.
 - **Zone normalizzate.** Una tabella di lookup invece di testo libero: "Ostia",
   "ostia" e "Lido di Ostia" sarebbero tre zone diverse e i filtri non
   funzionerebbero.
+- **Le zone hanno tre etichette geografiche**, che rispondono a domande diverse:
+  `nome` è come la chiami tu ("EUR", "Frascati"); `citta` è il comune vero, e
+  vale "Frascati" per Frascati, non "Roma", perché dire che i Castelli sono
+  Roma sarebbe falso; `area` è il gruppo con cui la zona si sceglie nell'app
+  ("Roma", "Castelli Romani"); `macro_area` è la sotto-etichetta, che a Roma è
+  il municipio e fuori resta vuota.
 - **Un'unica tabella `annunci`** per entrambi i versi (piscina cerca bagnino /
   bagnino cerca sostituzione): i campi sono gli stessi, cambia solo `tipo`.
 - **Compenso in `Numeric(8,2)`**, mai `float`: sui soldi gli arrotondamenti
@@ -275,6 +284,33 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
 - **Il blocco vale in entrambi i versi.** Chi blocca non vuole essere
   contattato, e chi è bloccato non deve poter aggirare la cosa scrivendo per
   primo da una chat nuova.
+
+## Le zone
+
+La bacheca copre due aree, e si estende aggiungendo righe a `ZONE` in
+`app/db/init_db.py` — nient'altro.
+
+| Area | Cosa contiene |
+|---|---|
+| **Roma** | 15 quartieri, uno per municipio |
+| **Castelli Romani** | i 16 comuni: Albano, Ariccia, Castel Gandolfo, Ciampino, Colonna, Frascati, Genzano, Grottaferrata, Lanuvio, Marino, Monte Compatri, Monte Porzio Catone, Nemi, Rocca di Papa, Rocca Priora, Velletri |
+
+Ciampino e Velletri non sono Castelli in senso stretto, ma stanno nello stesso
+bacino di spostamenti: chi lavora a Marino li considera comunque. Toglierli è
+una riga.
+
+Nell'app le zone si scelgono raggruppate per area: con una trentina di voci un
+elenco piatto sarebbe scomodo da scorrere sul telefono.
+
+**Se hai già un database** creato prima delle aree, `create_all` non aggiunge la
+colonna nuova alle tabelle esistenti. Si sistema con:
+
+```bash
+python -m scripts.aggiorna_zone
+```
+
+Aggiunge la colonna, assegna a Roma le zone che c'erano e inserisce le nuove,
+senza toccare il resto. È un rattoppo mirato: il lavoro vero lo farà Alembic.
 
 ## Le foto
 

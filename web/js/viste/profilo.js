@@ -2,7 +2,7 @@
 // ricevute, utenti bloccati e uscita.
 
 import { api } from "../api.js";
-import { caricaProfilo, eBagnino, esci, stato } from "../stato.js";
+import { caricaProfilo, caricaZone, eBagnino, esci, stato } from "../stato.js";
 import {
   ETICHETTE_FOTO,
   GIORNI_LUNGHI,
@@ -10,6 +10,7 @@ import {
   avviso,
   brindisi,
   caricamento,
+  caselleZone,
   chip,
   el,
   etichetta,
@@ -626,6 +627,12 @@ function cambioPassword() {
 // ---------- Modifica profilo ----------
 function modificaBagnino(p, ricarica) {
   const bio = el("textarea", { maxlength: 2000, value: p.bio ?? "" });
+  // Le zone si possono cambiare anche dopo: se ne aggiungono di nuove
+  // (i Castelli, per esempio) chi era già iscritto deve poterle scegliere.
+  const zone = el("div", {}, caricamento());
+  caricaZone().then((elenco) =>
+    zone.replaceChildren(caselleZone(elenco, p.zone.map((z) => z.id))),
+  );
   const esperienza = el("input", { type: "number", min: 0, max: 60, value: p.anni_esperienza });
   const chiamata = el("input", { type: "checkbox", checked: p.disponibile_chiamata_singola });
   const cerca = el("input", { type: "checkbox", checked: p.cerca_lavoro });
@@ -635,6 +642,7 @@ function modificaBagnino(p, ricarica) {
     errore,
     campo("Presentazione", bio),
     campo("Anni di esperienza", esperienza),
+    campo("Zone in cui puoi lavorare", zone),
     el("label", { classe: "interruttore" }, [
       el("span", { testo: "Disponibile per turni singoli" }),
       chiamata,
@@ -664,6 +672,7 @@ function modificaBagnino(p, ricarica) {
         anni_esperienza: Number(esperienza.value),
         disponibile_chiamata_singola: chiamata.checked,
         cerca_lavoro: cerca.checked,
+        zone_ids: [...zone.querySelectorAll("input:checked")].map((i) => Number(i.value)),
       });
       brindisi("Profilo aggiornato");
       chiudi();

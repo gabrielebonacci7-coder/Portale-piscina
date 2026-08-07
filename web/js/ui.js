@@ -224,6 +224,69 @@ export function galleria(foto, alTogli) {
   return striscia;
 }
 
+// ---------- Zone ----------
+/** Raggruppa le zone per area, mantenendo l'ordine in cui arrivano. */
+export function perArea(zone) {
+  const gruppi = new Map();
+  for (const z of zone) {
+    const area = z.area || "Altre zone";
+    if (!gruppi.has(area)) gruppi.set(area, []);
+    gruppi.get(area).push(z);
+  }
+  return gruppi;
+}
+
+/** Opzioni di un <select> divise per area.
+
+    Con una trentina di zone un elenco piatto è scomodo da scorrere sul
+    telefono: le intestazioni di gruppo fanno trovare subito la propria. */
+export function opzioniZone(zone, selezionata) {
+  const opzioni = [];
+  for (const [area, elenco] of perArea(zone)) {
+    opzioni.push(
+      el(
+        "optgroup",
+        { label: area },
+        elenco.map((z) =>
+          el("option", {
+            value: z.id,
+            testo: z.macro_area ? `${z.nome} — ${z.macro_area}` : z.nome,
+            selected: String(z.id) === String(selezionata),
+          }),
+        ),
+      ),
+    );
+  }
+  return opzioni;
+}
+
+/** Caselle di scelta multipla delle zone, con l'intestazione dell'area. */
+export function caselleZone(zone, selezionate = []) {
+  const scelte = new Set(selezionate.map(String));
+  const contenitore = el("div", { classe: "zone-scelta" });
+  for (const [area, elenco] of perArea(zone)) {
+    contenitore.append(
+      el("span", { classe: "etichetta", testo: area }),
+      el(
+        "div",
+        { classe: "zone-griglia" },
+        elenco.map((z) =>
+          el("label", {}, [
+            el("input", {
+              type: "checkbox",
+              name: "zona",
+              value: z.id,
+              checked: scelte.has(String(z.id)),
+            }),
+            el("span", { testo: z.nome }),
+          ]),
+        ),
+      ),
+    );
+  }
+  return contenitore;
+}
+
 // ---------- Pannello a scomparsa ----------
 export function pannello(titolo, contenuto, { azione } = {}) {
   const chiudi = () => velo.remove();

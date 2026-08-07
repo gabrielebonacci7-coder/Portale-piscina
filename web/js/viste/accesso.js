@@ -3,7 +3,7 @@
 
 import { api } from "../api.js";
 import { caricaProfilo, caricaZone, entra, stato } from "../stato.js";
-import { LOGO, avviso, brindisi, el } from "../ui.js";
+import { LOGO, avviso, brindisi, caselleZone, el, opzioniZone } from "../ui.js";
 
 /** Schermata iniziale: entra o registrati. */
 export function vistaAccesso(vaiAllApp) {
@@ -203,19 +203,8 @@ export function vistaCreaProfilo(fatto) {
   form.append(errore);
 
   if (bagnino) {
-    const zone = el("div", {
-      style: "display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:180px;overflow-y:auto",
-    });
-    caricaZone().then((elenco) => {
-      zone.replaceChildren(
-        ...elenco.map((z) =>
-          el("label", { style: "display:flex;gap:8px;align-items:center;font-size:14px" }, [
-            el("input", { type: "checkbox", name: "zona", value: z.id, style: "width:20px;min-height:0" }),
-            z.nome,
-          ]),
-        ),
-      );
-    });
+    const zone = el("div");
+    caricaZone().then((elenco) => zone.replaceChildren(caselleZone(elenco)));
 
     form.append(
       el("div", { classe: "riga-campi" }, [
@@ -226,13 +215,15 @@ export function vistaCreaProfilo(fatto) {
         campo("Data di nascita", el("input", { type: "date", name: "nascita" })),
         campo("Anni di esperienza", el("input", { type: "number", name: "esperienza", min: 0, max: 60, value: 0 })),
       ]),
-      campo("Zone in cui puoi lavorare", zone),
+      campo(
+        "Zone in cui puoi lavorare",
+        zone,
+        "Puoi sceglierne più di una, anche fuori Roma.",
+      ),
     );
   } else {
     const zona = el("select", { name: "zona" }, [el("option", { value: "", testo: "—" })]);
-    caricaZone().then((elenco) =>
-      zona.append(...elenco.map((z) => el("option", { value: z.id, testo: z.nome }))),
-    );
+    caricaZone().then((elenco) => zona.append(...opzioniZone(elenco)));
 
     form.append(
       campo("Nome della struttura", el("input", { type: "text", name: "struttura", required: true })),
