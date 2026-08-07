@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 from app.schemas.common import ORMModel
 
@@ -20,16 +20,24 @@ class RecensioneBase(BaseModel):
 
 
 class RecensioneCreate(RecensioneBase):
-    autore_id: int
-
-    @model_validator(mode="after")
-    def _no_autorecensione(self):
-        if self.autore_id == self.destinatario_id:
-            raise ValueError("non si può recensire se stessi")
-        return self
+    """`autore_id` non si passa: viene dal token di chi sta recensendo."""
 
 
 class RecensioneRead(ORMModel, RecensioneBase):
     id: int
     autore_id: int
+    autore_nome: str | None = None
     creato_il: datetime
+
+
+class RiepilogoRecensioni(BaseModel):
+    """Media e conteggi mostrati sul profilo."""
+
+    destinatario_id: int
+    totale: int
+    media_stelle: float | None = None
+    media_puntualita: float | None = None
+    media_professionalita: float | None = None
+    media_ambiente: float | None = None
+    media_pagamento: float | None = None
+    recensioni: list[RecensioneRead] = Field(default_factory=list)

@@ -1,6 +1,7 @@
 """Schemi Pydantic: validazione in ingresso e serializzazione in uscita."""
 
-from app.schemas.annuncio import AnnuncioCreate, AnnuncioRead, AnnuncioUpdate
+from app.schemas.annuncio import AnnuncioCreate, AnnuncioRead, AnnuncioUpdate, AutoreSintesi
+from app.schemas.auth import CambioPassword, LoginRequest, RegistrazioneRequest, Token
 from app.schemas.bagnino import (
     BrevettoCreate,
     BrevettoRead,
@@ -10,9 +11,12 @@ from app.schemas.bagnino import (
     EsperienzaRead,
     ProfiloBagninoCreate,
     ProfiloBagninoRead,
+    ProfiloBagninoSintesi,
+    ProfiloBagninoUpdate,
 )
-from app.schemas.piscina import ProfiloPiscinaCreate, ProfiloPiscinaRead
-from app.schemas.recensione import RecensioneCreate, RecensioneRead
+from app.schemas.pagina import Pagina
+from app.schemas.piscina import ProfiloPiscinaCreate, ProfiloPiscinaRead, ProfiloPiscinaUpdate
+from app.schemas.recensione import RecensioneCreate, RecensioneRead, RiepilogoRecensioni
 from app.schemas.utente import UtenteCreate, UtenteRead
 from app.schemas.zona import ZonaRead
 
@@ -20,18 +24,28 @@ __all__ = [
     "AnnuncioCreate",
     "AnnuncioRead",
     "AnnuncioUpdate",
+    "AutoreSintesi",
     "BrevettoCreate",
     "BrevettoRead",
+    "CambioPassword",
     "DisponibilitaCreate",
     "DisponibilitaRead",
     "EsperienzaCreate",
     "EsperienzaRead",
+    "LoginRequest",
+    "Pagina",
     "ProfiloBagninoCreate",
     "ProfiloBagninoRead",
+    "ProfiloBagninoSintesi",
+    "ProfiloBagninoUpdate",
     "ProfiloPiscinaCreate",
     "ProfiloPiscinaRead",
+    "ProfiloPiscinaUpdate",
     "RecensioneCreate",
     "RecensioneRead",
+    "RegistrazioneRequest",
+    "RiepilogoRecensioni",
+    "Token",
     "UtenteCreate",
     "UtenteRead",
     "ZonaRead",

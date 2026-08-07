@@ -2,8 +2,8 @@
 
 Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma.
 
-Stato attuale: **passo 1 — struttura dati**. Ci sono i modelli, il database SQLite
-e l'ossatura FastAPI. Non c'è ancora né interfaccia né CRUD.
+Stato attuale: **passo 2 — API CRUD con autenticazione**. Ci sono modelli,
+database SQLite, endpoint completi e test. Manca ancora l'interfaccia (PWA).
 
 ## Avvio rapido
 
@@ -16,14 +16,21 @@ python -m scripts.seed_demo   # (facoltativo) dati di esempio
 uvicorn app.main:app --reload # http://127.0.0.1:8000/docs
 ```
 
-Endpoint disponibili in questa fase: `/health`, `/schema` (tabelle e colonne),
-`/zone`.
+Su `/docs` c'è la documentazione interattiva: si fa login con il pulsante
+**Authorize** e da lì si provano tutte le chiamate. Gli account di esempio sono
+`marco.rossi@example.com` e `info@aquacenter.example`, password `demo1234`.
+
+```bash
+pytest        # 40 test end-to-end sulle regole di dominio
+```
 
 ## Struttura del progetto
 
 ```
 app/
-├── core/config.py       impostazioni (DATABASE_URL, ecc.) da env o .env
+├── core/
+│   ├── config.py        impostazioni (DATABASE_URL, SECRET_KEY...) da env o .env
+│   └── security.py      hash bcrypt delle password e token JWT
 ├── db/
 │   ├── base_class.py    Base dichiarativa + mixin creato_il/aggiornato_il
 │   ├── types.py         UTCDateTime: datetime sempre aware anche su SQLite
@@ -31,9 +38,69 @@ app/
 │   └── init_db.py       create_all + seed delle zone
 ├── models/              tabelle SQLAlchemy (il modello di dominio)
 ├── schemas/             schemi Pydantic (contratto dell'API)
+├── crud/                query e regole di dominio
+├── api/
+│   ├── deps.py          utente autenticato e controlli di ruolo
+│   └── routers/         gli endpoint, raggruppati per area
 └── main.py              app FastAPI
 scripts/seed_demo.py     dati di esempio
+tests/                   test end-to-end
 ```
+
+I tre livelli hanno compiti distinti: i **router** si occupano di HTTP (status
+code, autenticazione, serializzazione), il **crud** del significato (quali
+annunci sono visibili, chi può recensire chi), i **models** di come i dati
+stanno su disco. Così la stessa regola non finisce scritta in tre posti.
+
+## Endpoint
+
+### Autenticazione
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| POST | `/auth/registrazione` | crea l'account (email, password, tipo) |
+| POST | `/auth/login` | restituisce il token JWT |
+| GET | `/auth/me` | dati dell'account collegato al token |
+| POST | `/auth/cambio-password` | richiede la password attuale |
+
+### Bagnini
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| POST | `/bagnini` | crea il proprio profilo |
+| GET | `/bagnini` | ricerca con filtri (zona, città, abilitati, esperienza) |
+| GET | `/bagnini/me` · PATCH | legge/modifica il proprio profilo |
+| GET | `/bagnini/{id}` | profilo pubblico |
+| POST/DELETE | `/bagnini/me/brevetti[/{id}]` | gestione brevetti |
+| POST/DELETE | `/bagnini/me/esperienze[/{id}]` | gestione curriculum |
+| POST/DELETE | `/bagnini/me/disponibilita[/{id}]` | fasce orarie settimanali |
+
+### Piscine
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| POST | `/piscine` | crea il profilo della struttura |
+| GET | `/piscine` | ricerca con filtri (zona, città, tipo struttura) |
+| GET | `/piscine/me` · PATCH | legge/modifica il proprio profilo |
+| GET | `/piscine/{id}` | scheda pubblica |
+
+### Annunci
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| POST | `/annunci` | pubblica |
+| GET | `/annunci` | **la bacheca**, con tutti i filtri |
+| GET | `/annunci/miei` | i propri, compresi chiusi e scaduti |
+| GET | `/annunci/{id}` · PATCH · DELETE | dettaglio e gestione (solo l'autore) |
+| POST | `/annunci/{id}/assegna` | assegna il turno alla controparte |
+| POST | `/annunci/{id}/chiudi` | turno concluso, si può recensire |
+
+Filtri della bacheca: `tipo`, `citta`, `zona_id`, `tipo_turno`,
+`brevetto_richiesto`, `solo_urgenti`, `solo_aperti`, `data_da`, `data_a`,
+`compenso_min`, `testo`, `skip`, `limit`. L'ordinamento mette gli urgenti in
+cima, poi i turni più vicini nel tempo.
+
+### Recensioni
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| POST | `/recensioni` | recensisce la controparte di un turno concluso |
+| GET | `/utenti/{id}/recensioni` | recensioni ricevute + medie dei voti |
 
 ## Le tabelle
 
@@ -80,16 +147,36 @@ scripts/seed_demo.py     dati di esempio
 - **Enum come stringhe** (`native_enum=False`): portabile su SQLite e indolore
   da estendere su PostgreSQL.
 
-### Regole applicative (da far rispettare al livello API, non allo schema)
+### Regole applicative (nel livello `crud`, non esprimibili nello schema)
 
-- `annunci.tipo` deve essere coerente con `utenti.tipo` dell'autore.
-- Si recensisce solo chi si è incontrato su un annuncio concluso.
-- I voti di dettaglio hanno senso solo nel verso giusto.
+Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
+
+- **Il tipo di annuncio deve corrispondere al tipo di account:** una piscina non
+  può pubblicare "bagnino cerca sostituzione", e viceversa.
+- **Solo l'autore** modifica, cancella, assegna e chiude il proprio annuncio.
+- **Il turno si assegna alla controparte:** una piscina non lo assegna a
+  un'altra piscina, e nessuno lo assegna a se stesso.
+- **Si recensisce solo dopo:** l'annuncio dev'essere assegnato o chiuso, e i due
+  devono esserne le due parti. Una sola recensione per coppia e annuncio.
+- **I voti di dettaglio seguono il verso:** la struttura vota puntualità e
+  professionalità, il bagnino ambiente e pagamento.
+- **Un profilo per account**, del tipo giusto; senza profilo non si pubblica.
+
+## Sicurezza
+
+- Password con hash **bcrypt** (mai in chiaro, mai in risposta).
+- Token **JWT** firmati HS256, da passare come `Authorization: Bearer <token>`.
+- Il login non rivela se un'email è registrata: stesso messaggio e stesso tempo
+  di risposta in entrambi i casi.
+- Gli id dell'autore (annunci, recensioni, profili) vengono **dal token**, mai
+  dal corpo della richiesta: altrimenti si potrebbe scrivere a nome di altri.
+- `SECRET_KEY` in `config.py` è un valore da sviluppo. In produzione va
+  impostata la variabile d'ambiente:
+  `python -c "import secrets; print(secrets.token_hex(32))"`.
 
 ## Prossimi passi
 
-1. Endpoint CRUD per utenti, profili e annunci.
-2. Autenticazione (hash password + JWT).
-3. Ricerca e filtri della bacheca (zona, data, tipo turno, brevetto).
-4. Candidature agli annunci e messaggistica interna.
-5. Migrazioni con Alembic, poi PWA (frontend + service worker).
+1. Candidature agli annunci (oggi l'assegnazione è diretta) e messaggistica interna.
+2. Notifiche per i turni urgenti in zona.
+3. Migrazioni con Alembic al posto di `create_all`.
+4. La PWA vera e propria: frontend, service worker, installazione su telefono.

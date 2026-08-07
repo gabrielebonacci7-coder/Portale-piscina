@@ -74,5 +74,14 @@ class Utente(TimestampMixin, Base):
         """Il profilo giusto in base al tipo di account."""
         return self.profilo_bagnino if self.tipo == TipoUtente.BAGNINO else self.profilo_piscina
 
+    @property
+    def nome_visualizzato(self) -> str:
+        """Nome da mostrare in bacheca. Ripiega sull'email se manca il profilo."""
+        if self.tipo == TipoUtente.BAGNINO and self.profilo_bagnino:
+            return self.profilo_bagnino.nome_completo
+        if self.tipo == TipoUtente.PISCINA and self.profilo_piscina:
+            return self.profilo_piscina.nome_struttura
+        return self.email
+
     def __repr__(self) -> str:  # pragma: no cover - solo debug
         return f"<Utente {self.id} {self.email} ({self.tipo})>"

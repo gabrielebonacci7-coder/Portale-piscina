@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from sqlalchemy import select
 
+from app.core.security import hash_password
 from app.db.init_db import init_db
 from app.db.session import SessionLocal
 from app.models import (
@@ -30,6 +31,10 @@ from app.models import (
 )
 
 
+# Password condivisa dagli account di esempio, per provare il login.
+PASSWORD_DEMO = "demo1234"
+
+
 def main() -> None:
     init_db()
 
@@ -45,7 +50,7 @@ def main() -> None:
         u_bagnino = Utente(
             email="marco.rossi@example.com",
             telefono="+39 333 1112223",
-            password_hash="!placeholder",
+            password_hash=hash_password(PASSWORD_DEMO),
             tipo=TipoUtente.BAGNINO,
         )
         bagnino = ProfiloBagnino(
@@ -89,7 +94,7 @@ def main() -> None:
         u_piscina = Utente(
             email="info@aquacenter.example",
             telefono="+39 06 5551234",
-            password_hash="!placeholder",
+            password_hash=hash_password(PASSWORD_DEMO),
             tipo=TipoUtente.PISCINA,
             telefono_pubblico=True,
         )
@@ -125,7 +130,25 @@ def main() -> None:
             stato=StatoAnnuncio.APERTO,
         )
 
-        db.add_all([u_bagnino, bagnino, u_piscina, piscina, annuncio])
+        # Un secondo turno, già svolto e chiuso: è quello a cui si aggancia
+        # la recensione, dato che si recensisce solo dopo un turno concluso.
+        passato = datetime.now(timezone.utc) - timedelta(days=20)
+        concluso = Annuncio(
+            autore=u_piscina,
+            piscina=piscina,
+            tipo=TipoAnnuncio.PISCINA_CERCA_BAGNINO,
+            titolo="Turno serale evento estivo",
+            data_inizio=passato,
+            data_fine=passato + timedelta(hours=4),
+            zona=eur,
+            compenso=Decimal("14.00"),
+            compenso_tipo=TipoCompenso.ORARIO,
+            tipo_turno=TipoTurno.EVENTO_SERALE,
+            stato=StatoAnnuncio.CHIUSO,
+            assegnato_a=u_bagnino,
+        )
+
+        db.add_all([u_bagnino, bagnino, u_piscina, piscina, annuncio, concluso])
         db.flush()
 
         # --- Recensione incrociata ----------------------------------------
@@ -133,7 +156,7 @@ def main() -> None:
             Recensione(
                 autore_id=u_piscina.id,
                 destinatario_id=u_bagnino.id,
-                annuncio_id=annuncio.id,
+                annuncio_id=concluso.id,
                 stelle=5,
                 commento="Puntuale e attento, lo richiameremo.",
                 voto_puntualita=5,
@@ -145,6 +168,9 @@ def main() -> None:
         print(f"Bagnino: {bagnino.nome_completo}, {bagnino.eta} anni, abilitato={bagnino.abilitato}")
         print(f"Struttura: {piscina.nome_struttura} ({piscina.tipo_struttura.value})")
         print(f"Annuncio: {annuncio.titolo} — {annuncio.compenso} €/h, aperto={annuncio.aperto}")
+        print(f"\nAccessi di prova (password: {PASSWORD_DEMO}):")
+        print(f"  bagnino  -> {u_bagnino.email}")
+        print(f"  piscina  -> {u_piscina.email}")
 
 
 if __name__ == "__main__":

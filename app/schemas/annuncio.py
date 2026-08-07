@@ -9,6 +9,7 @@ from app.models.enums import (
     TipoBrevetto,
     TipoCompenso,
     TipoTurno,
+    TipoUtente,
 )
 from app.schemas.common import ORMModel
 from app.schemas.zona import ZonaRead
@@ -43,7 +44,7 @@ class AnnuncioBase(BaseModel):
 
 
 class AnnuncioCreate(AnnuncioBase):
-    autore_id: int
+    """`autore_id` non si passa: viene dal token di chi sta pubblicando."""
 
 
 class AnnuncioUpdate(BaseModel):
@@ -60,8 +61,16 @@ class AnnuncioUpdate(BaseModel):
     brevetto_richiesto: TipoBrevetto | None = None
     urgente: bool | None = None
     note: str | None = None
+    # `assegnato_a_id` non si cambia da qui: si usa POST /annunci/{id}/assegna.
     stato: StatoAnnuncio | None = None
-    assegnato_a_id: int | None = None
+
+
+class AutoreSintesi(ORMModel):
+    """Chi ha pubblicato, in breve, per le schede della bacheca."""
+
+    id: int
+    tipo: TipoUtente
+    nome_visualizzato: str
 
 
 class AnnuncioRead(ORMModel, AnnuncioBase):
@@ -70,4 +79,5 @@ class AnnuncioRead(ORMModel, AnnuncioBase):
     stato: StatoAnnuncio
     assegnato_a_id: int | None = None
     zona: ZonaRead | None = None
+    autore: AutoreSintesi | None = None
     creato_il: datetime

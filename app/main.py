@@ -1,21 +1,16 @@
-"""Entry point FastAPI.
-
-In questa fase l'app non espone ancora endpoint di dominio: serve a creare lo
-schema all'avvio e a verificare che il database sia raggiungibile.
-"""
+"""Entry point FastAPI: monta i router e crea lo schema all'avvio."""
 
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect
-from sqlalchemy.orm import Session
 
 from app import __version__
+from app.api.routers import annunci, auth, bagnini, piscine, recensioni, zone
 from app.core.config import settings
 from app.db.init_db import init_db
-from app.db.session import engine, get_db
-from app.models import Zona
-from app.schemas import ZonaRead
+from app.db.session import engine
 
 
 @asynccontextmanager
@@ -31,6 +26,22 @@ app = FastAPI(
     description="Bacheca annunci per bagnini e strutture natatorie.",
     lifespan=lifespan,
 )
+
+# La PWA girerà su un'origine diversa dall'API: senza CORS il browser blocca.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if settings.debug else [],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth.router)
+app.include_router(bagnini.router)
+app.include_router(piscine.router)
+app.include_router(annunci.router)
+app.include_router(recensioni.router)
+app.include_router(zone.router)
 
 
 @app.get("/health", tags=["sistema"])
@@ -49,9 +60,3 @@ def schema_db() -> dict:
         tabella: [c["name"] for c in inspector.get_columns(tabella)]
         for tabella in sorted(inspector.get_table_names())
     }
-
-
-@app.get("/zone", response_model=list[ZonaRead], tags=["anagrafiche"])
-def elenco_zone(db: Session = Depends(get_db)) -> list[Zona]:
-    """Zone disponibili per i filtri della bacheca."""
-    return list(db.query(Zona).order_by(Zona.citta, Zona.nome).all())

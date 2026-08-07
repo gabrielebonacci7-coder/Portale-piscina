@@ -91,8 +91,23 @@ class ProfiloBagninoBase(BaseModel):
 
 
 class ProfiloBagninoCreate(ProfiloBagninoBase):
-    utente_id: int
+    # `utente_id` non si passa: viene dal token di chi sta chiamando.
     zone_ids: list[int] = Field(default_factory=list)
+
+
+class ProfiloBagninoUpdate(BaseModel):
+    """Aggiornamento parziale: si inviano solo i campi da cambiare."""
+
+    nome: str | None = Field(default=None, max_length=80)
+    cognome: str | None = Field(default=None, max_length=80)
+    data_nascita: date | None = None
+    citta: str | None = None
+    note_spostamenti: str | None = Field(default=None, max_length=255)
+    anni_esperienza: int | None = Field(default=None, ge=0, le=60)
+    bio: str | None = None
+    disponibile_chiamata_singola: bool | None = None
+    cerca_lavoro: bool | None = None
+    zone_ids: list[int] | None = None
 
 
 class ProfiloBagninoRead(ORMModel, ProfiloBagninoBase):
@@ -104,3 +119,18 @@ class ProfiloBagninoRead(ORMModel, ProfiloBagninoBase):
     brevetti: list[BrevettoRead] = Field(default_factory=list)
     esperienze: list[EsperienzaRead] = Field(default_factory=list)
     disponibilita: list[DisponibilitaRead] = Field(default_factory=list)
+
+
+class ProfiloBagninoSintesi(ORMModel):
+    """Versione leggera per gli elenchi della bacheca."""
+
+    id: int
+    utente_id: int
+    nome: str
+    cognome: str
+    citta: str
+    eta: int | None = None
+    anni_esperienza: int
+    abilitato: bool
+    disponibile_chiamata_singola: bool
+    zone: list[ZonaRead] = Field(default_factory=list)
