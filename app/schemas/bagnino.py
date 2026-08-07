@@ -114,6 +114,8 @@ class ProfiloBagninoRead(ORMModel, ProfiloBagninoBase):
     id: int
     utente_id: int
     eta: int | None = None
+    foto_url: str | None = None
+    foto_anteprima_url: str | None = None
     abilitato: bool
     zone: list[ZonaRead] = Field(default_factory=list)
     brevetti: list[BrevettoRead] = Field(default_factory=list)
@@ -133,4 +135,5 @@ class ProfiloBagninoSintesi(ORMModel):
     anni_esperienza: int
     abilitato: bool
     disponibile_chiamata_singola: bool
+    foto_anteprima_url: str | None = None
     zone: list[ZonaRead] = Field(default_factory=list)

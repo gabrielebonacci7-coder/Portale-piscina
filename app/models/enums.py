@@ -51,6 +51,19 @@ def brevetto_copre(posseduto: "TipoBrevetto", richiesto: "TipoBrevetto") -> bool
     return livello_posseduto >= livello_richiesto
 
 
+class TipoFoto(str, Enum):
+    """A cosa si riferisce la foto di una struttura.
+
+    `INGRESSO` è quella che conta davvero: è come il bagnino riconosce il
+    posto quando ci arriva la prima volta, magari di sera e di corsa.
+    """
+
+    INGRESSO = "ingresso"
+    VASCA = "vasca"
+    SPOGLIATOI = "spogliatoi"
+    ALTRO = "altro"
+
+
 class StatoCandidatura(str, Enum):
     INVIATA = "inviata"
     ACCETTATA = "accettata"

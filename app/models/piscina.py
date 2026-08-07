@@ -8,11 +8,12 @@ from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base, TimestampMixin
-from app.models.enums import TipoStruttura, enum_col
+from app.models.enums import TipoFoto, TipoStruttura, enum_col
 
 if TYPE_CHECKING:
     from app.models.annuncio import Annuncio
     from app.models.bagnino import Esperienza
+    from app.models.foto import FotoPiscina
     from app.models.utente import Utente
     from app.models.zona import Zona
 
@@ -53,7 +54,21 @@ class ProfiloPiscina(TimestampMixin, Base):
     utente: Mapped[Utente] = relationship(back_populates="profilo_piscina")
     zona: Mapped[Zona | None] = relationship()
     annunci: Mapped[list[Annuncio]] = relationship(back_populates="piscina")
+    foto: Mapped[list[FotoPiscina]] = relationship(
+        back_populates="piscina",
+        cascade="all, delete-orphan",
+        order_by="FotoPiscina.ordine, FotoPiscina.id",
+    )
     esperienze_collegate: Mapped[list[Esperienza]] = relationship(back_populates="piscina")
+
+    @property
+    def ha_foto_ingresso(self) -> bool:
+        return self.foto_ingresso is not None
+
+    @property
+    def foto_ingresso(self) -> FotoPiscina | None:
+        """La foto dell'ingresso: è quella che permette di trovare il posto."""
+        return next((f for f in self.foto if f.tipo == TipoFoto.INGRESSO), None)
 
     def __repr__(self) -> str:  # pragma: no cover - solo debug
         return f"<ProfiloPiscina {self.id} {self.nome_struttura}>"

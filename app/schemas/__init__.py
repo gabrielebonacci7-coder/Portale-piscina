@@ -30,7 +30,12 @@ from app.schemas.messaggistica import (
     MessaggioRead,
 )
 from app.schemas.pagina import Pagina
-from app.schemas.piscina import ProfiloPiscinaCreate, ProfiloPiscinaRead, ProfiloPiscinaUpdate
+from app.schemas.piscina import (
+    FotoRead,
+    ProfiloPiscinaCreate,
+    ProfiloPiscinaRead,
+    ProfiloPiscinaUpdate,
+)
 from app.schemas.recensione import RecensioneCreate, RecensioneRead, RiepilogoRecensioni
 from app.schemas.utente import UtenteCreate, UtenteRead
 from app.schemas.zona import ZonaRead
@@ -55,6 +60,7 @@ __all__ = [
     "DisponibilitaRead",
     "EsperienzaCreate",
     "EsperienzaRead",
+    "FotoRead",
     "InterlocutoreSintesi",
     "LoginRequest",
     "MessaggioCreate",

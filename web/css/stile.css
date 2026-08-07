@@ -386,6 +386,129 @@ textarea {
   font-size: 13px;
 }
 
+/* ---------- Foto ---------- */
+.avatar {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--neutro-tenue);
+  /* Il bordo stacca la foto dalla scheda anche quando i colori si somigliano. */
+  border: 1px solid var(--line);
+}
+
+.avatar.grande {
+  width: 84px;
+  height: 84px;
+}
+
+/* Quando la foto manca: le iniziali, non un segnaposto grigio anonimo. */
+.avatar-vuoto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-tenue);
+  color: var(--accent-scuro);
+  font-weight: 650;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+.avatar-vuoto.grande {
+  font-size: 30px;
+}
+
+/* Striscia di foto scorrevole: su un telefono è più naturale di una griglia. */
+.galleria {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding-bottom: var(--sp-2);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.galleria figure {
+  position: relative;
+  flex: 0 0 auto;
+  width: 210px;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.galleria img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: var(--r-m);
+  border: 1px solid var(--line);
+  background: var(--neutro-tenue);
+  display: block;
+}
+
+.galleria figcaption {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Il tipo di foto sta sopra l'immagine: si legge senza scorrere la didascalia. */
+.galleria .targhetta {
+  position: absolute;
+  top: var(--sp-2);
+  left: var(--sp-2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(6, 24, 27, 0.72);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.galleria .togli {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(6, 24, 27, 0.72);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.galleria .togli svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* Il file input di serie è impresentabile: si nasconde e si comanda dall'etichetta. */
+.scegli-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.anteprima-scelta {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: var(--r-m);
+  background: var(--neutro-tenue);
+  margin-bottom: var(--sp-3);
+}
+
 /* ---------- Chip di stato ---------- */
 .chips {
   display: flex;

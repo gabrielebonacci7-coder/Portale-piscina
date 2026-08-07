@@ -36,6 +36,14 @@ def pubblica(dati: AnnuncioCreate, utente: CurrentUser, db: DbSession):
             HTTP_422_DATI_NON_VALIDI,
             f"Un account '{utente.tipo.value}' non può pubblicare un annuncio '{dati.tipo.value}'",
         )
+    # Chi arriva a coprire un turno deve poter riconoscere il posto: la foto
+    # dell'ingresso è il minimo indispensabile per farlo.
+    if utente.profilo_piscina is not None and not utente.profilo_piscina.ha_foto_ingresso:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Aggiungi prima la foto dell'ingresso al profilo della struttura: "
+            "serve ai bagnini per trovare il posto.",
+        )
     return crud.crea(db, utente, dati)
 
 

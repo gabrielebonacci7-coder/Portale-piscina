@@ -17,6 +17,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 # Starlette ha rinominato la costante 422 (UNPROCESSABLE_ENTITY ->
 # UNPROCESSABLE_CONTENT): si usa il numero per non dipendere dalla versione.
 HTTP_422_DATI_NON_VALIDI = 422
+HTTP_413_FILE_TROPPO_GRANDE = 413
 
 DbSession = Annotated[Session, Depends(get_db)]
 

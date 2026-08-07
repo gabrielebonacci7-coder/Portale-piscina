@@ -4,6 +4,7 @@ import { api } from "../api.js";
 import { caricaZone, stato } from "../stato.js";
 import {
   GIORNI_LUNGHI,
+  avatar,
   avviso,
   caricamento,
   chip,
@@ -81,15 +82,21 @@ export function vistaBagnini(navigazione) {
 }
 
 function rigaBagnino(b, alClic) {
+  const nome = `${b.nome} ${b.cognome}`;
   return el("button", { classe: "scheda", type: "button", onclick: alClic }, [
     el("div", { classe: "scheda-testa" }, [
-      el("h3", { testo: `${b.nome} ${b.cognome}` }),
-      b.eta && el("span", { classe: "dato sommesso", testo: `${b.eta} anni` }),
-    ]),
-    el("div", { classe: "riga-meta" }, [
-      el("span", {
-        testo: `${b.anni_esperienza} ${b.anni_esperienza === 1 ? "anno" : "anni"} di esperienza`,
-      }),
+      avatar(b.foto_anteprima_url, nome),
+      el("div", { style: "flex:1;min-width:0" }, [
+        el("h3", { testo: nome }),
+        el("div", { classe: "riga-meta" }, [
+          b.eta && el("span", { testo: `${b.eta} anni` }),
+          el("span", {
+            testo: `${b.eta ? "· " : ""}${b.anni_esperienza} ${
+              b.anni_esperienza === 1 ? "anno" : "anni"
+            } di esperienza`,
+          }),
+        ]),
+      ]),
     ]),
     el("div", { classe: "chips" }, [
       b.abilitato ? chip("Brevetto valido", "verde") : chip("Brevetto da verificare", "ambra"),
@@ -112,9 +119,13 @@ export async function schedaBagnino(bagninoId, navigazione) {
     return;
   }
 
+  const nomeCompleto = `${b.nome} ${b.cognome}`;
   const testa = el("div", { classe: "blocco" }, [
-    el("h2", { testo: `${b.nome} ${b.cognome}` }),
-    el("div", { classe: "riga-meta", style: "margin-top:6px" }, [
+    el("div", { style: "display:flex;gap:14px;align-items:center" }, [
+      avatar(b.foto_url, nomeCompleto, true),
+      el("h2", { style: "flex:1;min-width:0", testo: nomeCompleto }),
+    ]),
+    el("div", { classe: "riga-meta", style: "margin-top:10px" }, [
       b.eta && el("span", { testo: `${b.eta} anni` }),
       el("span", { testo: `· ${b.citta}` }),
       el("span", { testo: `· ${b.anni_esperienza} anni di esperienza` }),

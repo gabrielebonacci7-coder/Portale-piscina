@@ -2,8 +2,9 @@
 
 Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma.
 
-Stato attuale: **passo 5 — la PWA**. Il progetto è utilizzabile: backend
-completo e interfaccia mobile installabile sul telefono.
+Stato attuale: **passo 6 — le foto**. Il progetto è utilizzabile: backend
+completo, interfaccia mobile installabile sul telefono, foto profilo per i
+bagnini e galleria per le strutture.
 
 **La bacheca è riservata agli iscritti**: senza login si può solo registrarsi e
 leggere l'elenco delle zone (serve al modulo di iscrizione).
@@ -11,7 +12,7 @@ leggere l'elenco delle zone (serve al modulo di iscrizione).
 ## Avvio rapido
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt      # per i test: requirements-dev.txt
 
 python -m app.db.init_db      # crea le tabelle e inserisce le zone di Roma
 python -m scripts.seed_demo   # (facoltativo) dati di esempio
@@ -35,7 +36,7 @@ Su **/docs** resta la documentazione interattiva dell'API, per provare le
 chiamate una per una.
 
 ```bash
-pytest        # 91 test end-to-end sulle regole di dominio
+pytest        # 108 test end-to-end sulle regole di dominio
 ```
 
 ## L'app (PWA)
@@ -178,6 +179,17 @@ cima, poi i turni più vicini nel tempo.
 | POST/DELETE | `/blocchi/{utente_id}` | blocca / sblocca un utente |
 | GET | `/blocchi` | chi hai bloccato |
 
+### Foto
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| PUT | `/bagnini/me/foto` | carica o sostituisce la foto profilo |
+| DELETE | `/bagnini/me/foto` | la rimuove |
+| POST | `/piscine/me/foto` | aggiunge una foto (`tipo`: ingresso, vasca, ...) |
+| DELETE | `/piscine/me/foto/{id}` | la elimina |
+
+Le foto sono servite da `/media/…`. Ognuna ha anche un'anteprima, con lo
+stesso nome più `-p`.
+
 ### Recensioni
 | Metodo | Percorso | Cosa fa |
 |---|---|---|
@@ -202,6 +214,7 @@ cima, poi i turni più vicini nel tempo.
 | `partecipanti_conversazione` | chi ne fa parte e fin dove ha letto |
 | `messaggi` | i messaggi di una conversazione |
 | `blocchi` | chi ha bloccato chi |
+| `foto_piscina` | le foto di una struttura, con il tipo (ingresso, vasca...) |
 | `recensioni` | recensioni incrociate piscina ↔ bagnino, 1-5 stelle |
 
 ### Scelte di modellazione
@@ -262,6 +275,35 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
 - **Il blocco vale in entrambi i versi.** Chi blocca non vuole essere
   contattato, e chi è bloccato non deve poter aggirare la cosa scrivendo per
   primo da una chat nuova.
+
+## Le foto
+
+Un bagnino ha una foto profilo, una struttura ne ha fino a sei, ognuna
+etichettata con quello che mostra: **ingresso**, vasca, spogliatoi, altro.
+
+**La foto dell'ingresso è obbligatoria per pubblicare un turno.** È quella che
+permette a chi arriva di riconoscere il posto, magari di sera e di corsa; senza,
+l'annuncio viene rifiutato con un messaggio che spiega cosa fare. Se ne tiene
+una sola: caricandone un'altra sostituisce la precedente, perché due ingressi
+diversi confonderebbero invece di aiutare.
+
+**Nessun file arriva su disco così com'è.** Ogni immagine viene decodificata,
+ruotata secondo l'orientamento originale, ridimensionata e riscritta da capo.
+Serve a tre cose insieme:
+
+- **Privacy.** Le foto dal telefono contengono l'EXIF, e dentro l'EXIF ci sono
+  le **coordinate GPS del punto dello scatto**. Un bagnino che carica un selfie
+  fatto in casa pubblicherebbe l'indirizzo di casa sua. Riscrivendo l'immagine
+  l'EXIF sparisce — e c'è un test che lo verifica con un JPEG che contiene
+  davvero delle coordinate.
+- **Sicurezza.** Un file può dichiararsi `image/jpeg` ed essere altro. Conta
+  solo se Pillow riesce a decodificarlo davvero, e la riscrittura scarta
+  qualsiasi cosa fosse nascosta fra i byte.
+- **Peso.** Una foto da telefono pesa anche 12 MB: ridotta a 1600px sta sotto i
+  300 kB, e la bacheca resta veloce anche in 4G.
+
+Il nome del file è casuale: quello scelto dall'utente non tocca mai il disco.
+Le foto stanno in `media/`, che non è versionata.
 
 ## Sicurezza
 

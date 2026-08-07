@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, CheckConstraint, Date, ForeignKey, Integer, String, Text, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.immagini import url_anteprima, url_foto
 from app.db.base_class import Base, TimestampMixin
 from app.models.enums import TipoBrevetto, enum_col
 from app.models.zona import bagnino_zone
@@ -34,6 +35,8 @@ class ProfiloBagnino(TimestampMixin, Base):
     data_nascita: Mapped[date | None] = mapped_column(Date)
 
     citta: Mapped[str] = mapped_column(String(80), default="Roma", nullable=False, index=True)
+    # Percorso relativo della foto profilo dentro la cartella media.
+    foto: Mapped[str | None] = mapped_column(String(255))
     # Testo libero per le note di spostamento ("solo zone raggiungibili in metro B").
     note_spostamenti: Mapped[str | None] = mapped_column(String(255))
 
@@ -75,6 +78,14 @@ class ProfiloBagnino(TimestampMixin, Base):
             - self.data_nascita.year
             - ((oggi.month, oggi.day) < (self.data_nascita.month, self.data_nascita.day))
         )
+
+    @property
+    def foto_url(self) -> str | None:
+        return url_foto(self.foto)
+
+    @property
+    def foto_anteprima_url(self) -> str | None:
+        return url_anteprima(self.foto)
 
     @property
     def brevetti_validi(self) -> list[Brevetto]:

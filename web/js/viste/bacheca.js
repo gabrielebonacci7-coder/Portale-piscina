@@ -11,6 +11,7 @@ import {
   el,
   etichetta,
   euro,
+  galleria,
   pannello,
   quando,
   quandoEsteso,
@@ -162,6 +163,32 @@ export async function apriAnnuncio(id, alCambio, navigazione) {
   }
 
   corpo.replaceChildren(dettagli);
+
+  // Le foto della struttura, con l'ingresso per primo: è così che chi va a
+  // coprire il turno riconosce il posto quando ci arriva.
+  if (a.piscina_id) {
+    const zonaFoto = el("div", { classe: "blocco" }, [
+      el("span", { classe: "etichetta", testo: "La struttura" }),
+      caricamento(),
+    ]);
+    corpo.append(zonaFoto);
+    api
+      .piscina(a.piscina_id)
+      .then((piscina) => {
+        zonaFoto.replaceChildren(
+          el("span", { classe: "etichetta", testo: "La struttura" }),
+          el("h3", { style: "margin:4px 0 10px", testo: piscina.nome_struttura }),
+        );
+        if (piscina.foto.length) {
+          zonaFoto.append(galleria(piscina.foto));
+        } else {
+          zonaFoto.append(
+            el("p", { classe: "sommesso", testo: "Nessuna foto disponibile." }),
+          );
+        }
+      })
+      .catch(() => zonaFoto.remove());
+  }
 
   // --- Azioni ---
   const azioni = el("div", { classe: "azioni" });

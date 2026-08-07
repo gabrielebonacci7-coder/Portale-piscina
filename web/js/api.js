@@ -44,6 +44,35 @@ function messaggioLeggibile(stato, corpo) {
   return "Qualcosa non ha funzionato";
 }
 
+/** Caricamento di un file: multipart, senza Content-Type impostato a mano
+    (il browser deve aggiungere da sé il "boundary"). */
+async function invioFile(metodo, percorso, file, campi = {}) {
+  const modulo = new FormData();
+  modulo.append("file", file);
+  for (const [k, v] of Object.entries(campi)) {
+    if (v !== undefined && v !== null && v !== "") modulo.append(k, v);
+  }
+
+  let risposta;
+  try {
+    risposta = await fetch(new URL(BASE + percorso, location.origin), {
+      method: metodo,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: modulo,
+    });
+  } catch {
+    throw new ErroreApi(0, "Nessuna connessione. Controlla la rete.");
+  }
+
+  const testo = await risposta.text();
+  const dati = testo ? JSON.parse(testo) : null;
+  if (!risposta.ok) {
+    if (risposta.status === 401 && alScadere) alScadere();
+    throw new ErroreApi(risposta.status, messaggioLeggibile(risposta.status, dati));
+  }
+  return dati;
+}
+
 async function richiesta(metodo, percorso, { corpo, parametri } = {}) {
   const url = new URL(BASE + percorso, location.origin);
   if (parametri) {
@@ -100,6 +129,8 @@ export const api = {
   aggiornaProfiloBagnino: (dati) => patch("/bagnini/me", dati),
   bagnini: (filtri) => get("/bagnini", filtri),
   bagnino: (id) => get(`/bagnini/${id}`),
+  caricaFotoBagnino: (file) => invioFile("PUT", "/bagnini/me/foto", file),
+  rimuoviFotoBagnino: () => elimina("/bagnini/me/foto"),
   aggiungiBrevetto: (dati) => post("/bagnini/me/brevetti", dati),
   eliminaBrevetto: (id) => elimina(`/bagnini/me/brevetti/${id}`),
   aggiungiEsperienza: (dati) => post("/bagnini/me/esperienze", dati),
@@ -112,6 +143,9 @@ export const api = {
   mioProfiloPiscina: () => get("/piscine/me"),
   aggiornaProfiloPiscina: (dati) => patch("/piscine/me", dati),
   piscine: (filtri) => get("/piscine", filtri),
+  caricaFotoPiscina: (file, tipo, didascalia) =>
+    invioFile("POST", "/piscine/me/foto", file, { tipo, didascalia }),
+  eliminaFotoPiscina: (id) => elimina(`/piscine/me/foto/${id}`),
   piscina: (id) => get(`/piscine/${id}`),
 
   // --- Annunci ---

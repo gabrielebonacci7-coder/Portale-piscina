@@ -1,6 +1,7 @@
 """Entry point FastAPI: monta i router e crea lo schema all'avvio."""
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +14,7 @@ from app.api.routers import (
     auth,
     bagnini,
     candidature,
+    foto,
     messaggi,
     piscine,
     recensioni,
@@ -51,6 +53,7 @@ app.include_router(bagnini.router)
 app.include_router(piscine.router)
 app.include_router(annunci.router)
 app.include_router(candidature.router)
+app.include_router(foto.router)
 app.include_router(messaggi.router)
 app.include_router(recensioni.router)
 app.include_router(zone.router)
@@ -72,6 +75,13 @@ def schema_db() -> dict:
         tabella: [c["name"] for c in inspector.get_columns(tabella)]
         for tabella in sorted(inspector.get_table_names())
     }
+
+
+# Le foto caricate dagli utenti. Sta prima del montaggio della PWA perché
+# quello, essendo su "/", cattura tutto quello che resta.
+CARTELLA_MEDIA = Path(settings.media_dir)
+CARTELLA_MEDIA.mkdir(parents=True, exist_ok=True)
+app.mount("/media", StaticFiles(directory=CARTELLA_MEDIA), name="media")
 
 
 # La PWA è servita dallo stesso processo dell'API: una sola porta da avviare,

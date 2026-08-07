@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 
-from app.models.enums import TipoStruttura
+from app.models.enums import TipoFoto, TipoStruttura
 from app.schemas.common import ORMModel
 from app.schemas.zona import ZonaRead
 
@@ -43,8 +43,19 @@ class ProfiloPiscinaUpdate(BaseModel):
     attiva: bool | None = None
 
 
+class FotoRead(ORMModel):
+    id: int
+    tipo: TipoFoto
+    didascalia: str | None = None
+    url: str | None = None
+    anteprima_url: str | None = None
+
+
 class ProfiloPiscinaRead(ORMModel, ProfiloPiscinaBase):
     id: int
     utente_id: int
     attiva: bool
     zona: ZonaRead | None = None
+    foto: list[FotoRead] = Field(default_factory=list)
+    # Comodo al frontend: dice se manca la foto che serve per trovare il posto.
+    ha_foto_ingresso: bool = False

@@ -14,11 +14,13 @@ from app.models.enums import (
     TipoAnnuncio,
     TipoBrevetto,
     TipoCompenso,
+    TipoFoto,
     TipoStruttura,
     TipoTurno,
     TipoUtente,
     brevetto_copre,
 )
+from app.models.foto import FotoPiscina
 from app.models.messaggistica import Blocco, Conversazione, Messaggio, Partecipante
 from app.models.piscina import ProfiloPiscina
 from app.models.recensione import Recensione
@@ -34,6 +36,7 @@ __all__ = [
     "Conversazione",
     "Disponibilita",
     "Esperienza",
+    "FotoPiscina",
     "Messaggio",
     "Partecipante",
     "ProfiloBagnino",
@@ -47,6 +50,7 @@ __all__ = [
     "TipoAnnuncio",
     "TipoBrevetto",
     "TipoCompenso",
+    "TipoFoto",
     "TipoStruttura",
     "TipoTurno",
     "TipoUtente",

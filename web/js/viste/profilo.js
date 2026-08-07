@@ -4,13 +4,16 @@
 import { api } from "../api.js";
 import { caricaProfilo, eBagnino, esci, stato } from "../stato.js";
 import {
+  ETICHETTE_FOTO,
   GIORNI_LUNGHI,
+  avatar,
   avviso,
   brindisi,
   caricamento,
   chip,
   el,
   etichetta,
+  galleria,
   oraBreve,
   pannello,
   stelle,
@@ -37,6 +40,8 @@ export function vistaProfilo(navigazione) {
         sezioneEsperienze(p, carica),
         sezioneDisponibilita(p, carica),
       );
+    } else {
+      contenitore.append(sezioneFotoPiscina(p, carica));
     }
 
     contenitore.append(sezioneRecensioni(), sezioneBlocchi(), sezioneAccount(navigazione));
@@ -49,9 +54,33 @@ export function vistaProfilo(navigazione) {
 
 // ---------- Testa del profilo ----------
 function testaBagnino(p, ricarica) {
+  const nome = `${p.nome} ${p.cognome}`;
   return el("div", { classe: "blocco" }, [
-    el("h2", { testo: `${p.nome} ${p.cognome}` }),
-    el("div", { classe: "riga-meta", style: "margin-top:6px" }, [
+    el("div", { style: "display:flex;gap:14px;align-items:center" }, [
+      avatar(p.foto_url, nome, true),
+      el("div", { style: "flex:1;min-width:0" }, [
+        el("h2", { testo: nome }),
+        el("div", { style: "display:flex;gap:4px;margin-top:4px;flex-wrap:wrap" }, [
+          el("button", {
+            classe: "btn fantasma piccolo",
+            testo: p.foto_url ? "Cambia foto" : "Aggiungi foto",
+            onclick: () => scegliFoto((file) => api.caricaFotoBagnino(file), ricarica),
+          }),
+          p.foto_url &&
+            el("button", {
+              classe: "btn fantasma piccolo",
+              testo: "Rimuovi",
+              onclick: async () => {
+                if (!confirm("Rimuovere la foto profilo?")) return;
+                await api.rimuoviFotoBagnino();
+                brindisi("Foto rimossa");
+                ricarica();
+              },
+            }),
+        ]),
+      ]),
+    ]),
+    el("div", { classe: "riga-meta", style: "margin-top:10px" }, [
       p.eta && el("span", { testo: `${p.eta} anni` }),
       el("span", { testo: `· ${p.citta}` }),
       el("span", { testo: `· ${p.anni_esperienza} anni di esperienza` }),
@@ -90,6 +119,142 @@ function testaPiscina(p, ricarica) {
       }),
     ]),
   ]);
+}
+
+// ---------- Foto della struttura ----------
+function sezioneFotoPiscina(p, ricarica) {
+  const blocco = el("div", { classe: "blocco" }, [
+    el("span", { classe: "etichetta", testo: "Foto della struttura" }),
+  ]);
+
+  // La foto dell'ingresso serve per pubblicare: se manca lo si dice subito,
+  // non al momento del rifiuto.
+  if (!p.ha_foto_ingresso) {
+    blocco.append(
+      avviso(
+        "Manca la foto dell'ingresso. Serve ai bagnini per trovare il posto, e senza non puoi pubblicare turni.",
+        "info",
+      ),
+    );
+  }
+
+  if (p.foto.length) {
+    blocco.append(
+      galleria(p.foto, async (f) => {
+        if (!confirm("Eliminare questa foto?")) return;
+        await api.eliminaFotoPiscina(f.id);
+        brindisi("Foto eliminata");
+        ricarica();
+      }),
+    );
+  } else {
+    blocco.append(el("p", { classe: "sommesso", testo: "Nessuna foto caricata." }));
+  }
+
+  blocco.append(
+    el("button", {
+      classe: "btn fantasma piccolo",
+      style: "margin-top:12px",
+      testo: "+ Aggiungi foto",
+      onclick: () => aggiungiFotoPiscina(p, ricarica),
+    }),
+  );
+  return blocco;
+}
+
+function aggiungiFotoPiscina(p, ricarica) {
+  const tipo = el(
+    "select",
+    {},
+    Object.entries(ETICHETTE_FOTO).map(([v, t]) =>
+      el("option", {
+        value: v,
+        testo: v === "ingresso" ? "Ingresso (la via da cui si entra)" : t,
+        selected: v === "ingresso" && !p.ha_foto_ingresso,
+      }),
+    ),
+  );
+  const didascalia = el("input", { type: "text", maxlength: 200, placeholder: "Facoltativa" });
+  const scelta = el("input", { type: "file", accept: "image/*", classe: "scegli-file" });
+  const anteprima = el("img", { classe: "anteprima-scelta", hidden: true, alt: "" });
+  const errore = el("div");
+
+  const bottoneScegli = el("button", {
+    type: "button",
+    classe: "btn secondario largo",
+    testo: "Scegli una foto",
+    onclick: () => scelta.click(),
+  });
+
+  scelta.addEventListener("change", () => {
+    const file = scelta.files[0];
+    if (!file) return;
+    anteprima.src = URL.createObjectURL(file);
+    anteprima.hidden = false;
+    bottoneScegli.textContent = file.name;
+  });
+
+  const form = el("form", {}, [
+    errore,
+    anteprima,
+    scelta,
+    bottoneScegli,
+    el("div", { classe: "campo", style: "margin-top:16px" }, [
+      el("label", { testo: "Che cosa mostra" }),
+      tipo,
+      el("span", {
+        classe: "aiuto",
+        testo: "Dell'ingresso se ne tiene una sola: caricandone un'altra sostituisce la precedente.",
+      }),
+    ]),
+    el("div", { classe: "campo" }, [el("label", { testo: "Didascalia" }), didascalia]),
+    el("button", { type: "submit", classe: "btn largo", testo: "Carica" }),
+  ]);
+
+  const { chiudi } = pannello("Nuova foto", form);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errore.replaceChildren();
+    const file = scelta.files[0];
+    if (!file) {
+      errore.replaceChildren(avviso("Scegli prima una foto"));
+      return;
+    }
+    const invio = form.querySelector("button[type=submit]");
+    invio.disabled = true;
+    invio.textContent = "Caricamento…";
+    try {
+      await api.caricaFotoPiscina(file, tipo.value, didascalia.value.trim() || null);
+      brindisi("Foto caricata");
+      chiudi();
+      ricarica();
+    } catch (err) {
+      errore.replaceChildren(avviso(err.dettaglio));
+      invio.disabled = false;
+      invio.textContent = "Carica";
+    }
+  });
+}
+
+/** Sceglie un file dal dispositivo e lo invia con `azione`. */
+function scegliFoto(azione, ricarica) {
+  const scelta = el("input", { type: "file", accept: "image/*", classe: "scegli-file" });
+  document.body.append(scelta);
+  scelta.addEventListener("change", async () => {
+    const file = scelta.files[0];
+    scelta.remove();
+    if (!file) return;
+    brindisi("Caricamento…");
+    try {
+      await azione(file);
+      brindisi("Foto aggiornata");
+      ricarica();
+    } catch (err) {
+      alert(err.dettaglio ?? "Caricamento non riuscito");
+    }
+  });
+  scelta.click();
 }
 
 // ---------- Brevetti ----------

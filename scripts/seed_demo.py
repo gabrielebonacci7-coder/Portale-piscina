@@ -8,6 +8,9 @@ from decimal import Decimal
 
 from sqlalchemy import select
 
+from scripts import foto_demo
+
+from app.core.immagini import salva_immagine
 from app.core.security import hash_password
 from app.db.init_db import init_db
 from app.db.session import SessionLocal
@@ -18,6 +21,7 @@ from app.models import (
     Conversazione,
     Disponibilita,
     Esperienza,
+    FotoPiscina,
     Messaggio,
     Partecipante,
     ProfiloBagnino,
@@ -27,6 +31,7 @@ from app.models import (
     TipoAnnuncio,
     TipoBrevetto,
     TipoCompenso,
+    TipoFoto,
     TipoStruttura,
     TipoTurno,
     TipoUtente,
@@ -76,6 +81,7 @@ def main() -> None:
             bio="Bagnino con esperienza in piscine comunali e hotel.",
             disponibile_chiamata_singola=True,
             zone=[z for z in (eur, ostia) if z is not None],
+            foto=salva_immagine(foto_demo.ritratto("M"), "bagnini"),
         )
         bagnino.brevetti.append(
             Brevetto(
@@ -123,6 +129,26 @@ def main() -> None:
             referente_ruolo="Gestore",
             referente_telefono="+39 06 5551234",
         )
+        # L'ingresso per primo: senza, la struttura non potrebbe pubblicare.
+        piscina.foto = [
+            FotoPiscina(
+                percorso=salva_immagine(foto_demo.ingresso("AQUA CENTER"), "piscine"),
+                tipo=TipoFoto.INGRESSO,
+                didascalia="Ingresso su Viale America 50, cancello verde",
+                ordine=0,
+            ),
+            FotoPiscina(
+                percorso=salva_immagine(foto_demo.vasca(), "piscine"),
+                tipo=TipoFoto.VASCA,
+                didascalia="Vasca da 25m, sei corsie",
+                ordine=1,
+            ),
+            FotoPiscina(
+                percorso=salva_immagine(foto_demo.spogliatoi(), "piscine"),
+                tipo=TipoFoto.SPOGLIATOI,
+                ordine=2,
+            ),
+        ]
 
         # --- Annunci -------------------------------------------------------
         annuncio = Annuncio(
@@ -219,6 +245,7 @@ def main() -> None:
             anni_esperienza=2,
             bio="Due stagioni in piscina scoperta, disponibile nei weekend.",
             zone=[z for z in (eur,) if z is not None],
+            foto=salva_immagine(foto_demo.ritratto("G", tinta=(138, 91, 18)), "bagnini"),
         )
         giulia.brevetti.append(
             Brevetto(

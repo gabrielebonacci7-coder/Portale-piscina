@@ -31,6 +31,17 @@ class Settings(BaseSettings):
     # Costo del calcolo bcrypt. 12 è il valore giusto in esercizio; i test lo
     # abbassano via BCRYPT_ROUNDS perché altrimenti impiegherebbero minuti.
     bcrypt_rounds: int = 12
+
+    # --- Foto -------------------------------------------------------------
+    # Dove finiscono le foto caricate. In produzione conviene un disco
+    # separato o uno spazio oggetti, non la cartella del codice.
+    media_dir: str = str(BASE_DIR / "media")
+    # 12 MB: una foto da telefono ci sta larga, e il server non si intasa.
+    max_upload_bytes: int = 12 * 1024 * 1024
+    foto_lato_max: int = 1600
+    foto_lato_anteprima: int = 400
+    # Quante foto può avere una struttura.
+    max_foto_piscina: int = 6
     # Durata del token di accesso: 7 giorni, comodo per una PWA su telefono.
     access_token_expire_minutes: int = 60 * 24 * 7
 

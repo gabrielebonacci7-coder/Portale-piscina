@@ -163,6 +163,67 @@ export const caricamento = () => el("div", { classe: "caricamento", testo: "Cari
 export const avviso = (testo, tipo = "errore") =>
   el("div", { classe: `avviso ${tipo}`, testo });
 
+// ---------- Foto ----------
+/** Avatar: la foto se c'è, altrimenti le iniziali. */
+export function avatar(urlFoto, nome, grande = false) {
+  const misura = grande ? "avatar grande" : "avatar";
+  if (urlFoto) {
+    return el("img", {
+      classe: misura,
+      src: urlFoto,
+      alt: nome ? `Foto di ${nome}` : "Foto profilo",
+      loading: "lazy",
+    });
+  }
+  const iniziali = (nome || "?")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0].toUpperCase())
+    .join("");
+  return el("div", {
+    classe: `${misura} avatar-vuoto${grande ? " grande" : ""}`,
+    "aria-hidden": "true",
+    testo: iniziali,
+  });
+}
+
+export const ETICHETTE_FOTO = {
+  ingresso: "Ingresso",
+  vasca: "Vasca",
+  spogliatoi: "Spogliatoi",
+  altro: "Altro",
+};
+
+/** Striscia di foto scorrevole. `alTogli` la rende modificabile. */
+export function galleria(foto, alTogli) {
+  const striscia = el("div", { classe: "galleria" });
+  for (const f of foto) {
+    const riquadro = el("figure", {}, [
+      el("img", {
+        src: f.anteprima_url,
+        alt: f.didascalia || ETICHETTE_FOTO[f.tipo] || "Foto della struttura",
+        loading: "lazy",
+      }),
+      el("span", { classe: "targhetta", testo: ETICHETTE_FOTO[f.tipo] ?? f.tipo }),
+      f.didascalia && el("figcaption", { testo: f.didascalia }),
+    ]);
+    if (alTogli) {
+      riquadro.append(
+        el("button", {
+          classe: "togli",
+          type: "button",
+          "aria-label": "Elimina foto",
+          html: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+          onclick: () => alTogli(f),
+        }),
+      );
+    }
+    striscia.append(riquadro);
+  }
+  return striscia;
+}
+
 // ---------- Pannello a scomparsa ----------
 export function pannello(titolo, contenuto, { azione } = {}) {
   const chiudi = () => velo.remove();
