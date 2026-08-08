@@ -1,9 +1,13 @@
-# Portale Piscina
+# Guardlink
 
-Bacheca annunci che mette in contatto **bagnini** e **piscine/strutture** a Roma
+Bacheca turni che mette in contatto **bagnini** e **piscine/strutture** a Roma
 e nei Castelli Romani.
 
-Stato attuale: **passo 7 — i Castelli Romani**. Il progetto è utilizzabile: backend
+Il nome tiene insieme le due cose che fa: i *guard* — chi sorveglia la vasca —
+e il *link*, il collegamento fra chi cerca un turno e chi lo offre. Non nomina
+la piscina apposta: se un domani la bacheca copre anche il mare, il nome regge.
+
+Stato attuale: **passo 8 — nome e marchio**. Il progetto è utilizzabile: backend
 completo, interfaccia mobile installabile sul telefono, foto profilo per i
 bagnini e galleria per le strutture.
 
@@ -15,7 +19,7 @@ leggere l'elenco delle zone (serve al modulo di iscrizione).
 ```bash
 pip install -r requirements.txt      # per i test: requirements-dev.txt
 
-python -m app.db.init_db      # crea le tabelle e inserisce le zone di Roma
+python -m app.db.init_db      # crea le tabelle e inserisce le zone
 python -m scripts.seed_demo   # (facoltativo) dati di esempio
 
 uvicorn app.main:app --reload
@@ -285,6 +289,25 @@ Sono i vincoli che una tabella non può descrivere. Ognuno ha il suo test.
   contattato, e chi è bloccato non deve poter aggirare la cosa scrivendo per
   primo da una chat nuova.
 
+## Il marchio
+
+Un salvagente: anello rosso con quattro settori bianchi, come quelli veri
+appesi a bordo vasca. Sta su una piastra scura per due motivi — il bianco ha
+bisogno di contrasto, e sulla schermata home di un telefono un'icona scura si
+distingue fra tante chiare.
+
+Non è un file da ridisegnare: è **disegnato in codice**, in una decina di righe
+di SVG per lo schermo e altrettante di Python per i PNG. Si rigenera con:
+
+```bash
+python -m scripts.genera_icone
+```
+
+**Il rosso del marchio non è il rosso dell'interfaccia.** Dentro l'app il rosso
+vuol dire una cosa sola — urgenza, scadenza — e l'accento resta il verde-acqua.
+Nel marchio il rosso è il rosso del soccorso: stesso colore, due ruoli diversi,
+tenuti separati apposta.
+
 ## Le zone
 
 La bacheca copre due aree, e si estende aggiungendo righe a `ZONE` in
@@ -311,6 +334,10 @@ python -m scripts.aggiorna_zone
 
 Aggiunge la colonna, assegna a Roma le zone che c'erano e inserisce le nuove,
 senza toccare il resto. È un rattoppo mirato: il lavoro vero lo farà Alembic.
+
+Nota: con il nome nuovo il database si chiama `guardlink.db`. Se ne hai uno
+vecchio che vuoi tenere, rinominalo — `mv portale_piscina.db guardlink.db` —
+oppure indica il percorso con `DATABASE_URL`.
 
 ## Le foto
 

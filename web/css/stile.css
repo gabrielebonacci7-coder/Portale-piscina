@@ -1,4 +1,4 @@
-/* Portale Piscina — foglio di stile unico.
+/* Guardlink — foglio di stile unico.
 
    Palette presa dal mondo della piscina: il fondo è il bianco sporco della
    fuga fra le piastrelle, l'inchiostro è l'acqua vista in profondità,
@@ -33,6 +33,8 @@
   --warn: #8a5b12;
   --warn-tenue: #f8eeda;
   --neutro-tenue: #e6ecec;
+  /* Fondo del marchio: scuro sul chiaro, schiarito sullo scuro. */
+  --marchio-piastra: #0c2a2e;
 
   --ombra: 0 1px 2px rgba(12, 42, 46, 0.06), 0 4px 12px rgba(12, 42, 46, 0.05);
   --ombra-alta: 0 8px 32px rgba(12, 42, 46, 0.16);
@@ -81,6 +83,7 @@
     --warn: #d9a441;
     --warn-tenue: #33280f;
     --neutro-tenue: #1b3438;
+    --marchio-piastra: #17383e;
 
     --ombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
     --ombra-alta: 0 8px 32px rgba(0, 0, 0, 0.55);
@@ -109,6 +112,7 @@
   --warn: #d9a441;
   --warn-tenue: #33280f;
   --neutro-tenue: #1b3438;
+  --marchio-piastra: #17383e;
 
   --ombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
   --ombra-alta: 0 8px 32px rgba(0, 0, 0, 0.55);
@@ -1041,8 +1045,8 @@ textarea {
 }
 
 .marchio svg {
-  width: 64px;
-  height: 64px;
+  width: 76px;
+  height: 76px;
   margin-bottom: var(--sp-3);
 }
 

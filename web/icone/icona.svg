@@ -1,6 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#edf2f1"/>
-  <circle cx="32" cy="32" r="20" fill="none" stroke="#0b6e7f" stroke-width="7"/>
-  <path d="M32 10v12M32 42v12M10 32h12M42 32h12"
-        stroke="#c4381f" stroke-width="7" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img"
+     aria-label="Guardlink">
+  <rect width="64" height="64" rx="14" fill="#0c2a2e"/>
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#ffffff" stroke-width="10"/>
+  <!-- L'anello rosso a tratti scopre il bianco sottostante: quattro settori
+       per parte, sfalsati di mezzo passo perché il bianco cada sulle diagonali. -->
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#d63e26" stroke-width="10"
+          stroke-dasharray="14.92 14.92" stroke-dashoffset="7.46"/>
 </svg>

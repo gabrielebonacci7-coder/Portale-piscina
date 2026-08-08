@@ -1,7 +1,7 @@
 {
-  "name": "Portale Piscina",
-  "short_name": "Piscina",
-  "description": "Bacheca turni e sostituzioni per bagnini e piscine a Roma.",
+  "name": "Guardlink",
+  "short_name": "Guardlink",
+  "description": "Turni e sostituzioni per bagnini e piscine, a Roma e nei Castelli Romani.",
   "lang": "it",
   "start_url": "/",
   "scope": "/",

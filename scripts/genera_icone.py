@@ -1,9 +1,13 @@
-"""Genera le icone PNG della PWA a partire dallo stesso disegno dell'SVG.
+"""Genera le icone PNG e l'SVG del marchio Guardlink.
 
     python -m scripts.genera_icone
 
-Il segno è una boa di salvataggio: anello in laguna, quattro fasce in rosso
-salvagente. Si rigenerano solo quando cambia il marchio.
+Il segno è un salvagente: anello rosso con quattro settori bianchi, come
+quelli veri appesi a bordo vasca. Sta su un fondo scuro perché il bianco
+abbia contrasto — e perché sulla schermata home di un telefono un'icona
+scura si distingue fra tante chiare.
+
+Si rigenerano solo quando cambia il marchio.
 """
 
 from pathlib import Path
@@ -12,15 +16,22 @@ from PIL import Image, ImageDraw
 
 DESTINAZIONE = Path(__file__).resolve().parents[1] / "web" / "icone"
 
-ACCENTO = (11, 110, 127)
-ROSSO = (196, 56, 31)
-FONDO = (237, 242, 241)
+# Rosso salvagente, un filo più caldo del rosso "urgenza" dell'interfaccia.
+ROSSO = (214, 62, 38)
+BIANCO = (255, 255, 255)
+FONDO = (12, 42, 46)  # lo stesso inchiostro scuro dell'app
 
-SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#edf2f1"/>
-  <circle cx="32" cy="32" r="20" fill="none" stroke="#0b6e7f" stroke-width="7"/>
-  <path d="M32 10v12M32 42v12M10 32h12M42 32h12"
-        stroke="#c4381f" stroke-width="7" stroke-linecap="round"/>
+# I settori bianchi stanno sulle diagonali: è la disposizione classica.
+SETTORI_BIANCHI = [(22.5, 67.5), (112.5, 157.5), (202.5, 247.5), (292.5, 337.5)]
+
+SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img"
+     aria-label="Guardlink">
+  <rect width="64" height="64" rx="14" fill="#0c2a2e"/>
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#ffffff" stroke-width="10"/>
+  <!-- L'anello rosso a tratti scopre il bianco sottostante: quattro settori
+       per parte, sfalsati di mezzo passo perché il bianco cada sulle diagonali. -->
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#d63e26" stroke-width="10"
+          stroke-dasharray="14.92 14.92" stroke-dashoffset="7.46"/>
 </svg>
 """
 
@@ -35,28 +46,14 @@ def disegna(lato: int, margine: float = 0.0) -> Image.Image:
     d = ImageDraw.Draw(img)
 
     centro = s / 2
-    raggio = s * (0.315 - margine)
-    spessore = int(s * 0.11)
+    raggio = s * (0.297 - margine)
+    spessore = int(s * 0.156)
+    riquadro = [centro - raggio, centro - raggio, centro + raggio, centro + raggio]
 
-    d.ellipse(
-        [centro - raggio, centro - raggio, centro + raggio, centro + raggio],
-        outline=ACCENTO,
-        width=spessore,
-    )
-
-    interno = raggio - spessore * 0.9
-    esterno = raggio + spessore * 0.9
-    meta = spessore / 2
-    for x0, y0, x1, y1 in [
-        (centro, centro - esterno, centro, centro - interno),  # alto
-        (centro, centro + interno, centro, centro + esterno),  # basso
-        (centro - esterno, centro, centro - interno, centro),  # sinistra
-        (centro + interno, centro, centro + esterno, centro),  # destra
-    ]:
-        d.line([x0, y0, x1, y1], fill=ROSSO, width=spessore)
-        # Estremi arrotondati, che PIL non fa da solo sulle linee.
-        for cx, cy in ((x0, y0), (x1, y1)):
-            d.ellipse([cx - meta, cy - meta, cx + meta, cy + meta], fill=ROSSO)
+    # Prima l'anello rosso pieno, poi i settori bianchi sopra.
+    d.ellipse(riquadro, outline=ROSSO, width=spessore)
+    for inizio, fine in SETTORI_BIANCHI:
+        d.arc(riquadro, inizio, fine, fill=BIANCO, width=spessore)
 
     return img.resize((lato, lato), Image.LANCZOS)
 
@@ -70,7 +67,7 @@ def main() -> None:
 
     # Android ritaglia le icone mascherabili in un cerchio: il segno va
     # tenuto dentro la "zona sicura", circa l'80% del lato.
-    disegna(512, margine=0.06).save(DESTINAZIONE / "icona-mascherabile.png")
+    disegna(512, margine=0.055).save(DESTINAZIONE / "icona-mascherabile.png")
 
     print(f"Icone generate in {DESTINAZIONE}")
     for f in sorted(DESTINAZIONE.iterdir()):

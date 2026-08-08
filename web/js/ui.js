@@ -341,8 +341,15 @@ export const ICONE = {
   esci: '<svg viewBox="0 0 24 24"><path d="M15 12H4m3-3l-3 3 3 3"/><path d="M11 4h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/></svg>',
 };
 
-/** Il logo: una boa di salvataggio, letta come cerchio spezzato. */
-export const LOGO = `<svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-  <circle cx="32" cy="32" r="24" stroke="var(--accent)" stroke-width="7"/>
-  <path d="M32 8v14M32 42v14M8 32h14M42 32h14" stroke="var(--urgente)" stroke-width="7" stroke-linecap="round"/>
+/** Il marchio: un salvagente rosso e bianco, lo stesso segno dell'icona.
+
+    Sta su una piastra scura perché il bianco abbia contrasto. La piastra è
+    legata a un token: nel tema scuro va schiarita, altrimenti sparisce nel
+    fondo. Il file dell'icona resta invece a colori fissi, perché viene
+    caricato come immagine e il CSS della pagina non lo raggiunge. */
+export const LOGO = `<svg viewBox="0 0 64 64" role="img" aria-label="Guardlink">
+  <rect width="64" height="64" rx="14" fill="var(--marchio-piastra)"/>
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#ffffff" stroke-width="10"/>
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#d63e26" stroke-width="10"
+          stroke-dasharray="14.92 14.92" stroke-dashoffset="7.46"/>
 </svg>`;

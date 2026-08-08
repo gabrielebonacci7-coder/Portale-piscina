@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     version=__version__,
-    description="Bacheca annunci per bagnini e strutture natatorie.",
+    description="Guardlink — bacheca turni per bagnini e strutture natatorie.",
     lifespan=lifespan,
 )
 

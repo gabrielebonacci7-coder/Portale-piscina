@@ -11,12 +11,12 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    app_name: str = "Portale Piscina API"
+    app_name: str = "Guardlink API"
     debug: bool = True
 
     # Percorso del file SQLite; sovrascrivibile con DATABASE_URL per passare
     # in futuro a PostgreSQL senza toccare il codice.
-    database_url: str = f"sqlite:///{BASE_DIR / 'portale_piscina.db'}"
+    database_url: str = f"sqlite:///{BASE_DIR / 'guardlink.db'}"
 
     # Città di default della bacheca (per ora Roma).
     citta_default: str = "Roma"

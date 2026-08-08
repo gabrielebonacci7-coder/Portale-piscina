@@ -11,8 +11,8 @@ export function vistaAccesso(vaiAllApp) {
 
   const marchio = el("div", { classe: "marchio", html: LOGO });
   marchio.append(
-    el("h1", { testo: "Portale Piscina" }),
-    el("p", { testo: "Turni e sostituzioni per bagnini e strutture, a Roma." }),
+    el("h1", { testo: "Guardlink" }),
+    el("p", { testo: "Turni e sostituzioni per bagnini e strutture." }),
   );
 
   const zonaModulo = el("div");

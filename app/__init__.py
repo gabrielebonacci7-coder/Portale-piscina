@@ -1,3 +1,3 @@
-"""Portale Piscina — bacheca annunci per bagnini e strutture natatorie."""
+"""Guardlink — bacheca turni per bagnini e strutture natatorie."""
 
 __version__ = "0.1.0"
