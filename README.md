@@ -117,7 +117,7 @@ scripts/
 ├── genera_icone.py      icone PNG della PWA
 ├── video_demo.py        registra il video dimostrativo
 ├── demo/palco.html      il "palco" a due telefoni usato dal video
-└── aggiorna_zone.py     aggiunge le aree a un database preesistente
+└── aggiorna_schema.py   aggiorna un database creato con una versione precedente
 tests/                   test end-to-end
 ```
 
@@ -334,15 +334,17 @@ una riga.
 Nell'app le zone si scelgono raggruppate per area: con una trentina di voci un
 elenco piatto sarebbe scomodo da scorrere sul telefono.
 
-**Se hai già un database** creato prima delle aree, `create_all` non aggiunge la
-colonna nuova alle tabelle esistenti. Si sistema con:
+**Se hai già un database** creato con una versione precedente, `create_all`
+crea le tabelle nuove ma **non aggiunge colonne** a quelle che esistono già.
+Si sistema con:
 
 ```bash
-python -m scripts.aggiorna_zone
+python -m scripts.aggiorna_schema
 ```
 
-Aggiunge la colonna, assegna a Roma le zone che c'erano e inserisce le nuove,
-senza toccare il resto. È un rattoppo mirato: il lavoro vero lo farà Alembic.
+Aggiunge le colonne mancanti, ricostruisce le aree dall'anagrafica e inserisce
+le zone nuove, senza toccare i dati. È un rattoppo mirato: il lavoro vero lo
+farà Alembic.
 
 Nota: con il nome nuovo il database si chiama `guardlink.db`. Se ne hai uno
 vecchio che vuoi tenere, rinominalo — `mv portale_piscina.db guardlink.db` —

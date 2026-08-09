@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guardlink — palco per il video dimostrativo</title>
+    <style>
+      /* Il "palco": due telefoni affiancati, una didascalia che li commenta.
+         Serve solo a registrare il video, non fa parte dell'app.
+
+         I due telefoni puntano a due porte diverse della stessa applicazione:
+         è l'unico modo per avere due sessioni aperte insieme, perché il token
+         sta in localStorage e localStorage è legato all'origine. */
+      :root {
+        --fondo: #0a181b;
+        --fondo-2: #102a2e;
+        --inchiostro: #e4eeec;
+        --sommesso: #8ca6a9;
+        --accento: #45b4c4;
+        --linea: #1e3b40;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1350px;
+        background: radial-gradient(120% 80% at 50% 0%, #12333a 0%, var(--fondo) 60%);
+        color: var(--inchiostro);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      /* ---------- Testata ---------- */
+      header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 40px 0 16px;
+      }
+
+      header svg { width: 72px; height: 72px; }
+
+      header h1 {
+        margin: 0;
+        font-size: 54px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      /* ---------- Didascalia ---------- */
+      .didascalia {
+        min-height: 140px;
+        max-width: 900px;
+        padding: 0 40px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 14px;
+      }
+
+      .didascalia .passo {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accento);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .didascalia .frase {
+        font-size: 42px;
+        font-weight: 600;
+        line-height: 1.25;
+        text-wrap: balance;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+
+      .didascalia.visibile .passo,
+      .didascalia.visibile .frase {
+        opacity: 1;
+        transform: none;
+      }
+
+      /* ---------- I due telefoni ---------- */
+      .telefoni {
+        display: flex;
+        gap: 64px;
+        margin-top: 16px;
+      }
+
+      figure {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      /* Chi non sta agendo si attenua: l'occhio va da solo dove succede. */
+      figure.spento {
+        opacity: 0.32;
+        transform: scale(0.97);
+      }
+
+      figcaption {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+
+      figcaption .ruolo {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 17px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--sommesso);
+      }
+
+      figcaption .nome {
+        font-size: 26px;
+        font-weight: 600;
+      }
+
+      /* Scocca del telefono */
+      .scocca {
+        width: 414px;
+        height: 868px;
+        padding: 12px;
+        border-radius: 46px;
+        background: linear-gradient(160deg, #24484f, #0e2429);
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+      }
+
+      iframe {
+        width: 390px;
+        height: 844px;
+        border: 0;
+        border-radius: 34px;
+        background: #edf2f1;
+        display: block;
+      }
+
+      /* ---------- Chiusura ---------- */
+      .sipario {
+        position: fixed;
+        inset: 0;
+        background: var(--fondo);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.6s ease;
+      }
+
+      .sipario.visibile { opacity: 1; }
+      .sipario svg { width: 190px; height: 190px; }
+      .sipario h2 { margin: 0; font-size: 88px; font-weight: 700; letter-spacing: -0.02em; }
+      .sipario p { margin: 0; font-size: 34px; color: var(--sommesso); text-align: center; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#17383e" />
+        <circle cx="32" cy="32" r="19" fill="none" stroke="#ffffff" stroke-width="10" />
+        <circle
+          cx="32" cy="32" r="19" fill="none" stroke="#d63e26" stroke-width="10"
+          stroke-dasharray="14.92 14.92" stroke-dashoffset="7.46"
+        />
+      </svg>
+      <h1>Guardlink</h1>
+    </header>
+
+    <div class="didascalia" id="didascalia">
+      <span class="passo" id="passo"></span>
+      <span class="frase" id="frase"></span>
+    </div>
+
+    <div class="telefoni">
+      <figure id="telefono-piscina">
+        <figcaption>
+          <span class="ruolo">La struttura</span>
+          <span class="nome">Aqua Center EUR</span>
+        </figcaption>
+        <div class="scocca"><iframe id="piscina" title="Telefono della struttura"></iframe></div>
+      </figure>
+
+      <figure id="telefono-bagnino">
+        <figcaption>
+          <span class="ruolo">Il bagnino</span>
+          <span class="nome">Marco Rossi</span>
+        </figcaption>
+        <div class="scocca"><iframe id="bagnino" title="Telefono del bagnino"></iframe></div>
+      </figure>
+    </div>
+
+    <div class="sipario" id="sipario">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#17383e" />
+        <circle cx="32" cy="32" r="19" fill="none" stroke="#ffffff" stroke-width="10" />
+        <circle
+          cx="32" cy="32" r="19" fill="none" stroke="#d63e26" stroke-width="10"
+          stroke-dasharray="14.92 14.92" stroke-dashoffset="7.46"
+        />
+      </svg>
+      <h2>Guardlink</h2>
+      <p>Turni e sostituzioni per bagnini e piscine<br />a Roma e nei Castelli Romani</p>
+    </div>
+
+    <script>
+      // Comandi usati dallo script di registrazione.
+      // Nome diverso dalla funzione: un `const` con lo stesso nome la
+      // oscurerebbe, e la chiamata dallo script di registrazione fallirebbe.
+      const zonaDidascalia = document.getElementById("didascalia");
+
+      window.didascalia = (passo, frase) => {
+        zonaDidascalia.classList.remove("visibile");
+        setTimeout(() => {
+          document.getElementById("passo").textContent = passo;
+          document.getElementById("frase").textContent = frase;
+          zonaDidascalia.classList.add("visibile");
+        }, 320);
+      };
+
+      // Accende il telefono di chi sta agendo, attenua l'altro.
+      window.attore = (chi) => {
+        for (const nome of ["piscina", "bagnino"]) {
+          document
+            .getElementById(`telefono-${nome}`)
+            .classList.toggle("spento", chi !== nome && chi !== "entrambi");
+        }
+      };
+
+      window.sipario = () => document.getElementById("sipario").classList.add("visibile");
+
+      window.avvia = (urlPiscina, urlBagnino) => {
+        document.getElementById("piscina").src = urlPiscina;
+        document.getElementById("bagnino").src = urlBagnino;
+      };
+    </script>
+  </body>
+</html>

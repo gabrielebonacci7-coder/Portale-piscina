@@ -13,7 +13,9 @@ env/
 # Foto caricate dagli utenti
 media/
 
-# Il video si rigenera con: python -m scripts.video_demo
-demo/
+# Il video si rigenera con: python -m scripts.video_demo.
+# La barra iniziale limita la regola alla cartella di primo livello:
+# senza, verrebbe escluso anche scripts/demo/, che invece serve.
+/demo/
 demo_video.db*
 media_video/
