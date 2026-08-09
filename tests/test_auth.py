@@ -18,7 +18,12 @@ def test_email_duplicata_rifiutata(client):
     registra(client, "doppio@test.it", "bagnino")
     r = client.post(
         "/auth/registrazione",
-        json={"email": "doppio@test.it", "password": "password123", "tipo": "piscina"},
+        json={
+            "email": "doppio@test.it",
+            "password": "password123",
+            "tipo": "piscina",
+            "accetta_privacy": True,
+        },
     )
     assert r.status_code == 409
 
@@ -39,7 +44,12 @@ def test_password_sbagliata_rifiutata(client):
 def test_password_corta_rifiutata(client):
     r = client.post(
         "/auth/registrazione",
-        json={"email": "corta@test.it", "password": "1234", "tipo": "bagnino"},
+        json={
+            "email": "corta@test.it",
+            "password": "1234",
+            "tipo": "bagnino",
+            "accetta_privacy": True,
+        },
     )
     assert r.status_code == 422
 

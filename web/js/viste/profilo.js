@@ -45,7 +45,12 @@ export function vistaProfilo(navigazione) {
       contenitore.append(sezioneFotoPiscina(p, carica));
     }
 
-    contenitore.append(sezioneRecensioni(), sezioneBlocchi(), sezioneAccount(navigazione));
+    contenitore.append(
+      sezioneRecensioni(),
+      sezioneBlocchi(),
+      sezioneAccount(navigazione),
+      sezioneDati(navigazione),
+    );
   }
 
   carica();
@@ -742,6 +747,156 @@ function modificaPiscina(p, ricarica) {
       ricarica();
     } catch (err) {
       errore.replaceChildren(avviso(err.dettaglio));
+    }
+  });
+}
+
+// ---------- I tuoi dati (privacy) ----------
+function sezioneDati(navigazione) {
+  const blocco = el("div", { classe: "blocco" }, [
+    el("span", { classe: "etichetta", testo: "I tuoi dati" }),
+    el("p", { classe: "sommesso" }, [
+      "Cosa raccogliamo e perché è scritto nell'",
+      el("a", { href: "/privacy.html", target: "_blank", testo: "informativa privacy" }),
+      ".",
+    ]),
+    el("div", { classe: "azioni" }, [
+      el("button", {
+        classe: "btn secondario",
+        testo: "Scarica i miei dati",
+        onclick: (e) => scaricaDati(e.target),
+      }),
+      el("button", {
+        classe: "btn pericolo",
+        testo: "Elimina account",
+        onclick: () => eliminaAccount(navigazione),
+      }),
+    ]),
+  ]);
+
+  if (stato.utente.privacy_accettata_il) {
+    blocco.insertBefore(
+      el("p", {
+        classe: "sommesso",
+        testo: `Informativa accettata il ${new Date(
+          stato.utente.privacy_accettata_il,
+        ).toLocaleDateString("it-IT")}.`,
+      }),
+      blocco.children[2],
+    );
+  }
+
+  return blocco;
+}
+
+/** Scarica l'esportazione come file.
+
+    Passa da `fetch` e non da un semplice link perché la richiesta ha bisogno
+    del token: un `<a href>` partirebbe senza intestazioni e prenderebbe 401. */
+async function scaricaDati(bottone) {
+  bottone.disabled = true;
+  const testoIniziale = bottone.textContent;
+  bottone.textContent = "Preparo…";
+  try {
+    const dati = await api.esportaDati();
+    const blob = new Blob([JSON.stringify(dati, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = el("a", { href: url, download: `guardlink-dati-${stato.utente.id}.json` });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    // Senza questo il blob resta in memoria finché non si chiude la pagina.
+    URL.revokeObjectURL(url);
+    brindisi("Dati scaricati");
+  } catch (err) {
+    alert(err.dettaglio);
+  } finally {
+    bottone.disabled = false;
+    bottone.textContent = testoIniziale;
+  }
+}
+
+/** Cancellazione dell'account: prima si dice cosa succede, poi si chiede.
+
+    Non è un `confirm()` perché non è una scelta da prendere di fretta: si
+    mostra quanti annunci spariscono e cosa resta agli altri, e si chiede la
+    password più una parola scritta a mano. */
+async function eliminaAccount(navigazione) {
+  const corpo = el("div", {}, caricamento());
+  const { chiudi } = pannello("Elimina account", corpo);
+
+  let riepilogo;
+  try {
+    riepilogo = await api.riepilogoCancellazione();
+  } catch (err) {
+    corpo.replaceChildren(avviso(err.dettaglio));
+    return;
+  }
+
+  const sparisce = [
+    riepilogo.profilo && "il tuo profilo, le foto, i brevetti e le esperienze",
+    riepilogo.annunci_da_eliminare &&
+      `${riepilogo.annunci_da_eliminare} annunci ancora aperti`,
+    riepilogo.candidature_da_eliminare &&
+      `${riepilogo.candidature_da_eliminare} candidature`,
+    "email, telefono e password",
+  ].filter(Boolean);
+
+  const resta = [
+    riepilogo.annunci_che_restano &&
+      `${riepilogo.annunci_che_restano} turni già svolti o assegnati`,
+    riepilogo.recensioni_scritte_che_restano &&
+      `${riepilogo.recensioni_scritte_che_restano} recensioni che hai scritto`,
+    riepilogo.recensioni_ricevute_che_restano &&
+      `${riepilogo.recensioni_ricevute_che_restano} recensioni che hai ricevuto`,
+    riepilogo.conversazioni && `le conversazioni, dal lato dell'altra persona`,
+  ].filter(Boolean);
+
+  const password = el("input", { type: "password", autocomplete: "current-password", required: true });
+  const conferma = el("input", { type: "text", placeholder: "CANCELLA", required: true });
+  const errore = el("div");
+
+  const elencoPuntato = (voci) =>
+    el("ul", { style: "margin:0 0 16px 20px;line-height:1.7" },
+       voci.map((v) => el("li", { testo: v })));
+
+  const form = el("form", {}, [
+    errore,
+    el("p", { style: "font-weight:600", testo: "Sparisce per sempre:" }),
+    elencoPuntato(sparisce),
+    // `> 0` e non solo `resta.length`: con l'elenco vuoto l'espressione
+    // varrebbe 0, che non è `false` e finirebbe stampato come testo.
+    resta.length > 0 && el("p", { style: "font-weight:600", testo: "Resta, ma senza il tuo nome:" }),
+    resta.length > 0 && elencoPuntato(resta),
+    resta.length > 0 &&
+      el("p", {
+        classe: "sommesso",
+        style: "margin-bottom:16px",
+        testo:
+          "Riguardano anche le persone con cui hai lavorato: cancellarle " +
+          "toglierebbe a loro qualcosa che è pure loro. Al tuo posto comparirà " +
+          "«Utente cancellato».",
+      }),
+    campo("La tua password", password),
+    campo("Scrivi CANCELLA per confermare", conferma),
+    el("button", { type: "submit", classe: "btn pericolo largo", testo: "Elimina definitivamente" }),
+  ]);
+  corpo.replaceChildren(form);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errore.replaceChildren();
+    const invio = form.querySelector("button[type=submit]");
+    invio.disabled = true;
+    try {
+      await api.cancellaAccount(password.value, conferma.value);
+      chiudi();
+      esci();
+      navigazione.allAccesso();
+      brindisi("Account eliminato");
+    } catch (err) {
+      errore.replaceChildren(avviso(err.dettaglio));
+      invio.disabled = false;
     }
   });
 }

@@ -7,10 +7,11 @@ Il nome tiene insieme le due cose che fa: i *guard* — chi sorveglia la vasca �
 e il *link*, il collegamento fra chi cerca un turno e chi lo offre. Non nomina
 la piscina apposta: se un domani la bacheca copre anche il mare, il nome regge.
 
-Stato attuale: **passo 11 — pannello di gestione**. Il progetto è utilizzabile:
-backend completo, interfaccia mobile installabile sul telefono, foto profilo
-per i bagnini e galleria per le strutture, e gli strumenti con cui lo staff
-controlla brevetti e account.
+Stato attuale: **passo 12 — privacy e dati personali**. Il progetto è
+utilizzabile: backend completo, interfaccia mobile installabile sul telefono,
+foto profilo per i bagnini e galleria per le strutture, gli strumenti con cui
+lo staff controlla brevetti e account, e informativa privacy con esportazione
+e cancellazione dei propri dati.
 
 **La bacheca è riservata agli iscritti**: senza login si può solo registrarsi e
 leggere l'elenco delle zone (serve al modulo di iscrizione).
@@ -42,7 +43,7 @@ Su **/docs** resta la documentazione interattiva dell'API, per provare le
 chiamate una per una.
 
 ```bash
-pytest        # 146 test end-to-end sulle regole di dominio
+pytest        # 161 test end-to-end sulle regole di dominio
 ```
 
 ## L'app (PWA)
@@ -61,8 +62,9 @@ barra del browser.
 - **Recensioni** — a turno concluso ognuno recensisce la controparte: stelle,
   commento e voti di dettaglio. Il modulo mostra solo i voti del proprio verso,
   così l'errore non è nemmeno possibile.
-- **Profilo** — brevetti, esperienze, disponibilità, recensioni ricevute e
-  utenti bloccati.
+- **Profilo** — brevetti, esperienze, disponibilità, recensioni ricevute,
+  utenti bloccati e la sezione "I tuoi dati", da cui si scaricano i propri dati
+  o si cancella l'account.
 - **Gestione** — c'è solo per chi ha il permesso di staff: le code di verifica,
   la ricerca degli account e il registro delle azioni. Vedi
   [Il pannello di gestione](#il-pannello-di-gestione).
@@ -89,6 +91,7 @@ Scelte tecniche:
 ```
 web/                     la PWA
 ├── index.html
+├── privacy.html          l'informativa, leggibile anche senza account
 ├── manifest.webmanifest  nome, icone, avvio a tutto schermo
 ├── sw.js                 service worker
 ├── css/stile.css
@@ -145,6 +148,9 @@ stanno su disco. Così la stessa regola non finisce scritta in tre posti.
 | POST | `/auth/reimposta-password` | imposta la nuova password e fa entrare |
 | POST | `/auth/verifica-email` | conferma l'indirizzo con il codice ricevuto |
 | POST | `/auth/invia-verifica` | rimanda il link di conferma |
+| GET | `/auth/esporta` | scarica tutti i propri dati (JSON) |
+| GET | `/auth/cancellazione/riepilogo` | cosa sparisce e cosa resta |
+| DELETE | `/auth/me` | cancella l'account (password + "CANCELLA") |
 
 ### Bagnini
 | Metodo | Percorso | Cosa fa |
@@ -489,6 +495,71 @@ perso la password non riceve niente.
 
 Cambiano solo le prime righe del `.env`, il codice no.
 
+## Privacy e dati personali
+
+L'informativa sta in `web/privacy.html` ed è raggiungibile da `/privacy.html`,
+anche senza essere iscritti. È linkata dal modulo di iscrizione e dal profilo.
+
+> **Da compilare prima di andare online.** Nell'informativa ci sono cinque
+> segnaposto in rosso — nome del titolare, indirizzo, partita IVA, email di
+> contatto e la verifica sui trasferimenti fuori dall'Unione Europea. Sono dati
+> che solo tu puoi mettere. Finché restano lì l'informativa non è valida, e si
+> vedono a occhio proprio perché non passino inosservati.
+>
+> Il testo copre quello che l'app fa davvero, ma **non è un parere legale**: se
+> la piattaforma cresce, fallo leggere a chi se ne occupa.
+
+**Il consenso si registra, non si presume.** Alla registrazione la casella non
+è mai già spuntata e non ha un valore di default: chi non la spunta riceve 422
+dal server, non solo un avviso del browser. Sull'account restano *quando* è
+stato dato il consenso e *a quale versione* dell'informativa
+(`app/core/privacy.py`). La versione conta: senza, la data non dimostrerebbe
+niente, perché fra un anno il testo sarà cambiato. **Se modifichi
+l'informativa in modo sostanziale, cambia anche `VERSIONE_INFORMATIVA`.**
+
+Gli account creati prima di questa versione restano senza consenso registrato,
+e la migrazione **non** lo inventa: un `UPDATE` che riempisse quel campo
+darebbe per buono un sì che nessuno ha mai detto.
+
+### I tuoi dati, dal profilo
+
+- **Scarica i miei dati** (`GET /auth/esporta`) — un JSON con account, profilo,
+  brevetti, esperienze, annunci, candidature, recensioni e messaggi inviati.
+  I messaggi *ricevuti* non ci sono: sono dati di chi li ha scritti, e
+  regalarli in un file scaricabile non sarebbe corretto verso di loro.
+- **Elimina account** (`DELETE /auth/me`) — chiede la password e la parola
+  `CANCELLA` scritta a mano, e prima mostra cosa succede.
+
+### Perché la cancellazione non è un `DELETE`
+
+Cancellare la riga si porterebbe dietro, a cascata, cose che non appartengono
+solo a chi se ne va:
+
+- le **recensioni scritte** sono la reputazione di chi le ha ricevute — se
+  bastasse cancellarsi per azzerarle, chiunque toglierebbe un giudizio scomodo
+  iscrivendosi di nuovo il giorno dopo;
+- i **messaggi** sono metà di una conversazione, e l'altra metà è di qualcuno
+  che non ha chiesto niente;
+- i **turni già svolti** sono la storia lavorativa anche della struttura.
+
+Quindi si cancellano i **dati personali**, non le tracce delle interazioni:
+profilo, foto (anche dal disco), brevetti, esperienze, email, telefono e
+password spariscono; l'indirizzo diventa `cancellato-N@guardlink.invalid`
+(dominio riservato dallo standard, così nessuna email raggiungerà mai una
+persona vera) e al posto del nome compare "Utente cancellato". Gli annunci
+ancora aperti vengono eliminati — nessuno deve rispondere a un turno di un
+account che non esiste più — mentre quelli già assegnati restano.
+
+Non è un cavillo per tenersi i dati: è il modo normale di conciliare il diritto
+alla cancellazione con i diritti degli altri, ed è scritto nell'informativa in
+modo che chi cancella lo sappia prima.
+
+### Cookie
+
+Non ce ne sono, e non c'è nessun banner perché non c'è niente da autorizzare.
+Il token di accesso sta in `localStorage`: è tecnicamente necessario a tenere
+l'utente collegato, non traccia nulla e sparisce all'uscita.
+
 ## Il pannello di gestione
 
 Serve a chi manda avanti la piattaforma: controllare i brevetti, verificare le
@@ -560,18 +631,11 @@ Esce in `demo/`: `guardlink-demo.mp4` e un fotogramma da usare come copertina.
    backup, foto su uno spazio separato dal codice.
 2. **Migrazioni con Alembic** al posto di `create_all`.
 
-**Perché sia in regola**
-
-3. **Informativa privacy e trattamento dati.** Si raccolgono dati personali di
-   persone reali — nome, telefono, foto — quindi servono informativa, base
-   giuridica e un modo per cancellare il proprio account. Non è un dettaglio
-   rimandabile: è la legge.
-
 **Poi, quando serve**
 
-4. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non avvisare
+3. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non avvisare
    lo staff: il blocco protegge il singolo, la segnalazione permetterebbe di
    accorgersi di chi molesta dieci persone. Rimandata per scelta: finché gli
    iscritti sono pochi le segnalazioni arrivano a voce.
-5. Notifiche push per i turni urgenti nelle proprie zone.
-6. Ricerca dei bagnini per disponibilità oraria, non solo per zona.
+4. Notifiche push per i turni urgenti nelle proprie zone.
+5. Ricerca dei bagnini per disponibilità oraria, non solo per zona.

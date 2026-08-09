@@ -726,6 +726,19 @@ textarea {
   border-bottom: 1px solid var(--line);
 }
 
+/* Il consenso all'informativa: la frase è lunga e va a capo, la casella no. */
+.interruttore.consenso {
+  align-items: flex-start;
+  border-bottom: 0;
+  margin-bottom: var(--sp-4);
+}
+
+.interruttore.consenso span {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
 .interruttore input {
   width: 22px;
   height: 22px;

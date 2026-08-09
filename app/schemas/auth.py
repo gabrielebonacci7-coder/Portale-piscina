@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.models.enums import TipoUtente
 from app.schemas.utente import UtenteRead
@@ -25,6 +25,16 @@ class RegistrazioneRequest(BaseModel):
     tipo: TipoUtente
     telefono: str | None = Field(default=None, max_length=32)
     telefono_pubblico: bool = False
+    # Senza default: chi si iscrive deve dire di sì esplicitamente. Una casella
+    # già spuntata non è un consenso, e nemmeno un campo che si può omettere.
+    accetta_privacy: bool
+
+    @field_validator("accetta_privacy")
+    @classmethod
+    def deve_accettare(cls, valore: bool) -> bool:
+        if not valore:
+            raise ValueError("Per iscriverti devi accettare l'informativa privacy")
+        return valore
 
 
 class RichiestaRecupero(BaseModel):
@@ -43,3 +53,12 @@ class ConfermaEmail(BaseModel):
 class CambioPassword(BaseModel):
     password_attuale: str
     password_nuova: str = Field(min_length=8, max_length=72)
+
+
+class CancellaAccount(BaseModel):
+    """La password serve: cancellare è irreversibile, e un telefono lasciato
+    sbloccato sul tavolo non deve bastare a distruggere un account."""
+
+    password: str
+    # Da scrivere a mano: un secondo gesto consapevole, non un altro "ok".
+    conferma: str = Field(description="Scrivere CANCELLA")

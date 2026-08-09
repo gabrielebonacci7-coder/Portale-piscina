@@ -3,16 +3,20 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.deps import CurrentUser, DbSession
+from app.api.deps import CurrentUser, DbSession, HTTP_422_DATI_NON_VALIDI
 from app.core import email as posta
+from app.core.privacy import VERSIONE_INFORMATIVA
 from app.core.security import create_access_token, verify_password
+from app.crud import cancellazione as crud_cancellazione
 from app.crud import token_email as crud_token
 from app.crud import utente as crud_utente
 from app.models import TipoToken
 from app.schemas.auth import (
     CambioPassword,
+    CancellaAccount,
     ConfermaEmail,
     LoginRequest,
     RegistrazioneRequest,
@@ -67,6 +71,50 @@ def cambio_password(dati: CambioPassword, utente: CurrentUser, db: DbSession):
     if not verify_password(dati.password_attuale, utente.password_hash):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Password attuale non corretta")
     crud_utente.cambia_password(db, utente, dati.password_nuova)
+
+
+# --- I tuoi dati: accesso, portabilità, cancellazione ----------------------
+@router.get("/esporta")
+def esporta_dati(utente: CurrentUser, db: DbSession):
+    """Scarica tutto quello che la piattaforma sa di te, in un file JSON.
+
+    Diritto di accesso e portabilità (artt. 15 e 20 GDPR). Si scarica invece di
+    mostrarlo a schermo: chi lo chiede di solito vuole tenerselo.
+    """
+    dati = crud_cancellazione.esporta(db, utente)
+    nome_file = f"guardlink-dati-{utente.id}.json"
+    return JSONResponse(
+        content=dati,
+        headers={"Content-Disposition": f'attachment; filename="{nome_file}"'},
+    )
+
+
+@router.get("/cancellazione/riepilogo")
+def riepilogo_cancellazione(utente: CurrentUser):
+    """Cosa sparisce e cosa resta, da leggere **prima** di cancellare."""
+    return crud_cancellazione.riepilogo(utente)
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+def cancella_account(dati: CancellaAccount, utente: CurrentUser, db: DbSession):
+    """Cancella il proprio account. Non si torna indietro.
+
+    Restano — senza più il tuo nome — le recensioni che hai scritto e i turni
+    già svolti: sono anche la storia di chi ha lavorato con te, e cancellarli
+    toglierebbe a un'altra persona qualcosa che è pure suo.
+    """
+    if utente.e_staff:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Un account dello staff va prima riportato a utente normale "
+            "(scripts/crea_staff.py --togli)",
+        )
+    if dati.conferma.strip().upper() != "CANCELLA":
+        raise HTTPException(HTTP_422_DATI_NON_VALIDI, "Scrivi CANCELLA per confermare")
+    if not verify_password(dati.password, utente.password_hash):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Password non corretta")
+
+    crud_cancellazione.cancella(db, utente)
 
 
 # --- Verifica dell'indirizzo ---------------------------------------------

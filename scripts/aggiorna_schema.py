@@ -23,6 +23,14 @@ COLONNE_AGGIUNTE = [
     ("utenti", "email_verificata", "BOOLEAN", "0"),
     ("profili_bagnino", "foto", "VARCHAR(255)", None),
     ("utenti", "ruolo", "VARCHAR(20)", "'utente'"),
+    # Restano NULL sugli account già esistenti, ed è corretto: quelle persone
+    # non hanno accettato niente, perché al momento dell'iscrizione
+    # l'informativa non c'era. Il posto giusto per gestirlo è l'app, che glielo
+    # chiede al primo accesso — non un UPDATE che darebbe per buono un
+    # consenso mai dato.
+    ("utenti", "privacy_accettata_il", "DATETIME", None),
+    ("utenti", "privacy_versione", "VARCHAR(20)", None),
+    ("utenti", "cancellato_il", "DATETIME", None),
 ]
 
 

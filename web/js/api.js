@@ -139,6 +139,12 @@ export const api = {
   verificaEmail: (codice) => post("/auth/verifica-email", { codice }),
   inviaVerifica: () => post("/auth/invia-verifica"),
 
+  // --- I tuoi dati (privacy) ---
+  esportaDati: () => get("/auth/esporta"),
+  riepilogoCancellazione: () => get("/auth/cancellazione/riepilogo"),
+  cancellaAccount: (password, conferma) =>
+    richiesta("DELETE", "/auth/me", { corpo: { password, conferma } }),
+
   // --- Anagrafiche ---
   zone: () => get("/zone"),
 

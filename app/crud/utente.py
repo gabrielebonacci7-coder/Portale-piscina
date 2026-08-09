@@ -3,7 +3,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.privacy import VERSIONE_INFORMATIVA
 from app.core.security import hash_password, verify_password
+from app.db.base_class import utcnow
 from app.models import Utente
 from app.schemas.auth import RegistrazioneRequest
 
@@ -20,6 +22,10 @@ def crea_utente(db: Session, dati: RegistrazioneRequest) -> Utente:
         tipo=dati.tipo,
         telefono_pubblico=dati.telefono_pubblico,
         password_hash=hash_password(dati.password),
+        # Si registra *quando* e *quale versione*: il consenso a un testo
+        # vecchio non vale per uno riscritto.
+        privacy_accettata_il=utcnow(),
+        privacy_versione=VERSIONE_INFORMATIVA,
     )
     db.add(utente)
     db.commit()

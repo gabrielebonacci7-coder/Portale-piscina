@@ -11,6 +11,7 @@ from sqlalchemy import select
 from scripts import foto_demo
 
 from app.core.immagini import salva_immagine
+from app.core.privacy import VERSIONE_INFORMATIVA
 from app.core.security import hash_password
 from app.db.init_db import init_db
 from app.db.session import SessionLocal
@@ -71,6 +72,8 @@ def main() -> None:
             email="marco.rossi@example.com",
             telefono="+39 333 1112223",
             password_hash=hash_password(PASSWORD_DEMO),
+            privacy_accettata_il=datetime.now(timezone.utc),
+            privacy_versione=VERSIONE_INFORMATIVA,
             tipo=TipoUtente.BAGNINO,
         )
         bagnino = ProfiloBagnino(
@@ -116,6 +119,8 @@ def main() -> None:
             email="info@aquacenter.example",
             telefono="+39 06 5551234",
             password_hash=hash_password(PASSWORD_DEMO),
+            privacy_accettata_il=datetime.now(timezone.utc),
+            privacy_versione=VERSIONE_INFORMATIVA,
             tipo=TipoUtente.PISCINA,
             telefono_pubblico=True,
         )
@@ -236,6 +241,8 @@ def main() -> None:
             email="direzione@villaverde.example",
             telefono="+39 06 9412345",
             password_hash=hash_password(PASSWORD_DEMO),
+            privacy_accettata_il=datetime.now(timezone.utc),
+            privacy_versione=VERSIONE_INFORMATIVA,
             tipo=TipoUtente.PISCINA,
         )
         villa = ProfiloPiscina(
@@ -284,6 +291,8 @@ def main() -> None:
             email="giulia.conti@example.com",
             telefono="+39 347 9998887",
             password_hash=hash_password(PASSWORD_DEMO),
+            privacy_accettata_il=datetime.now(timezone.utc),
+            privacy_versione=VERSIONE_INFORMATIVA,
             tipo=TipoUtente.BAGNINO,
         )
         giulia = ProfiloBagnino(

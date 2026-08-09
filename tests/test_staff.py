@@ -46,6 +46,7 @@ def test_la_registrazione_non_permette_di_farsi_staff(client):
             "email": "furbo@test.it",
             "password": "password123",
             "tipo": "bagnino",
+            "accetta_privacy": True,
             "ruolo": "staff",
         },
     )

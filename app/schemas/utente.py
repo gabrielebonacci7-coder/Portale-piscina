@@ -31,3 +31,7 @@ class UtenteRead(ORMModel):
     email_verificata: bool
     verificato: bool
     creato_il: datetime
+    # Servono al profilo per mostrare quando è stata accettata l'informativa, e
+    # per accorgersi che nel frattempo ne è uscita una versione nuova.
+    privacy_accettata_il: datetime | None = None
+    privacy_versione: str | None = None

@@ -70,7 +70,13 @@ def client(db_engine):
 # --- Utilità condivise ----------------------------------------------------
 def registra(client, email: str, tipo: str, password: str = "password123") -> dict:
     r = client.post(
-        "/auth/registrazione", json={"email": email, "password": password, "tipo": tipo}
+        "/auth/registrazione",
+        json={
+            "email": email,
+            "password": password,
+            "tipo": tipo,
+            "accetta_privacy": True,
+        },
     )
     assert r.status_code == 201, r.text
     return r.json()

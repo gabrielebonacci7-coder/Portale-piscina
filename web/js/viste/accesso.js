@@ -118,6 +118,7 @@ function moduloRegistrazione(vaiAllApp, vaiAdAccesso) {
           password,
           tipo: tipoScelto,
           telefono: form.telefono.value.trim() || null,
+          accetta_privacy: form.privacy.checked,
         });
         await entra(email, password);
         vaiAllApp(); // l'app porterà alla creazione del profilo
@@ -148,6 +149,17 @@ function moduloRegistrazione(vaiAllApp, vaiAdAccesso) {
       "Telefono (facoltativo)",
       el("input", { type: "tel", name: "telefono", autocomplete: "tel" }),
     ),
+    // `required` sulla casella: il browser non lascia inviare senza spunta, e
+    // la spunta non è mai messa in partenza — una casella già segnata non è un
+    // consenso. Il controllo vero resta comunque sul server.
+    el("label", { classe: "interruttore consenso" }, [
+      el("span", {}, [
+        "Ho letto l'",
+        el("a", { href: "/privacy.html", target: "_blank", testo: "informativa privacy" }),
+        " e accetto il trattamento dei miei dati.",
+      ]),
+      el("input", { type: "checkbox", name: "privacy", required: true }),
+    ]),
     el("button", { type: "submit", classe: "btn largo", testo: "Crea account" }),
     el("p", { classe: "sommesso", style: "text-align:center;margin-top:16px" }, [
       "Hai già un account? ",

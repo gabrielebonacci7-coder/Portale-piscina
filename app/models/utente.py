@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.privacy import NOME_ANONIMO
 from app.db.base_class import Base, TimestampMixin
+from app.db.types import UTCDateTime
 from app.models.enums import Ruolo, TipoUtente, enum_col
 
 if TYPE_CHECKING:
@@ -48,6 +51,16 @@ class Utente(TimestampMixin, Base):
     verificato: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Se False il numero non è pubblico e si passa dai messaggi interni.
     telefono_pubblico: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    # Quando ha accettato l'informativa, e **quale versione**. Senza la
+    # versione la data non dimostra niente: fra un anno il testo sarà cambiato
+    # e non si saprebbe più a cosa si riferisce quel consenso.
+    privacy_accettata_il: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    privacy_versione: Mapped[str | None] = mapped_column(String(20))
+
+    # Valorizzato quando l'utente cancella l'account: la riga resta, ma senza
+    # più dati personali. Vedi `app/crud/cancellazione.py`.
+    cancellato_il: Mapped[datetime | None] = mapped_column(UTCDateTime)
 
     profilo_bagnino: Mapped[ProfiloBagnino | None] = relationship(
         back_populates="utente", cascade="all, delete-orphan", uselist=False
@@ -105,6 +118,10 @@ class Utente(TimestampMixin, Base):
         return self.ruolo == Ruolo.STAFF
 
     @property
+    def e_cancellato(self) -> bool:
+        return self.cancellato_il is not None
+
+    @property
     def profilo(self) -> ProfiloBagnino | ProfiloPiscina | None:
         """Il profilo giusto in base al tipo di account."""
         return self.profilo_bagnino if self.tipo == TipoUtente.BAGNINO else self.profilo_piscina
@@ -112,6 +129,11 @@ class Utente(TimestampMixin, Base):
     @property
     def nome_visualizzato(self) -> str:
         """Nome da mostrare in bacheca. Ripiega sull'email se manca il profilo."""
+        # Chi ha cancellato non ha più un profilo, e l'email è quella finta:
+        # senza questo controllo comparirebbe `cancellato-12@guardlink.invalid`
+        # nelle conversazioni altrui.
+        if self.e_cancellato:
+            return NOME_ANONIMO
         if self.tipo == TipoUtente.BAGNINO and self.profilo_bagnino:
             return self.profilo_bagnino.nome_completo
         if self.tipo == TipoUtente.PISCINA and self.profilo_piscina:
