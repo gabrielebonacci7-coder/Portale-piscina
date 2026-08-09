@@ -42,7 +42,7 @@ Su **/docs** resta la documentazione interattiva dell'API, per provare le
 chiamate una per una.
 
 ```bash
-pytest        # 140 test end-to-end sulle regole di dominio
+pytest        # 146 test end-to-end sulle regole di dominio
 ```
 
 ## L'app (PWA)
@@ -118,6 +118,7 @@ app/
 scripts/
 ├── seed_demo.py         dati di esempio
 ├── crea_staff.py        assegna il permesso di gestione a un account
+├── prova_email.py       verifica la configurazione della posta
 ├── foto_demo.py         immagini disegnate per il seed
 ├── genera_icone.py      icone PNG della PWA
 ├── video_demo.py        registra il video dimostrativo
@@ -418,16 +419,75 @@ Chi dimentava la password restava fuori per sempre: adesso c'è il recupero.
   segnala, e da lì si rimanda il link.
 
 **Le email in sviluppo non partono**: finiscono nel log con il link in chiaro,
-così si prova tutto il giro senza configurare nulla. Per spedirle davvero
-bastano le variabili d'ambiente:
+così si prova tutto il giro senza configurare nulla.
+
+### Far partire le email davvero
+
+Le email automatiche sono **due sole**: il link per reimpostare la password e
+quello per confermare l'indirizzo. Non serve nessun servizio di newsletter.
+
+Un normale account Gmail basta per cominciare — regge qualche decina di
+messaggi al giorno, che a inizio vita sono più di quanti ne servano. Il
+mittente sarà il tuo indirizzo Gmail: si vede che è artigianale, ma funziona
+e non richiede un dominio.
+
+**1. Attiva la verifica in due passaggi** sull'account Google
+(*Account Google → Sicurezza → Verifica in due passaggi*). Senza, il passo 2
+non esiste proprio: la voce non compare.
+
+**2. Crea una "password per le app"** su
+<https://myaccount.google.com/apppasswords>. Dai un nome qualsiasi
+("Guardlink") e Google restituisce **16 lettere**. Quelle sono la password che
+va nel file di configurazione — non quella con cui entri in Gmail, che da un
+programma esterno non funziona. Si vede una volta sola: se la perdi ne crei
+un'altra.
+
+**3. Compila il file di configurazione:**
 
 ```bash
-EMAIL_SMTP_HOST=smtp.esempio.it
-EMAIL_SMTP_UTENTE=...
-EMAIL_SMTP_PASSWORD=...
-EMAIL_MITTENTE="Guardlink <no-reply@tuodominio.it>"
-URL_PUBBLICO=https://tuodominio.it     # serve a costruire i link
+cp .env.esempio .env      # poi si apre .env e si mettono i propri valori
 ```
+
+```bash
+EMAIL_SMTP_HOST=smtp.gmail.com
+EMAIL_SMTP_PORTA=587
+EMAIL_SMTP_UTENTE=tuonome@gmail.com
+EMAIL_SMTP_PASSWORD=le16letteredigoogle       # senza spazi
+EMAIL_MITTENTE=Guardlink <tuonome@gmail.com>  # stesso indirizzo di sopra
+URL_PUBBLICO=http://127.0.0.1:8000            # l'indirizzo pubblico, quando ci sarà
+```
+
+`.env` **non finisce su GitHub** (è nel `.gitignore`): contiene una password.
+
+**4. Prova che funzioni:**
+
+```bash
+python -m scripts.prova_email tua@email.it
+```
+
+Manda un messaggio vero e dice com'è andata. Serve perché l'app, di proposito,
+**non segnala mai** un invio fallito: al recupero password risponde sempre
+"fatto", altrimenti un errore visibile direbbe a chiunque quali indirizzi sono
+registrati. Comodo per la sicurezza, pessimo per capire se hai sbagliato una
+lettera: da qui invece l'errore si vede, tradotto in italiano.
+
+Se il messaggio non arriva, **guarda nello spam**: la prima email da un
+mittente nuovo ci finisce spesso.
+
+### Quando Gmail non basta più
+
+Quando gli iscritti sono tanti, Gmail comincia a rifiutare: è pensato per
+scrivere a persone, non per spedire in automatico. Allora servono un dominio
+tuo (`guardlink.it`) e un servizio che spedisce (Brevo, Mailgun, Postmark —
+tutti con un piano gratuito che basta a lungo).
+
+Il dominio serve a **dimostrare che il mittente è tuo**: chi riceve va a
+controllare nelle impostazioni del dominio due righe che dicono "sì, quel
+servizio può spedire a nome mio", e quelle righe puoi metterle solo se il
+dominio è tuo. Senza, il messaggio finisce nello spam — cioè il bagnino che ha
+perso la password non riceve niente.
+
+Cambiano solo le prime righe del `.env`, il codice no.
 
 ## Il pannello di gestione
 
