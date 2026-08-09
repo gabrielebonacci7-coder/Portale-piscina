@@ -93,9 +93,12 @@ def miei_annunci(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
-    """Tutti i propri annunci, compresi chiusi e scaduti."""
+    """I turni che mi riguardano: pubblicati da me o assegnati a me.
+
+    Compresi chiusi e scaduti, perche e da qui che si arriva a recensire.
+    """
     totale, elementi = crud.cerca(
-        db, autore_id=utente.id, solo_aperti=False, skip=skip, limit=limit
+        db, coinvolge_utente_id=utente.id, solo_aperti=False, skip=skip, limit=limit
     )
     return Pagina(totale=totale, skip=skip, limit=limit, elementi=elementi)
 

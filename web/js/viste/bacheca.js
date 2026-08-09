@@ -20,6 +20,7 @@ import {
 } from "../ui.js";
 import { schedaBagnino } from "./bagnini.js";
 import { apriChatCon } from "./messaggi.js";
+import { moduloRecensione, siPuoRecensire } from "./recensioni.js";
 
 // I filtri restano impostati mentre si naviga: chi cerca turni a Ostia non
 // vuole reimpostarli a ogni ritorno in bacheca.
@@ -141,6 +142,7 @@ export async function apriAnnuncio(id, alCambio, navigazione) {
   }
 
   const mio = a.autore_id === stato.utente.id;
+  const sonoParte = mio || a.assegnato_a_id === stato.utente.id;
   const { valore, unita } = euro(a.compenso, a.compenso_tipo);
 
   const dettagli = el("div", { classe: "blocco" }, [
@@ -152,6 +154,7 @@ export async function apriAnnuncio(id, alCambio, navigazione) {
     a.brevetto_richiesto && riga("Brevetto richiesto", etichetta("brevetto", a.brevetto_richiesto)),
     riga("Stato", etichetta("stato", a.stato)),
     riga("Pubblicato da", a.autore?.nome_visualizzato ?? "—"),
+    a.assegnato_a && riga("Turno coperto da", a.assegnato_a.nome_visualizzato),
   ]);
 
   if (a.note) {
@@ -193,6 +196,19 @@ export async function apriAnnuncio(id, alCambio, navigazione) {
 
   // --- Azioni ---
   const azioni = el("div", { classe: "azioni" });
+
+  if (sonoParte && siPuoRecensire(a)) {
+    azioni.append(
+      el("button", {
+        classe: "btn",
+        testo: "Lascia una recensione",
+        onclick: () => {
+          chiudi();
+          moduloRecensione(a, alCambio);
+        },
+      }),
+    );
+  }
 
   if (mio) {
     azioni.append(

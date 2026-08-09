@@ -7,7 +7,7 @@ Il nome tiene insieme le due cose che fa: i *guard* — chi sorveglia la vasca �
 e il *link*, il collegamento fra chi cerca un turno e chi lo offre. Non nomina
 la piscina apposta: se un domani la bacheca copre anche il mare, il nome regge.
 
-Stato attuale: **passo 8 — nome e marchio**. Il progetto è utilizzabile: backend
+Stato attuale: **passo 9 — recensioni dall'app**. Il progetto è utilizzabile: backend
 completo, interfaccia mobile installabile sul telefono, foto profilo per i
 bagnini e galleria per le strutture.
 
@@ -57,6 +57,9 @@ barra del browser.
   si è candidati e com'è andata, dall'altro i propri annunci con quante
   risposte hanno ricevuto.
 - **Messaggi** — le conversazioni, con il contatore dei non letti sull'icona.
+- **Recensioni** — a turno concluso ognuno recensisce la controparte: stelle,
+  commento e voti di dettaglio. Il modulo mostra solo i voti del proprio verso,
+  così l'errore non è nemmeno possibile.
 - **Profilo** — brevetti, esperienze, disponibilità, recensioni ricevute e
   utenti bloccati.
 
@@ -382,10 +385,32 @@ Le foto stanno in `media/`, che non è versionata.
 
 ## Prossimi passi
 
-1. **Recensioni dall'app**: il backend le gestisce già, l'interfaccia le mostra
-   ma non permette ancora di scriverle.
-2. Segnalazione degli abusi allo staff: oggi si può bloccare, ma non segnalare.
-3. Notifiche push per i turni urgenti nelle proprie zone.
-4. Migrazioni con Alembic al posto di `create_all`.
-5. Messa in produzione: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
-   posto di SQLite, HTTPS (senza il quale il service worker non parte).
+**Perché l'app sia usabile da estranei**
+
+1. **Recupero password ed email di verifica.** Oggi chi dimentica la password
+   resta fuori per sempre, e chiunque può registrarsi con un'email non sua.
+2. **Strumenti per lo staff.** Il campo `verificato` sui brevetti esiste ma
+   nessuno può metterlo: manca un pannello per controllare i documenti,
+   sospendere un account, leggere le segnalazioni.
+3. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non
+   avvisare lo staff: il blocco protegge il singolo, la segnalazione permette
+   di accorgersi di chi molesta dieci persone.
+
+**Perché possa stare online**
+
+4. **Messa in produzione**: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
+   posto di SQLite, HTTPS (senza il quale il service worker non parte),
+   backup, foto su uno spazio separato dal codice.
+5. **Migrazioni con Alembic** al posto di `create_all`.
+
+**Perché sia in regola**
+
+6. **Informativa privacy e trattamento dati.** Si raccolgono dati personali di
+   persone reali — nome, telefono, foto — quindi servono informativa, base
+   giuridica e un modo per cancellare il proprio account. Non è un dettaglio
+   rimandabile: è la legge.
+
+**Poi, quando serve**
+
+7. Notifiche push per i turni urgenti nelle proprie zone.
+8. Ricerca dei bagnini per disponibilità oraria, non solo per zona.

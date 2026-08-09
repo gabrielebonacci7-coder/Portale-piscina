@@ -83,6 +83,7 @@ def cerca(
     compenso_min: Decimal | None = None,
     testo: str | None = None,
     autore_id: int | None = None,
+    coinvolge_utente_id: int | None = None,
     skip: int = 0,
     limit: int = 20,
 ) -> tuple[int, list[Annuncio]]:
@@ -119,6 +120,16 @@ def cerca(
         filtri.append(Annuncio.compenso >= compenso_min)
     if autore_id is not None:
         filtri.append(Annuncio.autore_id == autore_id)
+    if coinvolge_utente_id is not None:
+        # "Mi riguarda" da entrambe le parti: l'ho pubblicato io, oppure lo
+        # copro io. Senza il secondo caso un bagnino non ritroverebbe piu il
+        # turno che gli e stato assegnato, e non potrebbe recensirlo.
+        filtri.append(
+            or_(
+                Annuncio.autore_id == coinvolge_utente_id,
+                Annuncio.assegnato_a_id == coinvolge_utente_id,
+            )
+        )
     if testo:
         like = f"%{testo.strip()}%"
         filtri.append(or_(Annuncio.titolo.ilike(like), Annuncio.note.ilike(like)))
@@ -133,6 +144,8 @@ def cerca(
             # evita una query per ogni annuncio della pagina.
             selectinload(Annuncio.autore).selectinload(Utente.profilo_bagnino),
             selectinload(Annuncio.autore).selectinload(Utente.profilo_piscina),
+            selectinload(Annuncio.assegnato_a).selectinload(Utente.profilo_bagnino),
+            selectinload(Annuncio.assegnato_a).selectinload(Utente.profilo_piscina),
         )
         # Prima gli urgenti, poi i turni più vicini nel tempo.
         .order_by(Annuncio.urgente.desc(), Annuncio.data_inizio)

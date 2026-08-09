@@ -80,4 +80,7 @@ class AnnuncioRead(ORMModel, AnnuncioBase):
     assegnato_a_id: int | None = None
     zona: ZonaRead | None = None
     autore: AutoreSintesi | None = None
+    # Chi copre il turno: serve alla struttura per sapere chi aspettarsi, e
+    # a entrambi per sapere chi recensire a turno concluso.
+    assegnato_a: AutoreSintesi | None = None
     creato_il: datetime
