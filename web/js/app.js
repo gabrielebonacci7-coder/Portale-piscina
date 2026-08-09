@@ -2,7 +2,7 @@
 // applicazione) e gestisce la navigazione fra le schede.
 
 import { quandoScade } from "./api.js";
-import { caricaSessione, ePiscina, haProfilo, stato } from "./stato.js";
+import { caricaSessione, ePiscina, eStaff, haProfilo, stato } from "./stato.js";
 import { ICONE, avviso, brindisi, el, svuota } from "./ui.js";
 import { api } from "./api.js";
 import { vistaAccesso, vistaCreaProfilo, vistaReimposta } from "./viste/accesso.js";
@@ -12,6 +12,7 @@ import { vistaCandidature } from "./viste/candidature.js";
 import { vistaMessaggi } from "./viste/messaggi.js";
 import { apriPubblica } from "./viste/pubblica.js";
 import { vistaProfilo } from "./viste/profilo.js";
+import { vistaStaff } from "./viste/staff.js";
 
 const radice = document.getElementById("radice");
 
@@ -55,8 +56,12 @@ function schede() {
       icona: ICONE.candidature,
     },
     { id: "messaggi", nome: "Messaggi", icona: ICONE.messaggi, pallino: true },
+    // La scheda in più di chi gestisce la piattaforma. Nasconderla non è una
+    // misura di sicurezza — quella sta nel backend — ma toglie di mezzo una
+    // sezione che al 99% degli iscritti non serve.
+    eStaff() && { id: "staff", nome: "Gestione", icona: ICONE.gestione },
     { id: "profilo", nome: "Profilo", icona: ICONE.profilo },
-  ];
+  ].filter(Boolean);
 }
 
 function titoloScheda() {
@@ -64,6 +69,7 @@ function titoloScheda() {
     bacheca: sotto === "turni" ? "Bacheca" : "Bagnini",
     candidature: ePiscina() ? "I miei turni" : "Le mie candidature",
     messaggi: "Messaggi",
+    staff: "Gestione",
     profilo: "Profilo",
   }[schedaCorrente];
 }
@@ -140,6 +146,8 @@ function costruisciVista() {
       return vistaCandidature(navigazione);
     case "messaggi":
       return vistaMessaggi(navigazione);
+    case "staff":
+      return vistaStaff(navigazione);
     case "profilo":
       return vistaProfilo(navigazione);
     default:

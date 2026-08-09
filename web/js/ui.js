@@ -336,6 +336,9 @@ export const ICONE = {
     '<svg viewBox="0 0 24 24"><path d="M21 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.4A8 8 0 1 1 21 11.5z"/></svg>',
   profilo:
     '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
+  // Uno scudo: il pannello di gestione è il posto dove si controlla chi entra.
+  gestione:
+    '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.3-2.9 7.8-7 9.5-4.1-1.7-7-5.2-7-9.5V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>',
   piu: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   filtro: '<svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg>',
   indietro: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',

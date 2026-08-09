@@ -199,4 +199,16 @@ export const api = {
   // --- Recensioni ---
   recensisci: (dati) => post("/recensioni", dati),
   recensioni: (utenteId) => get(`/utenti/${utenteId}/recensioni`),
+
+  // --- Gestione (solo staff) ---
+  staffRiepilogo: () => get("/staff/riepilogo"),
+  staffUtenti: (filtri) => get("/staff/utenti", filtri),
+  staffBrevetti: (filtri) => get("/staff/brevetti", filtri),
+  staffVerificaBrevetto: (id, valore, motivo) =>
+    post(`/staff/brevetti/${id}/verifica`, { valore, motivo }),
+  staffVerificaUtente: (id, valore, motivo) =>
+    post(`/staff/utenti/${id}/verifica`, { valore, motivo }),
+  staffStatoUtente: (id, attivo, motivo) =>
+    post(`/staff/utenti/${id}/stato`, { attivo, motivo }),
+  staffRegistro: (filtri) => get("/staff/registro", filtri),
 };

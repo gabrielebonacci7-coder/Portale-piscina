@@ -261,7 +261,11 @@ textarea {
   right: 0;
   z-index: 30;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Colonne generate a runtime: le schede sono quattro, ma diventano cinque
+     per chi ha il permesso di gestione. Con un `repeat(4, ...)` fisso la
+     quinta finirebbe a capo, sotto il bordo dello schermo. */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   background: var(--surface);
   border-top: 1px solid var(--line);
   padding-bottom: env(safe-area-inset-bottom);
@@ -769,6 +773,55 @@ textarea {
   min-height: 0;
   flex: 0 0 auto;
   accent-color: var(--accent);
+}
+
+/* ---------- Riquadri con i numeri (pannello di gestione) ---------- */
+.numeri {
+  display: grid;
+  /* Si adattano da soli: tre per riga sul telefono, di più su schermi larghi,
+     senza dover contare i riquadri nel CSS. Stretti apposta: sono un colpo
+     d'occhio, e il lavoro vero è l'elenco che sta sotto — se i riquadri lo
+     spingono fuori schermo hanno fatto danno. */
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.numero {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+.numero strong {
+  font-family: var(--font-dati);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.numero span {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--ink-2);
+}
+
+.numero small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Una coda che aspetta qualcuno si vede a colpo d'occhio. */
+.numero.evidenza {
+  border-color: var(--urgente);
+  background: var(--urgente-tenue);
+}
+
+.numero.evidenza strong {
+  color: var(--urgente);
 }
 
 /* ---------- Segmenti ---------- */

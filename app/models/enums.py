@@ -51,6 +51,30 @@ def brevetto_copre(posseduto: "TipoBrevetto", richiesto: "TipoBrevetto") -> bool
     return livello_posseduto >= livello_richiesto
 
 
+class Ruolo(str, Enum):
+    """Cosa può fare un account, a prescindere da che tipo è.
+
+    Tenuto separato da `TipoUtente` apposta: chi gestisce la piattaforma può
+    benissimo essere anche il titolare di una piscina, e non deve avere due
+    account. E dalla registrazione pubblica il ruolo non si tocca: si assegna
+    solo da riga di comando.
+    """
+
+    UTENTE = "utente"
+    STAFF = "staff"
+
+
+class TipoAzioneStaff(str, Enum):
+    """Le voci del registro delle azioni di moderazione."""
+
+    BREVETTO_VERIFICATO = "brevetto_verificato"
+    BREVETTO_NON_VERIFICATO = "brevetto_non_verificato"
+    UTENTE_VERIFICATO = "utente_verificato"
+    UTENTE_NON_VERIFICATO = "utente_non_verificato"
+    UTENTE_SOSPESO = "utente_sospeso"
+    UTENTE_RIATTIVATO = "utente_riattivato"
+
+
 class TipoToken(str, Enum):
     """A cosa serve un codice mandato per email."""
 

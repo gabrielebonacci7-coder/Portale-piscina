@@ -12,6 +12,9 @@ export const stato = {
 export const eBagnino = () => stato.utente?.tipo === "bagnino";
 export const ePiscina = () => stato.utente?.tipo === "piscina";
 export const haProfilo = () => Boolean(stato.profilo);
+// Il permesso di gestione è indipendente dal tipo di account: chi lo ha vede
+// una scheda in più, per il resto usa l'app come tutti gli altri.
+export const eStaff = () => stato.utente?.ruolo === "staff";
 
 export async function caricaSessione() {
   if (!haToken()) return false;

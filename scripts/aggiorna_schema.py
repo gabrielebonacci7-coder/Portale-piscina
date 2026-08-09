@@ -15,12 +15,14 @@ from sqlalchemy import inspect, text
 
 from app.db.init_db import ZONE, create_tables, seed_zone
 from app.db.session import SessionLocal, engine
+from app.models import Base
 
 # (tabella, colonna, definizione SQL, valore per le righe già presenti)
 COLONNE_AGGIUNTE = [
     ("zone", "area", "VARCHAR(80)", None),
     ("utenti", "email_verificata", "BOOLEAN", "0"),
     ("profili_bagnino", "foto", "VARCHAR(255)", None),
+    ("utenti", "ruolo", "VARCHAR(20)", "'utente'"),
 ]
 
 
@@ -52,6 +54,30 @@ def riempi_aree() -> None:
         print(f"    ({rimaste} zone non in anagrafica assegnate a Roma)")
 
 
+def crea_indici_mancanti() -> None:
+    """Aggiunge gli indici che mancano sulle tabelle già esistenti.
+
+    `create_all` crea gli indici solo insieme alla tabella: una colonna
+    aggiunta con ALTER resta senza il suo indice, e la differenza si sente
+    appena i dati crescono.
+    """
+    inspector = inspect(engine)
+    esistenti = set(inspector.get_table_names())
+    aggiunti = 0
+    with engine.begin() as conn:
+        for tabella in Base.metadata.sorted_tables:
+            if tabella.name not in esistenti:
+                continue  # l'ha appena creata create_all, indici compresi
+            presenti = {i["name"] for i in inspector.get_indexes(tabella.name)}
+            for indice in tabella.indexes:
+                if indice.name not in presenti:
+                    indice.create(conn)
+                    print(f"  indice {indice.name}: creato")
+                    aggiunti += 1
+    if not aggiunti:
+        print("  indici: nessuno da aggiungere")
+
+
 def main() -> None:
     if not colonne("utenti"):
         print("Database vuoto: usa `python -m app.db.init_db`.")
@@ -77,6 +103,8 @@ def main() -> None:
         print(f"  {tabella}.{colonna}: aggiunta")
         if (tabella, colonna) == ("zone", "area"):
             riempi_aree()
+
+    crea_indici_mancanti()
 
     with SessionLocal() as db:
         aggiunte = seed_zone(db)

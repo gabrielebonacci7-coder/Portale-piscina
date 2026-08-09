@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
-from app.models.enums import TipoUtente
+from app.models.enums import Ruolo, TipoUtente
 from app.schemas.common import ORMModel
 
 
@@ -25,6 +25,8 @@ class UtenteRead(ORMModel):
     email: EmailStr
     telefono: str | None = None
     tipo: TipoUtente
+    # Serve al frontend per decidere se mostrare la scheda "Gestione".
+    ruolo: Ruolo = Ruolo.UTENTE
     attivo: bool
     email_verificata: bool
     verificato: bool

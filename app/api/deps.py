@@ -75,3 +75,21 @@ def get_current_piscina(utente: CurrentUser) -> ProfiloPiscina:
 
 CurrentBagnino = Annotated[ProfiloBagnino, Depends(get_current_bagnino)]
 CurrentPiscina = Annotated[ProfiloPiscina, Depends(get_current_piscina)]
+
+
+def get_current_staff(utente: CurrentUser) -> Utente:
+    """Chi gestisce la piattaforma.
+
+    È un permesso a parte (`ruolo`), non un terzo tipo di account: lo stesso
+    utente può essere staff e avere il suo profilo piscina. Il ruolo non si
+    ottiene dalla registrazione, si assegna solo con `scripts/crea_staff.py`.
+    """
+    if not utente.e_staff:
+        # 404 e non 403: a chi non è staff il pannello non deve nemmeno
+        # risultare esistente.
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Not Found")
+    return utente
+
+
+CurrentStaff = Annotated[Utente, Depends(get_current_staff)]
+richiede_staff = Depends(get_current_staff)

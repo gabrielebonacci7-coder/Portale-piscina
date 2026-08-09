@@ -8,7 +8,7 @@ from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base, TimestampMixin
-from app.models.enums import TipoUtente, enum_col
+from app.models.enums import Ruolo, TipoUtente, enum_col
 
 if TYPE_CHECKING:
     from app.models.annuncio import Annuncio
@@ -36,6 +36,9 @@ class Utente(TimestampMixin, Base):
     password_hash: Mapped[str | None] = mapped_column(String(255))
 
     tipo: Mapped[TipoUtente] = mapped_column(enum_col(TipoUtente), nullable=False, index=True)
+    ruolo: Mapped[Ruolo] = mapped_column(
+        enum_col(Ruolo), default=Ruolo.UTENTE, nullable=False, index=True
+    )
 
     attivo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     # Ha cliccato il link di conferma arrivato per email. Diverso da
@@ -96,6 +99,10 @@ class Utente(TimestampMixin, Base):
         foreign_keys="Recensione.destinatario_id",
         cascade="all, delete-orphan",
     )
+
+    @property
+    def e_staff(self) -> bool:
+        return self.ruolo == Ruolo.STAFF
 
     @property
     def profilo(self) -> ProfiloBagnino | ProfiloPiscina | None:

@@ -18,6 +18,7 @@ from app.api.routers import (
     messaggi,
     piscine,
     recensioni,
+    staff,
     zone,
 )
 from app.core.config import BASE_DIR, settings
@@ -56,6 +57,7 @@ app.include_router(candidature.router)
 app.include_router(foto.router)
 app.include_router(messaggi.router)
 app.include_router(recensioni.router)
+app.include_router(staff.router)
 app.include_router(zone.router)
 
 

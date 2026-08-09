@@ -4,7 +4,7 @@
 // dell'API mai. Le risposte dell'API sono legate al token di chi le ha
 // chieste: salvarle significherebbe mostrare a un utente i dati di un altro.
 
-const VERSIONE = "guardlink-v3";
+const VERSIONE = "guardlink-v4";
 
 const GUSCIO = [
   "/",
@@ -22,6 +22,7 @@ const GUSCIO = [
   "/js/viste/profilo.js",
   "/js/viste/recensioni.js",
   "/js/viste/pubblica.js",
+  "/js/viste/staff.js",
   "/manifest.webmanifest",
   "/icone/icona.svg",
 ];
@@ -36,6 +37,7 @@ const API = [
   "/conversazioni",
   "/blocchi",
   "/recensioni",
+  "/staff",
   "/utenti",
   "/zone",
   "/health",

@@ -7,9 +7,10 @@ Il nome tiene insieme le due cose che fa: i *guard* — chi sorveglia la vasca �
 e il *link*, il collegamento fra chi cerca un turno e chi lo offre. Non nomina
 la piscina apposta: se un domani la bacheca copre anche il mare, il nome regge.
 
-Stato attuale: **passo 10 — recupero password e video dimostrativo**. Il progetto è utilizzabile: backend
-completo, interfaccia mobile installabile sul telefono, foto profilo per i
-bagnini e galleria per le strutture.
+Stato attuale: **passo 11 — pannello di gestione**. Il progetto è utilizzabile:
+backend completo, interfaccia mobile installabile sul telefono, foto profilo
+per i bagnini e galleria per le strutture, e gli strumenti con cui lo staff
+controlla brevetti e account.
 
 **La bacheca è riservata agli iscritti**: senza login si può solo registrarsi e
 leggere l'elenco delle zone (serve al modulo di iscrizione).
@@ -41,7 +42,7 @@ Su **/docs** resta la documentazione interattiva dell'API, per provare le
 chiamate una per una.
 
 ```bash
-pytest        # 127 test end-to-end sulle regole di dominio
+pytest        # 140 test end-to-end sulle regole di dominio
 ```
 
 ## L'app (PWA)
@@ -62,6 +63,9 @@ barra del browser.
   così l'errore non è nemmeno possibile.
 - **Profilo** — brevetti, esperienze, disponibilità, recensioni ricevute e
   utenti bloccati.
+- **Gestione** — c'è solo per chi ha il permesso di staff: le code di verifica,
+  la ricerca degli account e il registro delle azioni. Vedi
+  [Il pannello di gestione](#il-pannello-di-gestione).
 
 Scelte tecniche:
 
@@ -113,6 +117,7 @@ app/
 └── main.py              app FastAPI
 scripts/
 ├── seed_demo.py         dati di esempio
+├── crea_staff.py        assegna il permesso di gestione a un account
 ├── foto_demo.py         immagini disegnate per il seed
 ├── genera_icone.py      icone PNG della PWA
 ├── video_demo.py        registra il video dimostrativo
@@ -212,6 +217,20 @@ stesso nome più `-p`.
 | POST | `/recensioni` | recensisce la controparte di un turno concluso |
 | GET | `/utenti/{id}/recensioni` | recensioni ricevute + medie dei voti |
 
+### Gestione (solo staff)
+| Metodo | Percorso | Cosa fa |
+|---|---|---|
+| GET | `/staff/riepilogo` | conteggi: code di verifica, iscritti, sospesi |
+| GET | `/staff/brevetti` | coda dei brevetti da controllare, i più vecchi in cima |
+| POST | `/staff/brevetti/{id}/verifica` | segna il brevetto come visto sull'originale |
+| GET | `/staff/utenti` | elenco account, con ricerca e filtri |
+| POST | `/staff/utenti/{id}/verifica` | spunta "verificato" sull'account |
+| POST | `/staff/utenti/{id}/stato` | sospende o riattiva un account |
+| GET | `/staff/registro` | storico di tutte le azioni dello staff |
+
+A chi non è staff rispondono **404**, non 403: il pannello non deve nemmeno
+risultare esistente.
+
 ## Le tabelle
 
 | Tabella | Cosa contiene |
@@ -232,6 +251,8 @@ stesso nome più `-p`.
 | `blocchi` | chi ha bloccato chi |
 | `foto_piscina` | le foto di una struttura, con il tipo (ingresso, vasca...) |
 | `recensioni` | recensioni incrociate piscina ↔ bagnino, 1-5 stelle |
+| `token_email` | codici usa e getta per verifica indirizzo e recupero password |
+| `azioni_staff` | registro di chi ha verificato o sospeso cosa, e perché |
 
 ### Scelte di modellazione
 
@@ -408,6 +429,38 @@ EMAIL_MITTENTE="Guardlink <no-reply@tuodominio.it>"
 URL_PUBBLICO=https://tuodominio.it     # serve a costruire i link
 ```
 
+## Il pannello di gestione
+
+Serve a chi manda avanti la piattaforma: controllare i brevetti, verificare le
+strutture, sospendere chi imbroglia.
+
+```bash
+python -m scripts.crea_staff gestione@tuodominio.it   # dà il permesso
+python -m scripts.crea_staff --elenco                 # chi ce l'ha
+python -m scripts.crea_staff EMAIL --togli            # lo toglie
+```
+
+L'account deve **esistere già**: ci si iscrive normalmente dall'app e poi si
+lancia il comando. Rientrando, nel menù in basso compare la scheda **Gestione**.
+
+- **Il permesso è separato dal tipo di account** (`utenti.ruolo`, non
+  `utenti.tipo`). Chi gestisce la piattaforma può benissimo essere anche il
+  titolare di una piscina, e non deve tenere due account per farlo.
+- **Non esiste nessuna rotta HTTP che promuova qualcuno a staff.** Si assegna
+  solo da riga di comando, cioè solo da chi ha accesso al server: se ci fosse
+  un endpoint, basterebbe un account rubato per prendersi il pannello. Il campo
+  `ruolo` mandato in registrazione viene ignorato.
+- **Lo staff non tocca lo staff**, e nemmeno sé stesso: quelle modifiche si
+  fanno da riga di comando. Evita sia l'autoblocco per sbaglio sia il litigio a
+  colpi di pulsante. E l'ultimo membro rimasto non può togliersi il ruolo:
+  chiuderebbe il pannello a tutti.
+- **Sospendere non cancella niente.** Annunci, messaggi e recensioni restano;
+  il token smette di funzionare, quindi l'account non entra più. Si annulla
+  riattivandolo. Il motivo è **obbligatorio**.
+- **Ogni azione finisce in `azioni_staff`**, con chi l'ha fatta, su cosa e
+  perché. Sospendere qualcuno è una decisione che prima o poi verrà contestata,
+  e allora serve avercelo scritto.
+
 ## Il video dimostrativo
 
 ```bash
@@ -440,30 +493,25 @@ Esce in `demo/`: `guardlink-demo.mp4` e un fotogramma da usare come copertina.
 
 ## Prossimi passi
 
-**Perché l'app sia usabile da estranei**
-
-1. **Strumenti per lo staff.** Il campo `verificato` sui brevetti esiste ma
-   nessuno può metterlo: manca un pannello per controllare i documenti,
-   sospendere un account, leggere le segnalazioni.
-2. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non
-   avvisare lo staff: il blocco protegge il singolo, la segnalazione permette
-   di accorgersi di chi molesta dieci persone.
-
 **Perché possa stare online**
 
-3. **Messa in produzione**: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
+1. **Messa in produzione**: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
    posto di SQLite, HTTPS (senza il quale il service worker non parte),
    backup, foto su uno spazio separato dal codice.
-4. **Migrazioni con Alembic** al posto di `create_all`.
+2. **Migrazioni con Alembic** al posto di `create_all`.
 
 **Perché sia in regola**
 
-5. **Informativa privacy e trattamento dati.** Si raccolgono dati personali di
+3. **Informativa privacy e trattamento dati.** Si raccolgono dati personali di
    persone reali — nome, telefono, foto — quindi servono informativa, base
    giuridica e un modo per cancellare il proprio account. Non è un dettaglio
    rimandabile: è la legge.
 
 **Poi, quando serve**
 
-6. Notifiche push per i turni urgenti nelle proprie zone.
-7. Ricerca dei bagnini per disponibilità oraria, non solo per zona.
+4. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non avvisare
+   lo staff: il blocco protegge il singolo, la segnalazione permetterebbe di
+   accorgersi di chi molesta dieci persone. Rimandata per scelta: finché gli
+   iscritti sono pochi le segnalazioni arrivano a voce.
+5. Notifiche push per i turni urgenti nelle proprie zone.
+6. Ricerca dei bagnini per disponibilità oraria, non solo per zona.
