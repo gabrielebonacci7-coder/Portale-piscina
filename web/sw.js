@@ -4,7 +4,7 @@
 // dell'API mai. Le risposte dell'API sono legate al token di chi le ha
 // chieste: salvarle significherebbe mostrare a un utente i dati di un altro.
 
-const VERSIONE = "guardlink-v5";
+const VERSIONE = "guardlink-v6";
 
 const GUSCIO = [
   "/",
@@ -14,6 +14,8 @@ const GUSCIO = [
   "/js/app.js",
   "/js/api.js",
   "/js/stato.js",
+  "/js/aggiornamenti.js",
+  "/js/installa.js",
   "/js/ui.js",
   "/js/viste/accesso.js",
   "/js/viste/bacheca.js",
@@ -50,9 +52,16 @@ const API = [
 const eApi = (url) => API.some((p) => url.pathname === p || url.pathname.startsWith(p + "/"));
 
 self.addEventListener("install", (evento) => {
-  evento.waitUntil(
-    caches.open(VERSIONE).then((cache) => cache.addAll(GUSCIO)).then(() => self.skipWaiting()),
-  );
+  // Niente `skipWaiting()` qui: la versione nuova si prepara e poi **aspetta**.
+  // Se subentrasse subito, una persona a metà di un modulo si ritroverebbe la
+  // pagina vecchia in mano e i file nuovi in cache — due versioni mescolate.
+  // Il cambio lo decide l'utente dalla barra "Nuova versione", che ricarica.
+  evento.waitUntil(caches.open(VERSIONE).then((cache) => cache.addAll(GUSCIO)));
+});
+
+// La pagina chiede di passare alla versione nuova.
+self.addEventListener("message", (evento) => {
+  if (evento.data?.tipo === "passa-alla-nuova") self.skipWaiting();
 });
 
 self.addEventListener("activate", (evento) => {

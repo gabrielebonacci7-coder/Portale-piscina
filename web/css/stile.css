@@ -788,6 +788,77 @@ textarea {
   accent-color: var(--accent);
 }
 
+/* ---------- Barra "nuova versione" ---------- */
+/* Sta sopra la barra delle schede, non al posto suo: l'app resta usabile
+   mentre si decide se aggiornare adesso o fra un minuto. */
+.aggiornamento {
+  position: fixed;
+  left: var(--sp-3);
+  right: var(--sp-3);
+  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + var(--sp-3));
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);
+  border-radius: var(--r-m);
+  background: var(--ink);
+  color: var(--surface);
+  box-shadow: var(--ombra-alta);
+}
+
+.aggiornamento span {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.aggiornamento .btn {
+  flex: 0 0 auto;
+}
+
+.aggiornamento .btn-icona {
+  color: inherit;
+  opacity: 0.7;
+}
+
+/* ---------- Invito a installare ---------- */
+.installa {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  margin-bottom: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+}
+
+.installa > div:first-child {
+  flex: 1;
+  min-width: 180px;
+}
+
+.installa .azioni {
+  margin-top: 0;
+}
+
+/* Il numero del passo nelle istruzioni per iPhone. */
+.passo {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-dati);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 26px;
+  text-align: center;
+}
+
 /* ---------- Riquadri con i numeri (pannello di gestione) ---------- */
 .numeri {
   display: grid;

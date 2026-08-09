@@ -1,6 +1,7 @@
 // Guscio dell'app: decide cosa mostrare (accesso, creazione profilo o
 // applicazione) e gestisce la navigazione fra le schede.
 
+import { avviaServiceWorker } from "./aggiornamenti.js";
 import { quandoScade } from "./api.js";
 import { caricaSessione, ePiscina, eStaff, haProfilo, stato } from "./stato.js";
 import { ICONE, avviso, brindisi, el, svuota } from "./ui.js";
@@ -10,6 +11,7 @@ import { apriFiltri, contaFiltriAttivi, vistaBacheca } from "./viste/bacheca.js"
 import { vistaBagnini } from "./viste/bagnini.js";
 import { vistaCandidature } from "./viste/candidature.js";
 import { vistaMessaggi } from "./viste/messaggi.js";
+import { barraInstallazione } from "./installa.js";
 import { apriPubblica } from "./viste/pubblica.js";
 import { vistaProfilo } from "./viste/profilo.js";
 import { vistaStaff } from "./viste/staff.js";
@@ -129,6 +131,11 @@ function disegnaApp() {
       );
     }
     contenuto.append(segmenti);
+    // L'invito a installare si propone dalla bacheca e non all'ingresso: chi
+    // si è appena iscritto ha altro per la testa, e qui l'app ha già mostrato
+    // a cosa serve.
+    const invito = sotto === "turni" ? barraInstallazione() : null;
+    if (invito) contenuto.append(invito);
   }
 
   vistaViva = costruisciVista();
@@ -245,11 +252,6 @@ async function avvia() {
 avvia();
 
 // ---------- Service worker ----------
-// Permette l'installazione sulla schermata home e l'apertura anche offline.
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {
-      // Senza service worker l'app funziona lo stesso, solo non è installabile.
-    });
-  });
-}
+// Rende l'app installabile, apribile offline, e avvisa quando esce una
+// versione nuova. Vedi `js/aggiornamenti.js`.
+avviaServiceWorker();

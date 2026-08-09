@@ -2,6 +2,7 @@
 // ricevute, utenti bloccati e uscita.
 
 import { api } from "../api.js";
+import { chiediInstallazione, puoInstallare } from "../installa.js";
 import { caricaProfilo, caricaZone, eBagnino, esci, stato } from "../stato.js";
 import {
   ETICHETTE_FOTO,
@@ -582,6 +583,14 @@ function sezioneAccount(navigazione) {
         testo: "Cambia password",
         onclick: () => cambioPassword(),
       }),
+      // Chi ha chiuso l'invito in bacheca deve poterla installare lo stesso,
+      // senza dover indovinare come.
+      puoInstallare() &&
+        el("button", {
+          classe: "btn secondario",
+          testo: "Aggiungi a Home",
+          onclick: () => chiediInstallazione(),
+        }),
       el("button", {
         classe: "btn pericolo",
         testo: "Esci",

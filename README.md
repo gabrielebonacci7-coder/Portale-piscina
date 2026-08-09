@@ -83,6 +83,9 @@ Scelte tecniche:
 - **Il service worker mette in cache il guscio, mai i dati.** Le risposte
   dell'API sono legate al token di chi le ha chieste: salvarle in cache
   significherebbe mostrare a un utente i dati di un altro.
+- **Gli aggiornamenti si annunciano, non si impongono**: chi ha l'app aperta
+  vede una barra e decide quando ricaricare. Vedi
+  [Installazione e aggiornamenti](#installazione-e-aggiornamenti).
 - `web/js/api.js` è **l'unico punto che parla con il backend**: se cambia
   l'indirizzo dell'API o il modo di autenticarsi, si tocca solo quel file.
 
@@ -98,6 +101,8 @@ web/                     la PWA
 └── js/
     ├── api.js            il client HTTP: unico punto di contatto col backend
     ├── stato.js          sessione e dati condivisi
+    ├── aggiornamenti.js  service worker e barra "nuova versione"
+    ├── installa.js       "Aggiungi a Home", con i passi giusti per iPhone
     ├── ui.js             pezzi riusabili: date, chip, stelle, pannelli
     ├── app.js            guscio e navigazione fra le schede
     └── viste/            una per schermata
@@ -494,6 +499,55 @@ dominio è tuo. Senza, il messaggio finisce nello spam — cioè il bagnino che 
 perso la password non riceve niente.
 
 Cambiano solo le prime righe del `.env`, il codice no.
+
+## Installazione e aggiornamenti
+
+### Come si installa sul telefono
+
+Non passa da nessun negozio: si apre l'indirizzo nel browser e si aggiunge alla
+schermata Home. L'app propone da sola l'operazione dalla bacheca, e la
+riproprone sempre dal profilo (*Aggiungi a Home*).
+
+- **iPhone** — *Condividi* (il quadrato con la freccia in su) → *Aggiungi a
+  Home* → *Aggiungi*. **Solo da Safari**: da Chrome o Firefox su iPhone quella
+  voce non esiste, ed è il motivo per cui qualcuno "non trova il pulsante". Se
+  l'app si accorge di non essere in Safari lo dice, invece di far cercare a
+  vuoto.
+- **Android** — Chrome apre il pannello di installazione del sistema con un
+  tocco (`beforeinstallprompt`), quindi lì basta premere *Aggiungi*.
+
+Serve **HTTPS**: senza, il service worker non parte e l'installazione non viene
+offerta. In sviluppo `127.0.0.1` fa eccezione, ma in produzione il certificato
+è obbligatorio.
+
+### Come arriva un aggiornamento a chi ce l'ha già installata
+
+Il caso da gestire è quello vero: l'app sta sulla schermata Home di un bagnino
+che non la chiude da una settimana. Senza qualcosa che se ne accorga, resterebbe
+sulla versione vecchia a tempo indeterminato.
+
+1. Il browser ricontrolla `sw.js`. Lo fa da sé alla navigazione; noi glielo
+   richiediamo anche quando l'app torna in primo piano, al massimo una volta
+   l'ora — un'app installata può restare aperta per giorni senza mai navigare.
+2. Se il file è cambiato, la versione nuova si scarica in cache e **aspetta**.
+3. Compare la barra **"È disponibile una versione nuova"**.
+4. Chi preme *Aggiorna* fa passare avanti la nuova, e la pagina si ricarica.
+   La sessione resta: il token sta in `localStorage`, non in cache.
+
+**Il passaggio non è automatico apposta.** Ricaricare da soli sotto le mani di
+qualcuno che sta scrivendo un messaggio gli farebbe perdere quello che ha
+scritto; e un service worker che subentra subito lascerebbe la pagina vecchia
+in esecuzione con i file nuovi già in cache, cioè due versioni mescolate. Per lo
+stesso motivo `skipWaiting()` **non** sta nell'`install`: lo chiama la pagina,
+quando l'utente decide.
+
+Chi chiude la barra se la ritrova alla riapertura successiva: restare indietro
+non è una scelta da rendere definitiva.
+
+**Per rilasciare una versione nuova basta cambiare `VERSIONE` in `web/sw.js`.**
+Se non si cambia, il guscio resta quello vecchio in cache e le modifiche non
+arrivano a nessuno. È l'unico passaggio manuale del rilascio, e saltarlo è
+l'errore facile da fare.
 
 ## Privacy e dati personali
 
