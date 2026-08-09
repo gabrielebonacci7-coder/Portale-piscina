@@ -161,7 +161,9 @@ export const vuoto = (messaggio, dettaglio) =>
 export const caricamento = () => el("div", { classe: "caricamento", testo: "Caricamento…" });
 
 export const avviso = (testo, tipo = "errore") =>
-  el("div", { classe: `avviso ${tipo}`, testo });
+  // Senza la frase di scorta un errore imprevisto darebbe una fascia colorata
+  // e vuota: l'utente non capirebbe niente e chi sviluppa nemmeno.
+  el("div", { classe: `avviso ${tipo}`, testo: testo || "Qualcosa non ha funzionato" });
 
 // ---------- Foto ----------
 /** Avatar: la foto se c'è, altrimenti le iniziali. */

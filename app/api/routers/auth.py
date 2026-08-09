@@ -6,9 +6,20 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.deps import CurrentUser, DbSession
+from app.core import email as posta
 from app.core.security import create_access_token, verify_password
+from app.crud import token_email as crud_token
 from app.crud import utente as crud_utente
-from app.schemas.auth import CambioPassword, LoginRequest, RegistrazioneRequest, Token
+from app.models import TipoToken
+from app.schemas.auth import (
+    CambioPassword,
+    ConfermaEmail,
+    LoginRequest,
+    RegistrazioneRequest,
+    ReimpostaPassword,
+    RichiestaRecupero,
+    Token,
+)
 from app.schemas.utente import UtenteRead
 
 router = APIRouter(prefix="/auth", tags=["autenticazione"])
@@ -19,7 +30,9 @@ def registrazione(dati: RegistrazioneRequest, db: DbSession):
     """Crea un account. Il profilo (bagnino o piscina) si crea subito dopo."""
     if crud_utente.get_by_email(db, dati.email):
         raise HTTPException(status.HTTP_409_CONFLICT, "Email già registrata")
-    return crud_utente.crea_utente(db, dati)
+    utente = crud_utente.crea_utente(db, dati)
+    _manda_verifica(db, utente)
+    return utente
 
 
 @router.post("/login", response_model=Token)
@@ -54,3 +67,72 @@ def cambio_password(dati: CambioPassword, utente: CurrentUser, db: DbSession):
     if not verify_password(dati.password_attuale, utente.password_hash):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Password attuale non corretta")
     crud_utente.cambia_password(db, utente, dati.password_nuova)
+
+
+# --- Verifica dell'indirizzo ---------------------------------------------
+def _manda_verifica(db, utente) -> None:
+    """Genera il codice e prova a spedirlo.
+
+    Se l'email non parte non si fa fallire la registrazione: l'account esiste
+    comunque e il link si può richiedere di nuovo. Meglio un account da
+    confermare che un'iscrizione persa per un guasto del server di posta.
+    """
+    codice = crud_token.crea(db, utente, TipoToken.VERIFICA_EMAIL)
+    try:
+        posta.email_verifica(utente.email, crud_token.link("verifica", codice))
+    except posta.ErroreInvio:
+        pass
+
+
+@router.post("/verifica-email", response_model=UtenteRead)
+def verifica_email(dati: ConfermaEmail, db: DbSession):
+    """Conferma l'indirizzo con il codice arrivato per email."""
+    token = crud_token.trova_valido(db, dati.codice, TipoToken.VERIFICA_EMAIL)
+    if token is None:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Link non valido o scaduto. Chiedine uno nuovo dal tuo profilo.",
+        )
+    return crud_token.verifica_email(db, token)
+
+
+@router.post("/invia-verifica", status_code=status.HTTP_204_NO_CONTENT)
+def invia_verifica(utente: CurrentUser, db: DbSession):
+    """Rimanda il link di conferma a chi è già dentro."""
+    if utente.email_verificata:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Il tuo indirizzo è già confermato")
+    _manda_verifica(db, utente)
+
+
+# --- Recupero della password ----------------------------------------------
+@router.post("/recupero-password", status_code=status.HTTP_204_NO_CONTENT)
+def recupero_password(dati: RichiestaRecupero, db: DbSession):
+    """Manda il link per reimpostare la password.
+
+    Risponde sempre 204, anche se l'indirizzo non è registrato: dire "questa
+    email non esiste" permetterebbe a chiunque di scoprire chi è iscritto.
+    """
+    utente = crud_utente.get_by_email(db, dati.email)
+    if utente is None or not utente.attivo:
+        return
+
+    codice = crud_token.crea(db, utente, TipoToken.RECUPERO_PASSWORD)
+    try:
+        posta.email_recupero(utente.email, crud_token.link("recupero", codice))
+    except posta.ErroreInvio:
+        # Nemmeno qui si dice niente a chi ha chiesto: il messaggio d'errore
+        # rivelerebbe che l'indirizzo esiste.
+        pass
+
+
+@router.post("/reimposta-password", response_model=Token)
+def reimposta_password(dati: ReimpostaPassword, db: DbSession):
+    """Imposta la nuova password e fa entrare subito."""
+    token = crud_token.trova_valido(db, dati.codice, TipoToken.RECUPERO_PASSWORD)
+    if token is None:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Link non valido, già usato o scaduto. Richiedine uno nuovo.",
+        )
+    utente = crud_token.reimposta_password(db, token, dati.password_nuova)
+    return Token(access_token=create_access_token(utente.id), utente=utente)

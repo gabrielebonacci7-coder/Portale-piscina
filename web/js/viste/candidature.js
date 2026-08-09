@@ -67,6 +67,7 @@ function vistaMieCandidature(navigazione) {
         );
       }
     } catch (e) {
+      console.error("Caricamento candidature:", e);
       zonaTurni.replaceChildren(avviso(e.dettaglio));
     }
   }

@@ -568,7 +568,7 @@ function sezioneBlocchi() {
 
 // ---------- Account ----------
 function sezioneAccount(navigazione) {
-  return el("div", { classe: "blocco" }, [
+  const blocco = el("div", { classe: "blocco" }, [
     el("span", { classe: "etichetta", testo: "Account" }),
     el("p", { classe: "sommesso", testo: stato.utente.email }),
     el("div", { classe: "azioni" }, [
@@ -587,6 +587,32 @@ function sezioneAccount(navigazione) {
       }),
     ]),
   ]);
+
+  // Un indirizzo non confermato non blocca niente, ma va detto: è da lì che
+  // passa il recupero della password se un giorno la si dimentica.
+  if (!stato.utente.email_verificata) {
+    const nota = avviso("Indirizzo non ancora confermato. Ti serve per recuperare la password.", "info");
+    nota.append(
+      el("button", {
+        classe: "btn fantasma piccolo",
+        style: "margin-left:auto;white-space:nowrap",
+        testo: "Rimanda il link",
+        onclick: async (e) => {
+          e.target.disabled = true;
+          try {
+            await api.inviaVerifica();
+            brindisi("Ti abbiamo mandato il link");
+          } catch (err) {
+            alert(err.dettaglio);
+            e.target.disabled = false;
+          }
+        },
+      }),
+    );
+    blocco.insertBefore(nota, blocco.children[1]);
+  }
+
+  return blocco;
 }
 
 function cambioPassword() {

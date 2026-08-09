@@ -27,6 +27,19 @@ class RegistrazioneRequest(BaseModel):
     telefono_pubblico: bool = False
 
 
+class RichiestaRecupero(BaseModel):
+    email: EmailStr
+
+
+class ReimpostaPassword(BaseModel):
+    codice: str = Field(min_length=8, max_length=128)
+    password_nuova: str = Field(min_length=8, max_length=72)
+
+
+class ConfermaEmail(BaseModel):
+    codice: str = Field(min_length=8, max_length=128)
+
+
 class CambioPassword(BaseModel):
     password_attuale: str
     password_nuova: str = Field(min_length=8, max_length=72)

@@ -3,8 +3,9 @@
 
 import { quandoScade } from "./api.js";
 import { caricaSessione, ePiscina, haProfilo, stato } from "./stato.js";
-import { ICONE, el, svuota } from "./ui.js";
-import { vistaAccesso, vistaCreaProfilo } from "./viste/accesso.js";
+import { ICONE, avviso, brindisi, el, svuota } from "./ui.js";
+import { api } from "./api.js";
+import { vistaAccesso, vistaCreaProfilo, vistaReimposta } from "./viste/accesso.js";
 import { apriFiltri, contaFiltriAttivi, vistaBacheca } from "./viste/bacheca.js";
 import { vistaBagnini } from "./viste/bagnini.js";
 import { vistaCandidature } from "./viste/candidature.js";
@@ -173,10 +174,51 @@ function barraSchede() {
   return nav;
 }
 
+// ---------- Link arrivati per email ----------
+/** Legge il codice dall'indirizzo e lo toglie dalla barra.
+
+    I link nelle email puntano a `/?recupero=CODICE` o `/?verifica=CODICE`.
+    Il codice va tolto subito dall'indirizzo: resterebbe nella cronologia del
+    telefono e in quello che si condivide per sbaglio. */
+function codiceDaIndirizzo() {
+  const parametri = new URLSearchParams(location.search);
+  for (const azione of ["recupero", "verifica"]) {
+    const codice = parametri.get(azione);
+    if (codice) {
+      history.replaceState(null, "", location.pathname);
+      return { azione, codice };
+    }
+  }
+  return null;
+}
+
+async function confermaEmail(codice) {
+  svuota(radice);
+  const contenitore = el("div", { classe: "accesso" });
+  radice.append(contenitore);
+  try {
+    await api.verificaEmail(codice);
+    brindisi("Indirizzo confermato");
+  } catch (e) {
+    contenitore.append(avviso(e.dettaglio));
+    // Si lascia leggere l'errore prima di passare oltre.
+    await new Promise((r) => setTimeout(r, 2600));
+  }
+}
+
 // ---------- Avvio ----------
 async function avvia() {
   svuota(radice);
   radice.append(el("div", { classe: "caricamento", testo: "Caricamento…" }));
+
+  const arrivo = codiceDaIndirizzo();
+  if (arrivo?.azione === "recupero") {
+    svuota(radice).append(vistaReimposta(arrivo.codice, avvia, avvia));
+    return;
+  }
+  if (arrivo?.azione === "verifica") {
+    await confermaEmail(arrivo.codice);
+  }
 
   const dentro = await caricaSessione();
 

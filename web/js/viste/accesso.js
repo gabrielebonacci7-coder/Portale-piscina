@@ -1,7 +1,7 @@
 // Accesso, registrazione e creazione del profilo: tutto ciò che accade
 // prima di poter vedere la bacheca.
 
-import { api } from "../api.js";
+import { api, impostaToken } from "../api.js";
 import { caricaProfilo, caricaZone, entra, stato } from "../stato.js";
 import { LOGO, avviso, brindisi, caselleZone, el, opzioniZone } from "../ui.js";
 
@@ -19,17 +19,20 @@ export function vistaAccesso(vaiAllApp) {
   contenitore.append(marchio, zonaModulo);
 
   const mostraAccesso = () => {
-    zonaModulo.replaceChildren(moduloAccesso(vaiAllApp, mostraRegistrazione));
+    zonaModulo.replaceChildren(moduloAccesso(vaiAllApp, mostraRegistrazione, mostraRecupero));
   };
   const mostraRegistrazione = () => {
     zonaModulo.replaceChildren(moduloRegistrazione(vaiAllApp, mostraAccesso));
+  };
+  const mostraRecupero = () => {
+    zonaModulo.replaceChildren(moduloRecupero(mostraAccesso));
   };
 
   mostraAccesso();
   return contenitore;
 }
 
-function moduloAccesso(vaiAllApp, vaiARegistrazione) {
+function moduloAccesso(vaiAllApp, vaiARegistrazione, vaiARecupero) {
   const errore = el("div");
 
   const form = el("form", {
@@ -63,7 +66,14 @@ function moduloAccesso(vaiAllApp, vaiARegistrazione) {
       }),
     ),
     el("button", { type: "submit", classe: "btn largo", testo: "Entra" }),
-    el("p", { classe: "sommesso", style: "text-align:center;margin-top:16px" }, [
+    el("p", { classe: "sommesso", style: "text-align:center;margin-top:14px" }, [
+      el("a", {
+        href: "#",
+        onclick: (e) => (e.preventDefault(), vaiARecupero()),
+        testo: "Password dimenticata?",
+      }),
+    ]),
+    el("p", { classe: "sommesso", style: "text-align:center;margin-top:6px" }, [
       "Non hai un account? ",
       el("a", { href: "#", onclick: (e) => (e.preventDefault(), vaiARegistrazione()), testo: "Registrati" }),
     ]),
@@ -145,6 +155,102 @@ function moduloRegistrazione(vaiAllApp, vaiAdAccesso) {
     ]),
   );
   return form;
+}
+
+/** Chiede il link per reimpostare la password. */
+function moduloRecupero(vaiAdAccesso) {
+  const esito = el("div");
+
+  const form = el("form", {
+    onsubmit: async (e) => {
+      e.preventDefault();
+      const invio = form.querySelector("button[type=submit]");
+      invio.disabled = true;
+      invio.textContent = "Invio…";
+      try {
+        await api.recuperoPassword(form.email.value.trim());
+      } catch {
+        // Il server risponde uguale in ogni caso: nemmeno qui si deve poter
+        // capire se quell'indirizzo è registrato.
+      }
+      // Messaggio volutamente vago, per lo stesso motivo.
+      esito.replaceChildren(
+        avviso(
+          "Se l'indirizzo è registrato, fra poco arriva un'email con il link per " +
+            "reimpostare la password. Controlla anche lo spam.",
+          "ok",
+        ),
+      );
+      form.querySelector(".campo").hidden = true;
+      invio.hidden = true;
+    },
+  });
+
+  form.append(
+    esito,
+    el("p", {
+      classe: "sommesso",
+      style: "margin-bottom:16px",
+      testo: "Scrivi l'indirizzo con cui ti sei iscritto: ti mandiamo un link.",
+    }),
+    campo("Email", el("input", { type: "email", name: "email", required: true, autocomplete: "email" })),
+    el("button", { type: "submit", classe: "btn largo", testo: "Mandami il link" }),
+    el("p", { classe: "sommesso", style: "text-align:center;margin-top:16px" }, [
+      el("a", { href: "#", onclick: (e) => (e.preventDefault(), vaiAdAccesso()), testo: "Torna all'accesso" }),
+    ]),
+  );
+  return form;
+}
+
+/** Schermata aperta dal link ricevuto per email: imposta la nuova password. */
+export function vistaReimposta(codice, vaiAllApp, vaiAdAccesso) {
+  const contenitore = el("div", { classe: "accesso" });
+  const errore = el("div");
+
+  contenitore.append(
+    el("div", { classe: "marchio", html: LOGO }),
+    el("h1", { style: "text-align:center", testo: "Nuova password" }),
+  );
+
+  const form = el("form", {
+    onsubmit: async (e) => {
+      e.preventDefault();
+      errore.replaceChildren();
+      const invio = form.querySelector("button[type=submit]");
+      invio.disabled = true;
+      try {
+        const r = await api.reimpostaPassword(codice, form.password.value);
+        impostaToken(r.access_token);
+        brindisi("Password aggiornata");
+        vaiAllApp();
+      } catch (err) {
+        errore.replaceChildren(avviso(err.dettaglio));
+        invio.disabled = false;
+      }
+    },
+  });
+
+  form.append(
+    errore,
+    campo(
+      "Nuova password",
+      el("input", {
+        type: "password",
+        name: "password",
+        required: true,
+        minlength: 8,
+        autocomplete: "new-password",
+      }),
+      "Almeno 8 caratteri.",
+    ),
+    el("button", { type: "submit", classe: "btn largo", testo: "Salva ed entra" }),
+    el("p", { classe: "sommesso", style: "text-align:center;margin-top:16px" }, [
+      el("a", { href: "#", onclick: (e) => (e.preventDefault(), vaiAdAccesso()), testo: "Annulla" }),
+    ]),
+  );
+
+  contenitore.append(form);
+  return contenitore;
 }
 
 /** Creazione del profilo: obbligatoria prima di pubblicare o candidarsi. */

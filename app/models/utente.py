@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from app.models.messaggistica import Blocco, Partecipante
     from app.models.piscina import ProfiloPiscina
     from app.models.recensione import Recensione
+    from app.models.token_email import TokenEmail
 
 
 class Utente(TimestampMixin, Base):
@@ -37,6 +38,9 @@ class Utente(TimestampMixin, Base):
     tipo: Mapped[TipoUtente] = mapped_column(enum_col(TipoUtente), nullable=False, index=True)
 
     attivo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Ha cliccato il link di conferma arrivato per email. Diverso da
+    # `verificato`, che riguarda i documenti controllati dallo staff.
+    email_verificata: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Contatto verificato / documenti controllati dallo staff.
     verificato: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Se False il numero non è pubblico e si passa dai messaggi interni.
@@ -62,6 +66,10 @@ class Utente(TimestampMixin, Base):
 
     candidature: Mapped[list[Candidatura]] = relationship(
         back_populates="candidato", cascade="all, delete-orphan"
+    )
+
+    token_email: Mapped[list[TokenEmail]] = relationship(
+        back_populates="utente", cascade="all, delete-orphan"
     )
 
     partecipazioni: Mapped[list[Partecipante]] = relationship(

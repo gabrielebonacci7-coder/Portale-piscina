@@ -7,7 +7,7 @@ Il nome tiene insieme le due cose che fa: i *guard* — chi sorveglia la vasca �
 e il *link*, il collegamento fra chi cerca un turno e chi lo offre. Non nomina
 la piscina apposta: se un domani la bacheca copre anche il mare, il nome regge.
 
-Stato attuale: **passo 9 — recensioni dall'app**. Il progetto è utilizzabile: backend
+Stato attuale: **passo 10 — recupero password e video dimostrativo**. Il progetto è utilizzabile: backend
 completo, interfaccia mobile installabile sul telefono, foto profilo per i
 bagnini e galleria per le strutture.
 
@@ -41,7 +41,7 @@ Su **/docs** resta la documentazione interattiva dell'API, per provare le
 chiamate una per una.
 
 ```bash
-pytest        # 110 test end-to-end sulle regole di dominio
+pytest        # 127 test end-to-end sulle regole di dominio
 ```
 
 ## L'app (PWA)
@@ -115,6 +115,8 @@ scripts/
 ├── seed_demo.py         dati di esempio
 ├── foto_demo.py         immagini disegnate per il seed
 ├── genera_icone.py      icone PNG della PWA
+├── video_demo.py        registra il video dimostrativo
+├── demo/palco.html      il "palco" a due telefoni usato dal video
 └── aggiorna_zone.py     aggiunge le aree a un database preesistente
 tests/                   test end-to-end
 ```
@@ -133,6 +135,10 @@ stanno su disco. Così la stessa regola non finisce scritta in tre posti.
 | POST | `/auth/login` | restituisce il token JWT |
 | GET | `/auth/me` | dati dell'account collegato al token |
 | POST | `/auth/cambio-password` | richiede la password attuale |
+| POST | `/auth/recupero-password` | manda il link per reimpostarla |
+| POST | `/auth/reimposta-password` | imposta la nuova password e fa entrare |
+| POST | `/auth/verifica-email` | conferma l'indirizzo con il codice ricevuto |
+| POST | `/auth/invia-verifica` | rimanda il link di conferma |
 
 ### Bagnini
 | Metodo | Percorso | Cosa fa |
@@ -371,6 +377,53 @@ Serve a tre cose insieme:
 Il nome del file è casuale: quello scelto dall'utente non tocca mai il disco.
 Le foto stanno in `media/`, che non è versionata.
 
+## Email: recupero password e conferma indirizzo
+
+Chi dimentava la password restava fuori per sempre: adesso c'è il recupero.
+
+- Si chiede il link da **Password dimenticata?**, e la risposta è **sempre la
+  stessa** anche se l'indirizzo non è registrato. Dire "questa email non
+  esiste" permetterebbe a chiunque di scoprire chi è iscritto.
+- Il link arriva come `/?recupero=CODICE`, e il codice viene **tolto subito
+  dalla barra** dell'indirizzo: resterebbe nella cronologia del telefono.
+- **Nel database finisce solo l'impronta del codice**, non il codice: chi
+  leggesse una copia del database non deve poter entrare negli account, come
+  per le password.
+- Il codice **vale una volta sola e per 30 minuti**. Chiederne uno nuovo
+  annulla il precedente, così non restano più chiavi buone in giro.
+- La conferma dell'indirizzo dura 48 ore e non blocca niente: il profilo lo
+  segnala, e da lì si rimanda il link.
+
+**Le email in sviluppo non partono**: finiscono nel log con il link in chiaro,
+così si prova tutto il giro senza configurare nulla. Per spedirle davvero
+bastano le variabili d'ambiente:
+
+```bash
+EMAIL_SMTP_HOST=smtp.esempio.it
+EMAIL_SMTP_UTENTE=...
+EMAIL_SMTP_PASSWORD=...
+EMAIL_MITTENTE="Guardlink <no-reply@tuodominio.it>"
+URL_PUBBLICO=https://tuodominio.it     # serve a costruire i link
+```
+
+## Il video dimostrativo
+
+```bash
+python -m scripts.video_demo            # ~100 secondi, formato 4:5
+python -m scripts.video_demo --veloce   # pause dimezzate, per provare i tagli
+```
+
+Non è un mockup: guida **l'applicazione vera** dentro due telefoni affiancati —
+la struttura a sinistra, il bagnino a destra — e registra quello che succede,
+dalla pubblicazione del turno fino alle recensioni. Se l'app cambia, il video
+si rifà con un comando.
+
+Due server sulla stessa applicazione, sulla stessa base dati: il token sta in
+`localStorage`, che è legato all'origine, quindi due telefoni sulla stessa
+porta sarebbero lo stesso utente.
+
+Esce in `demo/`: `guardlink-demo.mp4` e un fotogramma da usare come copertina.
+
 ## Sicurezza
 
 - Password con hash **bcrypt** (mai in chiaro, mai in risposta).
@@ -387,30 +440,28 @@ Le foto stanno in `media/`, che non è versionata.
 
 **Perché l'app sia usabile da estranei**
 
-1. **Recupero password ed email di verifica.** Oggi chi dimentica la password
-   resta fuori per sempre, e chiunque può registrarsi con un'email non sua.
-2. **Strumenti per lo staff.** Il campo `verificato` sui brevetti esiste ma
+1. **Strumenti per lo staff.** Il campo `verificato` sui brevetti esiste ma
    nessuno può metterlo: manca un pannello per controllare i documenti,
    sospendere un account, leggere le segnalazioni.
-3. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non
+2. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non
    avvisare lo staff: il blocco protegge il singolo, la segnalazione permette
    di accorgersi di chi molesta dieci persone.
 
 **Perché possa stare online**
 
-4. **Messa in produzione**: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
+3. **Messa in produzione**: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
    posto di SQLite, HTTPS (senza il quale il service worker non parte),
    backup, foto su uno spazio separato dal codice.
-5. **Migrazioni con Alembic** al posto di `create_all`.
+4. **Migrazioni con Alembic** al posto di `create_all`.
 
 **Perché sia in regola**
 
-6. **Informativa privacy e trattamento dati.** Si raccolgono dati personali di
+5. **Informativa privacy e trattamento dati.** Si raccolgono dati personali di
    persone reali — nome, telefono, foto — quindi servono informativa, base
    giuridica e un modo per cancellare il proprio account. Non è un dettaglio
    rimandabile: è la legge.
 
 **Poi, quando serve**
 
-7. Notifiche push per i turni urgenti nelle proprie zone.
-8. Ricerca dei bagnini per disponibilità oraria, non solo per zona.
+6. Notifiche push per i turni urgenti nelle proprie zone.
+7. Ricerca dei bagnini per disponibilità oraria, non solo per zona.

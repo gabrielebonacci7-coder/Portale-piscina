@@ -26,5 +26,6 @@ class UtenteRead(ORMModel):
     telefono: str | None = None
     tipo: TipoUtente
     attivo: bool
+    email_verificata: bool
     verificato: bool
     creato_il: datetime

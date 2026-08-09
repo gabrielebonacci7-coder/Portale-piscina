@@ -44,6 +44,22 @@ function messaggioLeggibile(stato, corpo) {
   return "Qualcosa non ha funzionato";
 }
 
+/** Legge il corpo della risposta.
+
+    Non tutto quello che arriva è JSON: un errore 500 di uvicorn è testo
+    semplice ("Internal Server Error"), e un proxy può rispondere HTML.
+    Passarli a JSON.parse farebbe fallire il client con un errore
+    incomprensibile invece di mostrare il guasto vero. */
+async function leggiCorpo(risposta) {
+  const testo = await risposta.text();
+  if (!testo) return null;
+  try {
+    return JSON.parse(testo);
+  } catch {
+    return null;
+  }
+}
+
 /** Caricamento di un file: multipart, senza Content-Type impostato a mano
     (il browser deve aggiungere da sé il "boundary"). */
 async function invioFile(metodo, percorso, file, campi = {}) {
@@ -64,8 +80,7 @@ async function invioFile(metodo, percorso, file, campi = {}) {
     throw new ErroreApi(0, "Nessuna connessione. Controlla la rete.");
   }
 
-  const testo = await risposta.text();
-  const dati = testo ? JSON.parse(testo) : null;
+  const dati = await leggiCorpo(risposta);
   if (!risposta.ok) {
     if (risposta.status === 401 && alScadere) alScadere();
     throw new ErroreApi(risposta.status, messaggioLeggibile(risposta.status, dati));
@@ -98,8 +113,7 @@ async function richiesta(metodo, percorso, { corpo, parametri } = {}) {
 
   if (risposta.status === 204) return null;
 
-  const testo = await risposta.text();
-  const dati = testo ? JSON.parse(testo) : null;
+  const dati = await leggiCorpo(risposta);
 
   if (!risposta.ok) {
     if (risposta.status === 401 && alScadere) alScadere();
@@ -119,6 +133,11 @@ export const api = {
   accedi: (email, password) => post("/auth/login", { email, password }),
   io: () => get("/auth/me"),
   cambioPassword: (dati) => post("/auth/cambio-password", dati),
+  recuperoPassword: (email) => post("/auth/recupero-password", { email }),
+  reimpostaPassword: (codice, passwordNuova) =>
+    post("/auth/reimposta-password", { codice, password_nuova: passwordNuova }),
+  verificaEmail: (codice) => post("/auth/verifica-email", { codice }),
+  inviaVerifica: () => post("/auth/invia-verifica"),
 
   // --- Anagrafiche ---
   zone: () => get("/zone"),

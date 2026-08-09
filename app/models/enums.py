@@ -51,6 +51,13 @@ def brevetto_copre(posseduto: "TipoBrevetto", richiesto: "TipoBrevetto") -> bool
     return livello_posseduto >= livello_richiesto
 
 
+class TipoToken(str, Enum):
+    """A cosa serve un codice mandato per email."""
+
+    VERIFICA_EMAIL = "verifica_email"
+    RECUPERO_PASSWORD = "recupero_password"
+
+
 class TipoFoto(str, Enum):
     """A cosa si riferisce la foto di una struttura.
 

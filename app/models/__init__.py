@@ -16,6 +16,7 @@ from app.models.enums import (
     TipoCompenso,
     TipoFoto,
     TipoStruttura,
+    TipoToken,
     TipoTurno,
     TipoUtente,
     brevetto_copre,
@@ -24,6 +25,7 @@ from app.models.foto import FotoPiscina
 from app.models.messaggistica import Blocco, Conversazione, Messaggio, Partecipante
 from app.models.piscina import ProfiloPiscina
 from app.models.recensione import Recensione
+from app.models.token_email import TokenEmail
 from app.models.utente import Utente
 from app.models.zona import Zona, bagnino_zone
 
@@ -42,6 +44,7 @@ __all__ = [
     "ProfiloBagnino",
     "ProfiloPiscina",
     "Recensione",
+    "TokenEmail",
     "Utente",
     "Zona",
     "bagnino_zone",
@@ -52,6 +55,7 @@ __all__ = [
     "TipoCompenso",
     "TipoFoto",
     "TipoStruttura",
+    "TipoToken",
     "TipoTurno",
     "TipoUtente",
     "brevetto_copre",

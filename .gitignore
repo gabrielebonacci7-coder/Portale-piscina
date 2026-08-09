@@ -12,3 +12,8 @@ env/
 
 # Foto caricate dagli utenti
 media/
+
+# Il video si rigenera con: python -m scripts.video_demo
+demo/
+demo_video.db*
+media_video/
