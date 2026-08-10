@@ -7,11 +7,10 @@ Il nome tiene insieme le due cose che fa: i *guard* — chi sorveglia la vasca �
 e il *link*, il collegamento fra chi cerca un turno e chi lo offre. Non nomina
 la piscina apposta: se un domani la bacheca copre anche il mare, il nome regge.
 
-Stato attuale: **passo 12 — privacy e dati personali**. Il progetto è
-utilizzabile: backend completo, interfaccia mobile installabile sul telefono,
-foto profilo per i bagnini e galleria per le strutture, gli strumenti con cui
-lo staff controlla brevetti e account, e informativa privacy con esportazione
-e cancellazione dei propri dati.
+Stato attuale: **passo 13 — pronto per andare online**. Il progetto è completo:
+backend, interfaccia mobile installabile sul telefono, foto, chat, recensioni,
+pannello di gestione, informativa privacy, e il pacchetto per metterlo su un
+server con https e backup. Vedi [Mettere Guardlink online](#mettere-guardlink-online).
 
 **La bacheca è riservata agli iscritti**: senza login si può solo registrarsi e
 leggere l'elenco delle zone (serve al modulo di iscrizione).
@@ -43,7 +42,7 @@ Su **/docs** resta la documentazione interattiva dell'API, per provare le
 chiamate una per una.
 
 ```bash
-pytest        # 161 test end-to-end sulle regole di dominio
+pytest        # 175 test end-to-end sulle regole di dominio
 ```
 
 ## L'app (PWA)
@@ -110,6 +109,8 @@ web/                     la PWA
 app/
 ├── core/
 │   ├── config.py        impostazioni (DATABASE_URL, SECRET_KEY...) da env o .env
+│   ├── avvio.py         controlli che bloccano l'avvio se la configurazione non regge
+│   ├── limiti.py        conta i tentativi di accesso
 │   └── security.py      hash bcrypt delle password e token JWT
 ├── db/
 │   ├── base_class.py    Base dichiarativa + mixin creato_il/aggiornato_il
@@ -127,12 +128,17 @@ scripts/
 ├── seed_demo.py         dati di esempio
 ├── crea_staff.py        assegna il permesso di gestione a un account
 ├── prova_email.py       verifica la configurazione della posta
+├── backup.py            copia di sicurezza di database e foto
 ├── foto_demo.py         immagini disegnate per il seed
 ├── genera_icone.py      icone PNG della PWA
 ├── video_demo.py        registra il video dimostrativo
 ├── demo/palco.html      il "palco" a due telefoni usato dal video
 └── aggiorna_schema.py   aggiorna un database creato con una versione precedente
 tests/                   test end-to-end
+
+Dockerfile               l'immagine dell'applicazione
+docker-compose.yml       app + Caddy, i due contenitori del server
+Caddyfile                https automatico e intestazioni di sicurezza
 ```
 
 I tre livelli hanno compiti distinti: i **router** si occupano di HTTP (status
@@ -500,6 +506,165 @@ perso la password non riceve niente.
 
 Cambiano solo le prime righe del `.env`, il codice no.
 
+## Mettere Guardlink online
+
+Servono un **dominio** (~10-15 €/anno) e un **VPS piccolo** (Hetzner CX22,
+Contabo, OVH: ~5 €/mese). Nient'altro: l'app, il database, le foto e il
+certificato https stanno tutti lì dentro.
+
+### 1. Il dominio punta al server
+
+Nel pannello di chi ti ha venduto il dominio, un record **A** con l'indirizzo
+IP del VPS. Aspetta che si propaghi (di solito minuti, a volte ore):
+
+```bash
+ping guardlink.it        # deve rispondere l'IP del tuo server
+```
+
+Va fatto **prima**: Caddy chiede il certificato al primo avvio, e Let's Encrypt
+lo concede solo se il dominio punta già davvero lì.
+
+### 2. Il server
+
+```bash
+ssh root@IP-DEL-SERVER
+
+apt update && apt install -y docker.io docker-compose-v2 git
+git clone https://github.com/gabrielebonacci7-coder/Portale-piscina.git guardlink
+cd guardlink
+```
+
+### 3. La configurazione
+
+```bash
+cp .env.esempio .env
+python3 -c "import secrets; print(secrets.token_hex(32))"   # la chiave segreta
+nano .env
+```
+
+Nel file servono:
+
+```bash
+DOMINIO=guardlink.it
+URL_PUBBLICO=https://guardlink.it
+SECRET_KEY=...                      # quella appena generata
+EMAIL_SMTP_HOST=smtp.gmail.com
+EMAIL_SMTP_UTENTE=tuonome@gmail.com
+EMAIL_SMTP_PASSWORD=...             # password per le app, 16 lettere
+EMAIL_MITTENTE=Guardlink <tuonome@gmail.com>
+```
+
+`DEBUG` e `DIETRO_PROXY` non si toccano: li imposta `docker-compose.yml`,
+perché non sono scelte ma conseguenze del fatto che l'app gira dietro Caddy.
+
+### 4. Accendere
+
+```bash
+docker compose up -d --build
+docker compose logs -f app          # Ctrl+C per smettere di guardare
+```
+
+Dopo un minuto **https://guardlink.it** risponde, con il certificato già a
+posto.
+
+Se l'app **non parte**, guarda il log: se la configurazione non è adatta a
+stare online si rifiuta di partire e dice esattamente cosa manca. È voluto —
+vedi [Il controllo all'avvio](#il-controllo-allavvio).
+
+### 5. Il primo account staff
+
+```bash
+# Iscriviti normalmente dall'app, poi:
+docker compose exec app python -m scripts.crea_staff tua@email.it
+```
+
+### 6. I backup
+
+```bash
+docker compose exec app python -m scripts.backup --dove /dati/backup
+```
+
+Automatico ogni notte alle 3, con `crontab -e`:
+
+```
+0 3 * * * cd /root/guardlink && docker compose exec -T app python -m scripts.backup --dove /dati/backup
+```
+
+Il database **non** si copia con `cp`: se qualcuno sta scrivendo, il file
+ottenuto può essere a metà di una transazione — si apre lo stesso, ma i dati
+dentro non tornano. `scripts/backup.py` usa l'API di backup di SQLite, che
+produce una copia coerente anche con l'app accesa, e tiene le ultime 14.
+
+> **Un backup che sta sullo stesso disco non serve a niente**, perché il caso
+> da cui ti difende è proprio il disco che si rompe. Portane una copia fuori —
+> `rsync` verso casa, uno spazio di archiviazione, quello che preferisci.
+
+### Aggiornare l'app dopo una modifica
+
+```bash
+cd /root/guardlink
+git pull
+docker compose up -d --build
+```
+
+I dati non si toccano: database e foto stanno su volumi, fuori dall'immagine.
+Se hai cambiato qualcosa nella cartella `web/`, ricordati di cambiare anche
+`VERSIONE` in `web/sw.js`, altrimenti i telefoni continuano a usare la copia
+che hanno in cache.
+
+Se hai aggiunto colonne al database:
+
+```bash
+docker compose exec app python -m scripts.aggiorna_schema
+```
+
+### Il controllo all'avvio
+
+In produzione l'app **si rifiuta di partire** se la configurazione non regge, e
+dice quale problema ha. Controlla quattro cose:
+
+| Problema | Perché è grave |
+|---|---|
+| `SECRET_KEY` ancora quella di sviluppo | Sta scritta nel codice su GitHub: chiunque potrebbe firmarsi un token valido per qualsiasi account |
+| `DEBUG` acceso | CORS accetta qualsiasi origine e gli errori mostrano il codice interno |
+| Indirizzo senza `https` | Il service worker non parte: niente installazione sul telefono, niente aggiornamenti |
+| Posta non configurata | Chi dimentica la password resta fuori per sempre |
+
+Un server acceso male funziona benissimo e sembra a posto: è il motivo per cui
+questi controlli bloccano l'avvio invece di scrivere un avvertimento nel log.
+
+"Sono online" si deduce da **due indizi indipendenti**, perché uno solo si
+dimentica: `DEBUG=false` è la dichiarazione, un `URL_PUBBLICO` che non punta a
+questo computer è il fatto. Basta uno dei due. In locale non scatta niente.
+
+### Limiti ai tentativi
+
+Login, registrazione e recupero password contano i tentativi: senza, si
+possono provare password all'infinito.
+
+I limiti **per indirizzo email** sono stretti (5 per quarto d'ora), quelli
+**per IP** larghi (30). Non è una svista: in piscina i bagnini stanno tutti
+sullo stesso wi-fi e per il server hanno lo stesso indirizzo. Un numero basso
+lì non fermerebbe nessun attacco vero — chi ci prova sul serio usa tanti IP —
+ma chiuderebbe fuori mezzo spogliatoio.
+
+I contatori stanno in memoria: si azzerano al riavvio, e con due processi
+uvicorn il limite effettivo raddoppia. A questa dimensione va bene; se un
+giorno servisse un conteggio esatto, il posto dove metterlo è
+`app/core/limiti.py`, senza toccare i router.
+
+### SQLite o PostgreSQL
+
+Si parte con **SQLite** e va benissimo: è un file solo, il backup è copiarlo, e
+con qualche decina di iscritti regge senza fatica. È attivo il modo WAL, quindi
+chi legge non aspetta chi scrive.
+
+Per passare a PostgreSQL più avanti servono due cose: aggiungere il driver
+(`psycopg[binary]` in `requirements.txt`) e cambiare `DATABASE_URL`. Il codice
+è già indipendente dal motore — le impostazioni specifiche di SQLite si
+applicano solo se l'indirizzo comincia per `sqlite` — ma i dati vanno
+travasati a mano, quindi meglio farlo quando serve davvero e non "per sicurezza".
+
 ## Installazione e aggiornamenti
 
 ### Come si installa sul telefono
@@ -678,18 +843,15 @@ Esce in `demo/`: `guardlink-demo.mp4` e un fotogramma da usare come copertina.
 
 ## Prossimi passi
 
-**Perché possa stare online**
-
-1. **Messa in produzione**: `SECRET_KEY` da variabile d'ambiente, PostgreSQL al
-   posto di SQLite, HTTPS (senza il quale il service worker non parte),
-   backup, foto su uno spazio separato dal codice.
-2. **Migrazioni con Alembic** al posto di `create_all`.
+1. **Migrazioni con Alembic** al posto di `create_all` e di
+   `scripts/aggiorna_schema.py`, che è un rattoppo mirato e non un sistema di
+   migrazioni. Serve quando le modifiche allo schema diventano frequenti.
 
 **Poi, quando serve**
 
-3. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non avvisare
+2. **Segnalazione degli abusi.** Oggi si può bloccare qualcuno, ma non avvisare
    lo staff: il blocco protegge il singolo, la segnalazione permetterebbe di
    accorgersi di chi molesta dieci persone. Rimandata per scelta: finché gli
    iscritti sono pochi le segnalazioni arrivano a voce.
-4. Notifiche push per i turni urgenti nelle proprie zone.
-5. Ricerca dei bagnini per disponibilità oraria, non solo per zona.
+3. Notifiche push per i turni urgenti nelle proprie zone.
+4. Ricerca dei bagnini per disponibilità oraria, non solo per zona.

@@ -1,0 +1,52 @@
+# Tutto quello che serve per tenere Guardlink online, in due contenitori.
+#
+#     docker compose up -d          avvia
+#     docker compose logs -f app    guarda cosa succede
+#     docker compose down           ferma (i dati restano nei volumi)
+#
+# Le impostazioni si leggono da `.env`, che non finisce su GitHub.
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Non stanno in .env perché non sono scelte: sono conseguenze del fatto
+      # che l'app gira qui dentro, dietro Caddy.
+      DEBUG: "false"
+      DIETRO_PROXY: "true"
+      DATABASE_URL: sqlite:////dati/guardlink.db
+      MEDIA_DIR: /dati/media
+    volumes:
+      # Database e foto degli iscritti. Sopravvivono a `down`, alle
+      # ricostruzioni dell'immagine e agli aggiornamenti.
+      - dati:/dati
+    # Nessuna porta esposta all'esterno: si arriva all'app **solo** passando da
+    # Caddy, quindi solo in https. Senza questo si potrebbe raggiungere la
+    # porta 8000 in chiaro scavalcando il certificato.
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Il dominio, letto da .env: Caddy ci chiede il certificato sopra.
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # I certificati: senza questo volume, a ogni riavvio Caddy ne
+      # richiederebbe di nuovi e Let's Encrypt dopo un po' dice basta.
+      - caddy_dati:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  dati:
+  caddy_dati:
+  caddy_config:

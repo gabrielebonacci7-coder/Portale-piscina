@@ -13,6 +13,9 @@ env/
 # Foto caricate dagli utenti
 media/
 
+# Copie di sicurezza: dati veri, non vanno su GitHub
+backup/
+
 # Il video si rigenera con: python -m scripts.video_demo.
 # La barra iniziale limita la regola alla cartella di primo livello:
 # senza, verrebbe escluso anche scripts/demo/, che invece serve.

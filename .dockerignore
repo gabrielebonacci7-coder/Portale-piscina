@@ -1,0 +1,21 @@
+# Fuori dall'immagine tutto ciò che non serve a far girare l'app: la rende più
+# leggera e, soprattutto, evita che segreti e dati locali finiscano dentro.
+.git
+.gitignore
+.env
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+media/
+media_video/
+demo/
+tests/
+.pytest_cache/
+.mypy_cache/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+README.md
+requirements-dev.txt

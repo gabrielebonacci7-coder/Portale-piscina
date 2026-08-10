@@ -1,0 +1,37 @@
+# Caddy sta davanti all'applicazione e si occupa di due cose: il certificato
+# https e le intestazioni di sicurezza.
+#
+# Il certificato non va chiesto, rinnovato o ricordato: Caddy lo ottiene da
+# Let's Encrypt al primo avvio e lo rinnova da solo per sempre. È il motivo per
+# cui sta qui al posto di nginx.
+
+{$DOMINIO} {
+	encode gzip zstd
+
+	# L'IP vero di chi chiama. Senza, all'app arriverebbe sempre l'indirizzo
+	# interno di Caddy e i limiti sui tentativi conterebbero tutti insieme.
+	reverse_proxy app:8000 {
+		header_up X-Forwarded-For {remote_host}
+	}
+
+	header {
+		# Il browser ricorda per un anno che questo sito va in https, e non
+		# prova nemmeno in chiaro.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		# Niente incorniciamento in iframe altrui.
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# L'app non usa fotocamera, microfono o posizione: si dichiara, così
+		# nemmeno un giorno per sbaglio.
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	log {
+		output file /data/accessi.log {
+			roll_size 10MB
+			roll_keep 5
+		}
+	}
+}
