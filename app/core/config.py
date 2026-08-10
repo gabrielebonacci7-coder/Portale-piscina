@@ -49,6 +49,28 @@ class Settings(BaseSettings):
     minuti_validita_recupero: int = 30
     ore_validita_verifica: int = 48
 
+    # --- Rete e proxy -----------------------------------------------------
+    # In produzione l'app sta dietro a Caddy, che le passa l'IP vero del
+    # visitatore in `X-Forwarded-For`. Ci si fida di quell'intestazione **solo**
+    # se questa è True: altrimenti chiunque potrebbe scriverci dentro un IP
+    # falso e aggirare i limiti sui tentativi di accesso.
+    dietro_proxy: bool = False
+
+    # --- Limiti sui tentativi ---------------------------------------------
+    # Senza, si possono provare password all'infinito.
+    #
+    # I limiti **per indirizzo email** sono stretti: sono quelli che proteggono
+    # davvero un account, e riguardano una persona sola.
+    # I limiti **per IP** sono larghi apposta: in una piscina i bagnini stanno
+    # tutti sullo stesso wi-fi e per il server hanno lo stesso indirizzo. Un
+    # numero basso lì non fermerebbe nessun attacco — chi ci prova davvero usa
+    # tanti IP — ma chiuderebbe fuori mezzo spogliatoio.
+    limite_login: int = 30           # per IP, ogni finestra
+    limite_login_per_email: int = 5  # per indirizzo, ogni finestra
+    limite_registrazioni: int = 15   # per IP, ogni finestra
+    limite_recuperi: int = 5         # per IP, ogni finestra
+    finestra_limiti_minuti: int = 15
+
     # --- Foto -------------------------------------------------------------
     # Dove finiscono le foto caricate. In produzione conviene un disco
     # separato o uno spazio oggetti, non la cartella del codice.

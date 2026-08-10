@@ -20,9 +20,18 @@ from sqlalchemy.pool import StaticPool  # noqa: E402
 
 from PIL import Image  # noqa: E402
 
+from app.core import limiti  # noqa: E402
 from app.db.session import get_db  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models import Base, Zona  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def limiti_azzerati():
+    """I contatori dei tentativi stanno in memoria e sono condivisi da tutto il
+    processo: senza azzerarli, i test si chiuderebbero fuori a vicenda."""
+    limiti.svuota_tutto()
+    yield
 
 
 @pytest.fixture

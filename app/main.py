@@ -21,6 +21,7 @@ from app.api.routers import (
     staff,
     zone,
 )
+from app.core.avvio import controlla_o_esplodi
 from app.core.config import BASE_DIR, settings
 from app.db.init_db import init_db
 from app.db.session import engine
@@ -28,6 +29,9 @@ from app.db.session import engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Prima di tutto: se la configurazione non è adatta a stare online, meglio
+    # non partire affatto che partire sembrando a posto.
+    controlla_o_esplodi()
     # Comodo in sviluppo. In produzione lo schema lo gestiranno le migrazioni.
     init_db()
     yield
