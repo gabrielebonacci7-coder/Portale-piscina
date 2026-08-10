@@ -9,7 +9,7 @@ hanno letto.
 
 # Data dell'ultima revisione di `web/privacy.html`. Si salva su ogni account al
 # momento dell'iscrizione, insieme alla data di accettazione.
-VERSIONE_INFORMATIVA = "2026-08-09"
+VERSIONE_INFORMATIVA = "2026-08-10"
 
 # Dominio degli indirizzi lasciati al posto di quelli cancellati. `.invalid` è
 # riservato dallo standard (RFC 2606): non è di nessuno e non lo sarà mai,
