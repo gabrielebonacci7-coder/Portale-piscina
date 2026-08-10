@@ -35,3 +35,16 @@
 		}
 	}
 }
+
+# Chi digita www finisce sull'indirizzo senza www, che è quello vero.
+#
+# Serve un secondo record DNS per `www`, altrimenti Caddy non riesce a
+# ottenere il certificato per questo nome (l'app principale funziona lo stesso,
+# ma nel log compare un errore che sembra grave e non lo è).
+#
+# Un solo indirizzo e non due: il token di accesso e il service worker sono
+# legati all'origine, quindi chi entrasse da www si ritroverebbe una sessione
+# separata e una seconda copia dell'app installata.
+www.{$DOMINIO} {
+	redir https://{$DOMINIO}{uri} permanent
+}

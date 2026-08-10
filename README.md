@@ -514,15 +514,34 @@ certificato https stanno tutti lì dentro.
 
 ### 1. Il dominio punta al server
 
-Nel pannello di chi ti ha venduto il dominio, un record **A** con l'indirizzo
-IP del VPS. Aspetta che si propaghi (di solito minuti, a volte ore):
+Nel pannello di chi ti ha venduto il dominio servono **due record A**, entrambi
+verso l'IP del VPS:
+
+| Tipo | Nome | Valore |
+|---|---|---|
+| A | `@` (oppure vuoto, o il dominio stesso) | l'IP del server |
+| A | `www` | lo stesso IP |
+
+Il secondo serve perché chi digita `www.guardlink.it` venga rimandato
+all'indirizzo senza `www`: senza quel record Caddy non riesce a ottenere il
+certificato per quel nome e lascia un errore nel log — l'app funziona lo
+stesso, ma sembra rotta a chi guarda.
+
+Poi si aspetta che si propaghi (di solito minuti, a volte qualche ora):
 
 ```bash
 ping guardlink.it        # deve rispondere l'IP del tuo server
 ```
 
-Va fatto **prima**: Caddy chiede il certificato al primo avvio, e Let's Encrypt
-lo concede solo se il dominio punta già davvero lì.
+Va fatto **prima** di avviare i contenitori: Caddy chiede il certificato al
+primo avvio, e Let's Encrypt lo concede solo se il dominio punta già davvero
+lì. Chiedendolo troppe volte a vuoto si finisce in un limite temporaneo di
+Let's Encrypt, e allora tocca aspettare qualche ora.
+
+L'app sta su **un solo indirizzo**, quello senza `www`. Non è pignoleria: il
+token di accesso e il service worker sono legati all'origine, quindi chi
+entrasse da `www` si ritroverebbe una sessione separata e una seconda copia
+dell'app installata sul telefono.
 
 ### 2. Il server
 
