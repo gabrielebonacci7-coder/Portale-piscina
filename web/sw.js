@@ -4,7 +4,7 @@
 // dell'API mai. Le risposte dell'API sono legate al token di chi le ha
 // chieste: salvarle significherebbe mostrare a un utente i dati di un altro.
 
-const VERSIONE = "guardlink-v7";
+const VERSIONE = "guardlink-v8";
 
 const GUSCIO = [
   "/",
