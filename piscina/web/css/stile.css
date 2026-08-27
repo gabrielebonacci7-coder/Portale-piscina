@@ -336,7 +336,7 @@ button { font: inherit; color: inherit; }
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   max-height: min(62vh, 560px);
-  background: var(--prato);
+  background: #7c9e5c; /* il verde del prato, mentre la grana si carica */
 }
 
 .mappa-scorri svg { display: block; }
@@ -400,9 +400,12 @@ button { font: inherit; color: inherit; }
 .posto .etichetta {
   font-size: 11px;
   font-weight: 700;
-  fill: var(--inchiostro);
-  opacity: 0.55;
+  fill: #43351f;
   text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 3;
+  stroke-linejoin: round;
 }
 .posto .etichetta.a-lato { text-anchor: start; }
 .foglio:focus-visible { outline: none; }
@@ -562,11 +565,351 @@ button { font: inherit; color: inherit; }
   margin: 0 auto;
   padding-top: var(--sp-3);
 }
+/* L'illustrazione è a figura intera e molto slanciata: a tutta altezza
+   occuperebbe due schermi. Si mostra il busto — la si ritaglia dall'alto e la
+   si sfuma in fondo, così il taglio sembra voluto invece che un errore. */
 .benvenuto .omino {
-  width: min(58vw, 250px);
+  width: min(64vw, 270px);
+  height: min(40vh, 360px);
+  object-fit: cover;
+  object-position: top center;
   align-self: center;
   flex: 0 0 auto;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+}
+.benvenuto .parlato { min-width: 0; }
+.benvenuto .chi {
+  text-align: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 6px;
+}
+.fumetto {
+  position: relative;
+  background: #fff;
+  color: var(--inchiostro);
+  border-radius: var(--r-l);
+  padding: var(--sp-4);
+  margin-bottom: 12%;
+  box-shadow: var(--ombra-alta);
+  font-size: 1rem;
+  line-height: 1.45;
+  animation: sali 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.fumetto::after {
+  content: "";
+  position: absolute;
+  left: 42px;
+  bottom: -9px;
+  border: 10px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+}
+.benvenuto .comandi {
+  max-width: 560px;
+  width: 100%;
+  margin: var(--sp-4) auto 0;
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+}
+.benvenuto .salta {
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-weight: 600;
+  padding: var(--sp-2);
+}
+.benvenuto .avanti { flex: 1; background: #fff; color: var(--acqua-scura); }
+.punti { display: flex; gap: 5px; justify-content: center; margin-top: var(--sp-3); }
+.punti i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, 0.35); }
+.punti i.attivo { background: #fff; width: 18px; border-radius: 3px; }
+
+/* ---------- Elenco postazioni (alternativa alla mappa) ---------- */
+.elenco-file { display: grid; gap: var(--sp-3); }
+.fila-titolo { font-weight: 700; font-size: 0.85rem; color: var(--tenue); margin-bottom: 6px; }
+.griglia-codici { display: flex; flex-wrap: wrap; gap: 6px; }
+.codice-posto {
+  min-width: 46px;
+  min-height: 40px;
+  padding: 4px 8px;
+  border-radius: 9px;
+  border: 1.5px solid var(--linea);
+  background: var(--superficie);
+  font-family: var(--font-dati);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.codice-posto.libera { border-color: var(--libera); color: var(--libera); }
+.codice-posto.mezza { border-color: var(--mezza); color: var(--mezza); }
+.codice-posto.occupata, .codice-posto.spenta {
+  border-color: var(--linea);
+  color: var(--tenue);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.codice-posto.scelta { background: var(--acqua); border-color: var(--acqua); color: var(--su-acqua); }
+
+/* ---------- Gestionale ---------- */
+.prenotazione-riga {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--linea);
+  align-items: start;
+}
+.prenotazione-riga:last-child { border-bottom: 0; }
+.bollo {
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.bollo.in_attesa { background: var(--acqua-velo); color: var(--acqua-scura); }
+.bollo.arrivato { background: var(--libera-velo); color: var(--libera); }
+.bollo.annullata { background: var(--occupata-velo); color: var(--occupata); }
+.prenotazione-riga > b { white-space: nowrap; }
+.contatti a { color: var(--acqua); text-decoration: none; font-weight: 600; }
+.numeri { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: var(--sp-2); }
+.numero { background: var(--superficie-2); border-radius: var(--r-s); padding: var(--sp-3); text-align: center; }
+.numero b { display: block; font-size: 1.35rem; line-height: 1.1; }
+.numero span { font-size: 0.72rem; color: var(--tenue); }
+
+/* ---------- Rispetto delle preferenze di sistema ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- La scenografia della mappa ----------
+   I colori stanno qui e non negli attributi dell'SVG, così la mappa segue il
+   tema come tutto il resto. Le grane (erba, acqua, pietra) sono immagini
+   ripetute, dichiarate dentro l'SVG. */
+.sc-prato { fill: url(#erba); }
+.sc-pavimento { fill: url(#pietra); }
+.sc-cordolo { fill: none; stroke: #ffffff; stroke-width: 3; opacity: 0.5; }
+.sc-acqua { fill: url(#acqua); }
+.sc-bordo-vasca { fill: #f4ecdd; stroke: #e0d3ba; stroke-width: 2; }
+.sc-sabbia { fill: #ecd9ae; }
+.sc-riga-campo { fill: none; stroke: #ffffff; stroke-width: 2; opacity: 0.65; }
+.sc-rete { stroke: #ffffff; stroke-width: 2; stroke-dasharray: 5 4; opacity: 0.85; }
+.sc-solarium {
+  fill: rgba(255, 255, 255, 0.42);
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+}
+.sc-legno { fill: #b07a48; }
+.sc-asse { stroke: #96633a; stroke-width: 1.6; opacity: 0.7; }
+.sc-porta { fill: #6f4526; }
+.sc-metallo { stroke: #eef4f6; stroke-width: 2.4; fill: none; stroke-linecap: round; }
+.sc-metallo-pieno { fill: #eef4f6; }
+.sc-sedia { fill: #c8443a; }
+.sc-seggiolino { fill: #e8756a; }
+.sc-ombrellino { fill: #e2564a; }
+.sc-ombrellino-cuore { fill: #ffffff; opacity: 0.8; }
+.sc-palma { fill: #2f7d4f; opacity: 0.95; }
+.sc-palma.chiara { fill: #46a067; opacity: 0.9; }
+.sc-palma-cuore { fill: #8a5a2b; }
+
+.sc-testo {
+  fill: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(20, 50, 60, 0.35);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.sc-testo.minuta { font-size: 13px; }
+.sc-testo.scura {
+  fill: #4a3a24;
+  stroke: rgba(255, 255, 255, 0.75);
+  stroke-width: 2.5;
+}
+
+/* Le postazioni. Il colore dello stato arriva dalle classi `.stato-*` più
+   sotto e si posa su due cose sole: l'alone e i lettini. */
+.posto .telo { fill: #f8f2e6; stroke: #ded0b6; stroke-width: 1; }
+.posto .spicchio { stroke: #e6dac4; stroke-width: 0.9; }
+.posto .puntale { fill: #c9b48f; }
+.posto .lettino { stroke: rgba(40, 30, 15, 0.35); stroke-width: 1; }
+.posto .cuscino { fill: #ffffff; opacity: 0.75; }
+.posto .alone { opacity: 0.32; }
+
+/* ---------- Carrello e riepilogo ---------- */
+.scelte { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.gettone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 11px;
+  border-radius: 999px;
+  background: var(--acqua-velo);
+  color: var(--acqua-scura);
+  border: 1px solid color-mix(in srgb, var(--acqua) 30%, transparent);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.gettone button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 1rem;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.riga-conto {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px dashed var(--linea);
+}
+.riga-conto:last-child { border-bottom: 0; }
+.riga-conto.totale { font-weight: 750; font-size: 1.05rem; border-top: 2px solid var(--linea-forte); }
+
+/* ---------- Foglio che sale dal basso ---------- */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(6, 26, 34, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sfuma 0.16s ease;
+}
+.foglio {
+  width: 100%;
+  max-width: 720px;
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--superficie);
+  border-radius: var(--r-l) var(--r-l) 0 0;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--sp-5) + env(safe-area-inset-bottom));
+  box-shadow: var(--ombra-alta);
+  animation: sali 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.foglio .maniglia {
+  width: 42px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--linea-forte);
+  margin: 0 auto var(--sp-3);
+}
+@keyframes sali { from { transform: translateY(14%); opacity: 0.6; } }
+@keyframes sfuma { from { opacity: 0; } }
+
+/* ---------- Scelta del pacchetto ---------- */
+.pacchetti { display: grid; gap: var(--sp-2); }
+.pacchetto {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3);
+  border: 1.5px solid var(--linea);
+  border-radius: var(--r-s);
+  background: var(--superficie);
+  text-align: left;
+  cursor: pointer;
+}
+.pacchetto[aria-pressed="true"] {
+  border-color: var(--acqua);
+  background: var(--acqua-velo);
+}
+.pacchetto .disegno { flex: 0 0 46px; }
+.pacchetto .nome { font-weight: 650; }
+.pacchetto .prezzo { margin-left: auto; font-weight: 750; white-space: nowrap; }
+
+/* ---------- Tabelle prezzi ---------- */
+.tabella { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.tabella th, .tabella td { padding: 9px 6px; text-align: left; border-bottom: 1px solid var(--linea); }
+.tabella th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--tenue); }
+.tabella td.cifra, .tabella th.cifra { text-align: right; font-family: var(--font-dati); white-space: nowrap; }
+.tabella tr:last-child td { border-bottom: 0; }
+.scorri-x { overflow-x: auto; }
+
+/* ---------- Avvisi ---------- */
+.avviso {
+  padding: var(--sp-3);
+  border-radius: var(--r-s);
+  font-size: 0.9rem;
+  margin-bottom: var(--sp-3);
+  border: 1px solid transparent;
+}
+.avviso.info { background: var(--acqua-velo); border-color: color-mix(in srgb, var(--acqua) 25%, transparent); }
+.avviso.buono { background: var(--libera-velo); border-color: color-mix(in srgb, var(--libera) 30%, transparent); }
+.avviso.attenzione { background: var(--mezza-velo); border-color: color-mix(in srgb, var(--mezza) 35%, transparent); }
+.avviso.guaio { background: var(--occupata-velo); border-color: color-mix(in srgb, var(--occupata) 35%, transparent); }
+
+/* ---------- Il benvenuto con l'omino ---------- */
+.benvenuto {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(70, 179, 221, 0.35), transparent 60%),
+    linear-gradient(180deg, var(--acqua-scura), #062430);
+  color: #fff;
+  padding: var(--sp-5) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom));
+  animation: sfuma 0.25s ease;
+}
+.benvenuto .insegna {
+  /* Spinge titolo, omino e fumetto in un blocco solo appoggiato in basso:
+     lo spazio vuoto resta tutto sopra, e si legge come cielo invece che
+     come un buco fra due pezzi. */
+  margin-top: auto;
+  max-width: 560px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.benvenuto .insegna .occhiello { color: rgba(255, 255, 255, 0.7); }
+.benvenuto .insegna h1 { margin-top: 4px; font-size: 1.45rem; }
+
+.benvenuto .scena {
+  /* Il fumetto sopra e l'omino sotto: affiancati, su un telefono stretto, il
+     discorso verrebbe fuori a una parola per riga. */
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: var(--sp-3);
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: var(--sp-3);
+}
+/* L'illustrazione è a figura intera e molto slanciata: a tutta altezza
+   occuperebbe due schermi. Si mostra il busto — la si ritaglia dall'alto e la
+   si sfuma in fondo, così il taglio sembra voluto invece che un errore. */
+.benvenuto .omino {
+  width: min(64vw, 270px);
+  height: min(40vh, 360px);
+  object-fit: cover;
+  object-position: top center;
+  align-self: center;
+  flex: 0 0 auto;
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
 }
 .benvenuto .parlato { min-width: 0; }
 .benvenuto .chi {
@@ -700,6 +1043,17 @@ button { font: inherit; color: inherit; }
 .posto .telo { opacity: 0.9; }
 .posto .palo { fill: var(--inchiostro); opacity: 0.35; }
 .posto .spicchio { fill: #ffffff; opacity: 0.55; }
+
+/* L'omino piccolo, accanto a un testo: stesso ritaglio, in miniatura. */
+.omino-mini {
+  width: 78px;
+  height: 104px;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: var(--r-s);
+  background: var(--acqua-velo);
+  flex: 0 0 auto;
+}
 
 /* La mappa di Google dentro la pagina "Dove siamo". */
 .mappa-incorporata {

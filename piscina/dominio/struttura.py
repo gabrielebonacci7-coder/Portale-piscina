@@ -15,46 +15,51 @@ COMUNE = "Città di Ciampino — Città Metropolitana di Roma Capitale"
 TELEFONO = "+39 329 683 6522"          # dal cartello del listino
 TELEFONO_COMPATTO = "+393296836522"    # per il link "chiama"
 
-# DA CONFERMARE: via e numero civico esatti.
-INDIRIZZO = "Ciampino (RM)"
-# Finché l'indirizzo esatto non c'è, la ricerca per nome porta comunque al
-# posto giusto su tutte le mappe.
-RICERCA_MAPPE = "Piscina Comunale Ciampino"
+INDIRIZZO = "Via Superga — Ciampino (RM)"
+RIFERIMENTO = "accanto al campo sportivo comunale"
+# Con che parole cercarla nelle mappe del telefono.
+RICERCA_MAPPE = "Piscina Comunale Ciampino Via Superga"
 
 ORARI = "Tutti i giorni, dalle 9:00 alle 19:00"
 STAGIONE = "Stagione estiva 2026"
 
-# DA CONFERMARE: mezzi pubblici e parcheggio.
+# DA CONFERMARE: parcheggio e fermata più vicina.
 COME_ARRIVARE = [
     {
         "titolo": "In auto",
-        "testo": "Si arriva da Ciampino centro. Parcheggio nelle strade "
-                 "attorno alla struttura.",
+        "testo": "Via Superga, accanto al campo sportivo comunale. "
+                 "Parcheggio nelle strade attorno alla struttura.",
     },
     {
         "titolo": "Con i mezzi",
-        "testo": "Stazione FL4/FL6 di Ciampino e autobus urbani; "
-                 "fermata più vicina a pochi minuti a piedi.",
+        "testo": "Stazione FL4/FL6 di Ciampino e autobus urbani, "
+                 "poi pochi minuti a piedi.",
     },
 ]
 
-# --- Il benvenuto ----------------------------------------------------------
-# Quello che dice l'omino la prima volta che si apre l'app. Frasi corte: sono
-# fumetti, non un regolamento. Si cambiano qui e cambiano ovunque.
+# --- Quello che dice l'omino ----------------------------------------------
+# Frasi corte: sono fumetti, non un regolamento. Si cambiano qui e cambiano in
+# tutta l'app.
 #
-# DA CONFERMARE: il testo vero. Questo è una bozza, scritta per far vedere
-# come funziona.
+# `{nome}` diventa il nome di chi sta usando l'app — quello lasciato con
+# l'ultima prenotazione su quel telefono. Se non lo sappiamo ancora, sparisce
+# insieme allo spazio che ha davanti: "Buongiorno!" e non "Buongiorno !".
 BENVENUTO = {
-    "nome": "Gabriele",
-    "ruolo": "Piscina Comunale di Ciampino",
     "battute": [
-        "Ciao, benvenuto alla Piscina Comunale di Ciampino!",
-        "Da qui scegli il tuo posto sulla mappa: ombrellone, lettini, "
-        "giornata intera o mezza giornata.",
-        "In verde c'è quello che è ancora libero. Prenoti in un minuto e "
-        "paghi comodamente in cassa quando arrivi.",
+        "Buongiorno {nome}! Che splendida giornata per un bagno in piscina.",
+        "Siamo felici che ci abbiate scelto. Scegli il posto che preferisci: "
+        "al resto pensiamo noi.",
     ],
     "invito": "Scegli il posto",
+}
+
+# Ricompare a prenotazione fatta, per ringraziare.
+GRAZIE = {
+    "battute": [
+        "Grazie {nome}! La tua postazione è prenotata.",
+        "Ti aspettiamo in piscina: il noleggio si paga in cassa quando arrivi.",
+    ],
+    "invito": "Vedi il codice",
 }
 
 # --- La legenda dei colori -------------------------------------------------
@@ -77,10 +82,12 @@ def scheda() -> dict:
         "telefono": TELEFONO,
         "telefono_compatto": TELEFONO_COMPATTO,
         "indirizzo": INDIRIZZO,
+        "riferimento": RIFERIMENTO,
         "ricerca_mappe": RICERCA_MAPPE,
         "orari": ORARI,
         "stagione": STAGIONE,
         "come_arrivare": COME_ARRIVARE,
         "benvenuto": BENVENUTO,
+        "grazie": GRAZIE,
         "legenda": LEGENDA,
     }

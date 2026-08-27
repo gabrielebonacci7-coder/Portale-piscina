@@ -1,7 +1,7 @@
 // Come raggiungerci: dove siamo, quando siamo aperti, come si arriva.
 
 import { el } from "../ui.js";
-import { DISEGNO_OMINO } from "../omino.js";
+import { IMMAGINE_OMINO } from "../omino.js";
 
 export function vistaDove(ctx) {
   const i = ctx.info;
@@ -16,7 +16,10 @@ export function vistaDove(ctx) {
       el("p", { classe: "tenue piccolo", testo: `${i.gestore} · ${i.comune}` }),
       el("div", { classe: "riga-conto" }, [
         el("span", { testo: "Indirizzo" }),
-        el("span", { testo: i.indirizzo }),
+        el("span", { style: "text-align:right" }, [
+          i.indirizzo,
+          i.riferimento ? el("div", { classe: "piccolo tenue", testo: i.riferimento }) : null,
+        ]),
       ]),
       el("div", { classe: "riga-conto" }, [
         el("span", { testo: "Orari" }),
@@ -88,7 +91,7 @@ export function vistaDove(ctx) {
     ]),
 
     el("div", { classe: "scheda", style: "display:flex;gap:12px;align-items:center" }, [
-      el("div", { style: "flex:0 0 88px", html: DISEGNO_OMINO }),
+      el("img", { classe: "omino-mini", src: IMMAGINE_OMINO, alt: "" }),
       el("div", {}, [
         el("h3", { testo: "Rivedi il benvenuto" }),
         el("p", { classe: "piccolo tenue", style: "margin:4px 0 8px", testo:

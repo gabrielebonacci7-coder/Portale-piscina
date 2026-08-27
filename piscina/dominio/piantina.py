@@ -102,6 +102,14 @@ SCENOGRAFIA: list[dict] = [
     {"tipo": "bagnino", "etichetta": "Bagnino", "x": 536, "y": 540, "w": 48, "h": 52},
     {"tipo": "doccia", "etichetta": "Docce", "x": 892, "y": 720, "w": 80, "h": 84},
     {"tipo": "cassa", "etichetta": "Cassa e ingresso", "x": 58, "y": 856, "w": 196, "h": 136},
+    # Le palme sono decorazione, non catasto: servono a far sembrare una
+    # piscina quello che altrimenti è una griglia di pallini. Stanno negli
+    # angoli di pavimento dove non passa nessuno, e si tolgono da qui senza
+    # toccare nient'altro.
+    {"tipo": "palma", "x": 96, "y": 536, "w": 58, "h": 58},
+    {"tipo": "palma", "x": 186, "y": 632, "w": 46, "h": 46},
+    {"tipo": "palma", "x": 84, "y": 736, "w": 50, "h": 50},
+    {"tipo": "palma", "x": 902, "y": 872, "w": 54, "h": 54},
 ]
 
 

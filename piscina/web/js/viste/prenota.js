@@ -5,6 +5,7 @@ import {
   aIso, avviso, brindisi, daIso, el, etichettaGiorno, euro, foglio, giornoEsteso, plurale, svuota,
 } from "../ui.js";
 import { comandiZoom, disegnaMappa, perche, scegliibile, statoDi } from "../mappa.js";
+import { ricordaNome } from "../omino.js";
 import { nomePacchetto, prezzoCent, totaleCent } from "../prezzi.js";
 
 export function vistaPrenota(ctx) {
@@ -358,8 +359,13 @@ export function vistaPrenota(ctx) {
           });
           f.chiudi();
           stato.scelte.clear();
-          mostraConferma(prenotazione);
           caricaMappa();
+          // Prima il grazie dell'omino, poi il codice: il codice serve, e non
+          // deve restare nascosto dietro a un saluto.
+          ricordaNome(prenotazione.nome);
+          ctx.ringrazia(prenotazione.nome.trim().split(/\s+/)[0], () =>
+            mostraConferma(prenotazione)
+          );
         } catch (guaio) {
           errore.append(avviso(guaio.stato === 409 ? "attenzione" : "guaio", guaio.dettaglio));
           if (guaio.stato === 409) caricaMappa();

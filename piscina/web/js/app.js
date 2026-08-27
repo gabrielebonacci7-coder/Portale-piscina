@@ -8,7 +8,7 @@
 
 import * as api from "./api.js";
 import { avviso, el, ICONE, svuota } from "./ui.js";
-import { daMostrare, mostraBenvenuto, segnaVisto } from "./omino.js";
+import { daMostrare, mostraOmino, nomeRicordato, segnaVisto } from "./omino.js";
 import { vistaPrenota } from "./viste/prenota.js";
 import { vistaListino } from "./viste/listino.js";
 import { vistaDove } from "./viste/dove.js";
@@ -111,7 +111,21 @@ async function avvia() {
     ctx = {
       info,
       listino,
-      mostraBenvenuto: () => mostraBenvenuto(info, { alTermine: segnaVisto }),
+      // Il saluto col nome: quello lasciato con l'ultima prenotazione su
+      // questo telefono. La prima volta si saluta e basta.
+      mostraBenvenuto: () =>
+        mostraOmino(info.benvenuto, {
+          occhiello: info.stagione,
+          titolo: info.nome,
+          nome: nomeRicordato(),
+          alTermine: segnaVisto,
+        }),
+      ringrazia: (nome, alTermine) =>
+        mostraOmino(info.grazie, {
+          occhiello: "Prenotazione confermata",
+          nome,
+          alTermine,
+        }),
     };
   } catch (guaio) {
     svuota(radice).append(

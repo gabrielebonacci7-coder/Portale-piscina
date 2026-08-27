@@ -53,12 +53,23 @@ Sono numerate per fila, come si dicono a voce in cassa:
 e l'app si adeguano da soli (`python -m piscina.db.init_db` riallinea le
 postazioni senza perdere le prenotazioni né le postazioni spente a mano).
 
+Lo stile è quello di una piscina vista dal drone: prato, pavimento in pietra
+chiara, acqua con i riflessi del sole. Le tre grane (erba, acqua, pietra) sono
+piastrelle da 256 pixel che si ripetono senza giunture, disegnate una volta
+sola da `python -m piscina.scripts.genera_texture` e pesanti in tutto una
+decina di kilobyte. Tutto il resto — vasche, ombrelloni, lettini, palme — è
+vettoriale: si ingrandisce senza sgranare e cambia colore da solo.
+
 Sulla mappa il colore dice una cosa sola:
 
 - 🟢 **verde** — libera tutto il giorno
 - 🟡 **giallo** — libera solo la mattina o solo il pomeriggio
 - 🔴 **rosso** — occupata
 - ⚪ **grigio** — fuori uso (la spegne lo staff dal gestionale)
+
+Il colore sta sui lettini e in un alone sotto l'ombrellone; gli ombrelloni
+restano color panna, come sono davvero. Tingerli tutti trasformerebbe la mappa
+in un semaforo: da lontano si legge l'alone, da vicino la postazione.
 
 Si tocca "lì attorno" e prende la postazione più vicina: su un telefono un
 ombrellone è largo pochi pixel, e chiedere di centrarlo sarebbe come chiedere
@@ -100,6 +111,17 @@ cartello**, già arrotondati. Il 20% di 7 € farebbe 5,60 e il cartello dice 5.
 carte di credito. Il totale che mostra è il solo noleggio; gli ingressi si
 contano in cassa, perché dipendono da quante persone sono e da chi è residente.
 
+### Le immagini
+
+Gli originali stanno in `risorse/`, e da lì tre script ricavano quello che
+serve all'app. Si rilanciano solo quando cambia un disegno:
+
+| Comando | Cosa fa |
+|---|---|
+| `python -m piscina.scripts.genera_icone` | le icone del telefono, dall'icona disegnata |
+| `python -m piscina.scripts.ritaglia_omino` | scontorna l'omino (via lo sfondo a raggiera) |
+| `python -m piscina.scripts.genera_texture` | erba, acqua e pietra della mappa |
+
 ### Chi prenota
 
 Niente iscrizione: nome, telefono, email e via. Il codice della prenotazione
@@ -130,16 +152,21 @@ sul telefono del cliente al banco della cassa.
 
 Sono segnate `DA CONFERMARE` in [`dominio/struttura.py`](dominio/struttura.py):
 
-- **via e numero civico** della piscina (adesso c'è solo "Ciampino (RM)", e la
-  mappa nella pagina *Dove siamo* cerca la piscina per nome);
-- **le indicazioni su mezzi e parcheggio**;
-- **il testo del benvenuto**, quello che dice l'omino all'apertura: adesso c'è
-  una bozza di tre battute;
+- **parcheggio e fermata più vicina**, per la pagina *Dove siamo* (l'indirizzo
+  — Via Superga, accanto al campo sportivo — c'è);
 - **le date di apertura e chiusura** della stagione (`PISCINA_STAGIONE_*`):
   finché sono vuote si prenota tutto l'anno;
 - **se mezza giornata costa meno** della giornata intera
   (`PISCINA_SCONTO_MEZZA_GIORNATA`): sul cartello 2026 c'è una tariffa sola,
   quindi per ora costano uguale.
+
+### Come saluta l'omino
+
+`Buongiorno {nome}!` — il nome è quello lasciato con l'ultima prenotazione su
+quel telefono, e resta lì (non passa mai dal server). Chi apre l'app per la
+prima volta viene salutato senza nome: `{nome}` sparisce insieme allo spazio
+che ha davanti. Se un domani servisse un vero account per i clienti, è l'unico
+punto da cambiare.
 
 ## Struttura dei file
 
@@ -152,7 +179,8 @@ piscina/
   dominio/             piantina, listino, fasce, dati della struttura
   crud/                le regole delle prenotazioni (niente HTTP qui dentro)
   api/routers/         pubblico, prenotazioni, staff
-  scripts/             creazione operatori, dati di esempio, icone
+  risorse/             gli originali dei disegni (icona, omino)
+  scripts/             operatori, dati di esempio, icone, omino, texture
   tests/               33 prove
   web/                 la PWA (HTML, CSS e JavaScript, senza framework)
 ```
