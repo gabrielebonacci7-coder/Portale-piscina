@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Piscina di Ciampino — palco per il video</title>
+    <style>
+      /* Il "palco": un telefono in verticale, una didascalia sotto, lo sfondo
+         della piscina attorno. Serve solo a girare il video, non fa parte
+         dell'app: l'app vera sta dentro l'iframe e non sa di essere ripresa.
+
+         La misura è quella dei social in verticale (1080×1920): è lì che il
+         video va a finire. */
+      :root {
+        --acqua: #0e7fb5;
+        --acqua-scura: #084d73;
+        --acqua-chiara: #6ecbf0;
+        --sabbia: #f3e3c8;
+        --sole: #f2b134;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        position: relative;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, sans-serif;
+        color: #fff;
+        background: linear-gradient(180deg, #2f9fce 0%, #0d6390 46%, #062f47 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      /* ---------- Scenografia ---------- */
+      .sfondo { position: absolute; inset: 0; pointer-events: none; }
+      .sole {
+        position: absolute;
+        top: -280px; right: -220px;
+        width: 900px; height: 900px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 243, 207, 0.5), rgba(255, 243, 207, 0) 70%);
+      }
+      .fronda {
+        position: absolute;
+        border-radius: 50%;
+        background: #1c6a4f;
+        transform-origin: 0 50%;
+      }
+      .fronda.chiara { background: #2b8461; }
+
+      /* ---------- Testata ---------- */
+      header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 34px 0 16px;
+      }
+      header img { width: 72px; height: 72px; border-radius: 20px; }
+      header .nome { font-size: 36px; font-weight: 750; letter-spacing: -0.01em; }
+      header .sotto { font-size: 22px; opacity: 0.75; margin-top: 2px; }
+
+      /* ---------- Il telefono ---------- */
+      .telefono {
+        position: relative;
+        width: 700px;
+        height: 1452px;
+        border-radius: 62px;
+        padding: 12px;
+        background: linear-gradient(160deg, #223744, #0b1a22);
+        box-shadow: 0 50px 90px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(255, 255, 255, 0.08);
+        flex: 0 0 auto;
+      }
+      .schermo {
+        width: 676px;
+        height: 1428px;
+        border-radius: 50px;
+        overflow: hidden;
+        background: #eef4f7;
+      }
+      /* L'app gira a 414×896 (la misura di un telefono vero) e la si ingrandisce
+         di una volta e mezza: così i caratteri restano quelli veri e il video
+         mostra l'app com'è, non una sua imitazione più grande. */
+      .schermo iframe {
+        width: 414px;
+        height: 874px;
+        border: 0;
+        transform: scale(1.633);
+        transform-origin: top left;
+      }
+
+      /* ---------- Didascalia ---------- */
+      .didascalia {
+        position: relative;
+        width: 940px;
+        min-height: 210px;
+        padding: 26px 0 0;
+        text-align: center;
+      }
+      .passo {
+        font-size: 22px;
+        font-weight: 750;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--acqua-chiara);
+        opacity: 0;
+        transition: opacity 0.35s ease;
+      }
+      .frase {
+        margin-top: 14px;
+        font-size: 46px;
+        font-weight: 650;
+        line-height: 1.25;
+        text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+      .passo.dentro, .frase.dentro { opacity: 1; transform: none; }
+
+      /* ---------- Il tocco ---------- */
+      .tocco {
+        position: absolute;
+        width: 96px; height: 96px;
+        margin: -48px 0 0 -48px;
+        border-radius: 50%;
+        border: 5px solid rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.28);
+        pointer-events: none;
+        opacity: 0;
+      }
+      .tocco.batti { animation: batti 0.75s ease-out; }
+      @keyframes batti {
+        0% { opacity: 0; transform: scale(0.35); }
+        18% { opacity: 1; transform: scale(0.75); }
+        100% { opacity: 0; transform: scale(1.55); }
+      }
+
+      /* ---------- Cartello finale ---------- */
+      .finale {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        text-align: center;
+        background: linear-gradient(180deg, #0d6390 0%, #052a3f 100%);
+        opacity: 0;
+        transition: opacity 0.7s ease;
+        pointer-events: none;
+      }
+      .finale.dentro { opacity: 1; }
+      .finale img { width: 250px; height: 250px; border-radius: 58px; box-shadow: 0 30px 70px rgba(0,0,0,0.45); }
+      .finale h2 { margin: 18px 0 0; font-size: 66px; font-weight: 800; letter-spacing: -0.02em; }
+      .finale .invito {
+        margin-top: 6px;
+        font-size: 44px;
+        font-weight: 650;
+        color: var(--sole);
+      }
+      .finale .dove { margin-top: 30px; font-size: 32px; opacity: 0.85; line-height: 1.5; }
+      .finale .dove b { font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <div class="sfondo" id="sfondo"><div class="sole"></div></div>
+
+    <header>
+      <img id="marchio" alt="" />
+      <div>
+        <div class="nome">Piscina Comunale di Ciampino</div>
+        <div class="sotto">Stagione estiva 2026</div>
+      </div>
+    </header>
+
+    <div class="telefono">
+      <div class="schermo"><iframe id="app" title="app"></iframe></div>
+    </div>
+
+    <div class="didascalia">
+      <div class="passo" id="passo"></div>
+      <div class="frase" id="frase"></div>
+    </div>
+
+    <div class="tocco" id="tocco"></div>
+
+    <div class="finale" id="finale">
+      <img id="marchio-finale" alt="" />
+      <h2>Piscina Comunale<br />di Ciampino</h2>
+      <div class="invito">Prenota il tuo posto</div>
+      <div class="dove">
+        <b>Via Superga</b>, accanto al campo sportivo<br />
+        Tutti i giorni 9:00–19:00 · <b>329 683 6522</b>
+      </div>
+    </div>
+
+    <script>
+      // L'indirizzo dell'app arriva come ?app=http://127.0.0.1:8102
+      const parametri = new URLSearchParams(location.search);
+      const APP = parametri.get("app") || "http://127.0.0.1:8102";
+      document.getElementById("app").src = APP;
+      for (const id of ["marchio", "marchio-finale"]) {
+        document.getElementById(id).src = `${APP}/icone/icona-192.png`;
+      }
+
+      // Le fronde di palma agli angoli: stessa idea della schermata di
+      // benvenuto, qui in HTML perché è solo scenografia.
+      const sfondo = document.getElementById("sfondo");
+      function palma(x, y, verso, misura) {
+        for (let i = 0; i < 7; i++) {
+          const foglia = document.createElement("div");
+          foglia.className = "fronda" + (i % 2 ? " chiara" : "");
+          const lungo = misura * (i % 2 ? 0.78 : 1);
+          const gradi = (verso > 0 ? 0 : 180) + verso * (-14 + i * 32);
+          foglia.style.cssText +=
+            `left:${x}px;top:${y}px;width:${lungo}px;height:${lungo * 0.26}px;` +
+            `margin-top:${-lungo * 0.13}px;transform:rotate(${gradi}deg)`;
+          sfondo.append(foglia);
+        }
+      }
+      palma(-40, 60, 1, 380);
+      palma(1120, 150, -1, 330);
+
+      // --- Quello che chiama il regista (lo script Python) ---
+      function didascalia(passo, frase) {
+        const p = document.getElementById("passo");
+        const f = document.getElementById("frase");
+        p.classList.remove("dentro");
+        f.classList.remove("dentro");
+        setTimeout(() => {
+          p.textContent = passo || "";
+          f.textContent = frase || "";
+          p.classList.add("dentro");
+          f.classList.add("dentro");
+        }, 220);
+      }
+
+      function tocco(x, y) {
+        const nodo = document.getElementById("tocco");
+        nodo.style.left = `${x}px`;
+        nodo.style.top = `${y}px`;
+        nodo.classList.remove("batti");
+        void nodo.offsetWidth; // riavvia l'animazione
+        nodo.classList.add("batti");
+      }
+
+      function finale() {
+        document.getElementById("finale").classList.add("dentro");
+      }
+    </script>
+  </body>
+</html>

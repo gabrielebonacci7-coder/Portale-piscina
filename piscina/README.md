@@ -138,6 +138,24 @@ incasso previsto; si cerca per nome, telefono, codice o postazione; si segna
 chi è arrivato; si scarica il CSV per Excel; si spengono le postazioni fuori
 uso.
 
+## Il video di presentazione
+
+    python -m piscina.scripts.video_promo            # ~44 secondi, 1080×1920
+    python -m piscina.scripts.video_promo --veloce   # pause dimezzate, per provare i tagli
+
+Non è un montaggio di figurine: guida l'**applicazione vera** dentro un
+telefono disegnato e riprende quello che succede sullo schermo — il tocco che
+si vede è un tocco che avviene davvero. Se cambia il listino o la disposizione
+degli ombrelloni, il video si rifà lanciando di nuovo il comando.
+
+Esce in verticale (Instagram, TikTok, WhatsApp) e **senza audio**: in
+`demo/copione.txt` c'è il minutaggio di ogni frase, per metterci sopra la voce
+o la musica al momento giusto. Con il video escono anche una copertina e un
+database dedicato (`piscina_video.db`), che non tocca quello vero.
+
+La scaletta — l'ordine con cui si racconta — sta tutta nella funzione `gira()`
+di [`scripts/video_promo.py`](scripts/video_promo.py), una scena per blocco.
+
 ## Prima di andare online
 
 Le email non partono finché non si compila il `.env` (vedi

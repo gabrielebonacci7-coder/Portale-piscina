@@ -5,3 +5,4 @@ pytest>=8.0
 httpx>=0.27           # richiesto da TestClient di FastAPI
 piexif>=1.1           # verifica che i dati EXIF vengano davvero rimossi
 playwright>=1.44      # prove della PWA guidando un browser vero
+imageio-ffmpeg>=0.4    # il binario ffmpeg per i video dimostrativi
