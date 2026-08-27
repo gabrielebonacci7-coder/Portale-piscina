@@ -23,12 +23,16 @@ RICERCA_MAPPE = "Piscina Comunale Ciampino Via Superga"
 ORARI = "Tutti i giorni, dalle 9:00 alle 19:00"
 STAGIONE = "Stagione estiva 2026"
 
-# DA CONFERMARE: parcheggio e fermata più vicina.
+# DA CONFERMARE: quale autobus e dove ferma.
 COME_ARRIVARE = [
     {
         "titolo": "In auto",
-        "testo": "Via Superga, accanto al campo sportivo comunale. "
-                 "Parcheggio nelle strade attorno alla struttura.",
+        "testo": "Via Superga, accanto al campo sportivo comunale.",
+    },
+    {
+        "titolo": "Dove si parcheggia",
+        "testo": "C'è il parcheggio interno della struttura. Quando è pieno, "
+                 "quello del cimitero è a due passi.",
     },
     {
         "titolo": "Con i mezzi",

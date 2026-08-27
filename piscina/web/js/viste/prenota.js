@@ -69,16 +69,7 @@ export function vistaPrenota(ctx) {
         el("button", {
           type: "button",
           "aria-pressed": String(f.valore === stato.fascia),
-          onclick: () => {
-            stato.fascia = f.valore;
-            // Le scelte che non valgono più per la nuova fascia si tolgono da
-            // sole: meglio che scoprirlo alla conferma.
-            for (const codice of [...stato.scelte.keys()]) {
-              const p = trova(codice);
-              if (!p || !scegliibile(p, stato.fascia)) stato.scelte.delete(codice);
-            }
-            disegnaTutto();
-          },
+          onclick: () => cambiaFascia(f.valore),
         }, [f.etichetta, el("small", { testo: f.orario })])
       )
     );
@@ -98,6 +89,17 @@ export function vistaPrenota(ctx) {
   }
 
   const trova = (codice) => stato.mappa?.postazioni.find((p) => p.codice === codice);
+
+  function cambiaFascia(valore) {
+    stato.fascia = valore;
+    // Le scelte che non valgono più per la nuova fascia si tolgono da sole:
+    // meglio adesso che scoprirlo alla conferma.
+    for (const codice of [...stato.scelte.keys()]) {
+      const p = trova(codice);
+      if (!p || !scegliibile(p, stato.fascia)) stato.scelte.delete(codice);
+    }
+    disegnaTutto();
+  }
 
   // --- Mappa ---------------------------------------------------------------
   function disegnaLegenda() {
@@ -167,7 +169,7 @@ export function vistaPrenota(ctx) {
                   type: "button",
                   classe: `codice-posto ${statoDi(p)}${stato.scelte.has(p.codice) ? " scelta" : ""}`,
                   testo: p.codice,
-                  title: perche(p, stato.fascia),
+                  title: perche(p),
                   disabled: !scegliibile(p, stato.fascia) && !stato.scelte.has(p.codice),
                   onclick: () => apriPostazione(p),
                 })
@@ -184,7 +186,9 @@ export function vistaPrenota(ctx) {
     const gia = stato.scelte.get(p.codice);
 
     if (!scegliibile(p, stato.fascia) && !gia) {
-      brindisi(`${p.codice}: ${perche(p, stato.fascia)}`, "attenzione");
+      const meta = p.attiva && (p.libera_mattina || p.libera_pomeriggio);
+      if (meta) return proponiMezzaGiornata(p);
+      brindisi(`${p.codice}: ${perche(p)}`, "attenzione");
       return;
     }
 
@@ -227,7 +231,7 @@ export function vistaPrenota(ctx) {
       el("div", {}, [
         el("div", { classe: "titolo-sezione" }, [
           el("h2", { testo: `Postazione ${p.codice}` }),
-          el("span", { classe: "occhiello", testo: perche(p, stato.fascia) }),
+          el("span", { classe: "occhiello", testo: perche(p) }),
         ]),
         el("p", { classe: "piccolo tenue", testo:
           `${giornoEsteso(stato.giorno)} · ${etichettaFascia(ctx, stato.fascia)}` }),
@@ -256,6 +260,46 @@ export function vistaPrenota(ctx) {
               },
             })
           : null,
+      ])
+    );
+  }
+
+  /** Il posto è libero solo mezza giornata e si sta cercando l'altra metà (o
+      la giornata intera): invece di dire di no, si offre quella che c'è. */
+  function proponiMezzaGiornata(p) {
+    const valore = p.libera_mattina ? "mattina" : "pomeriggio";
+    const fascia = ctx.info.fasce.find((f) => f.valore === valore);
+    // "la mattina" / "il pomeriggio": l'articolo cambia, e senza si legge
+    // come un telegramma.
+    const quando = valore === "mattina" ? "la mattina" : "il pomeriggio";
+    const altra = valore === "mattina" ? "il pomeriggio" : "la mattina";
+
+    const f = foglio(
+      el("div", {}, [
+        el("div", { classe: "titolo-sezione" }, [
+          el("h2", { testo: `Postazione ${p.codice}` }),
+          el("span", { classe: "occhiello", testo: perche(p) }),
+        ]),
+        avviso("attenzione",
+          `Questa postazione è già prenotata per ${altra}. ` +
+          `Resta libera solo ${quando}, dalle ${fascia.orario.replace("–", " alle ")}.`),
+        el("button", {
+          classe: "bottone largo",
+          type: "button",
+          testo: `Prenota ${quando} (${fascia.orario})`,
+          onclick: () => {
+            f.chiudi();
+            cambiaFascia(valore);
+            apriPostazione(trova(p.codice) || p);
+          },
+        }),
+        el("button", {
+          classe: "bottone largo fantasma",
+          type: "button",
+          style: "margin-top:8px",
+          testo: "Scelgo un'altra postazione",
+          onclick: () => f.chiudi(),
+        }),
       ])
     );
   }

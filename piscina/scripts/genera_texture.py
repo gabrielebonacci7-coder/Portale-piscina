@@ -4,138 +4,152 @@
 
 Sono tre piastrelle da 256 pixel che si ripetono senza giunture, e la mappa le
 usa come sfondo. Il perché di questo giro: la stessa grana fatta con i filtri
-dell'SVG (feTurbulence) si ricalcola a ogni zoom e su un telefono di tre anni
-fa la mappa diventa una diapositiva. Una piastrella disegnata una volta sola
-si ripete senza costare niente.
+dell'SVG (feTurbulence) si ricalcola a ogni zoom, e su un telefono di tre anni
+fa la mappa diventa una diapositiva. Una piastrella disegnata una volta sola si
+ripete senza costare niente — tutte e tre insieme pesano una decina di
+kilobyte.
 
-Le piastrelle sono continue: ogni macchia viene disegnata nove volte, anche
-appena fuori dai bordi, così quello che esce da un lato rientra dall'altro e
-la ripetizione non lascia il reticolo.
+Tutto è calcolato in modo **ciclico**: le distanze si misurano sul toro (chi
+esce da destra rientra da sinistra) e le sfocature si fanno su una copia
+affiancata nove volte. Senza queste due accortezze la ripetizione lascia il
+reticolo, e la mappa sembra un pavimento di linoleum.
 """
 
-import math
-import random
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
+import numpy as np
+from PIL import Image, ImageFilter
 
 CARTELLA = Path(__file__).resolve().parents[1] / "web" / "immagini"
 LATO = 256
 
 
-def _sfuma(img: Image.Image, raggio: float) -> Image.Image:
-    """Sfoca senza rompere la continuità.
-
-    La sfocatura di Pillow non sa che la piastrella si ripete: sui bordi
-    inventa, e ripetendola si vede la riga. Qui si sfoca una copia affiancata
-    nove volte e si ritaglia quella in mezzo.
-    """
-    lato = img.width
-    grande = Image.new(img.mode, (lato * 3, lato * 3))
+# --- attrezzi --------------------------------------------------------------
+def _sfuma(a: np.ndarray, raggio: float) -> np.ndarray:
+    """Sfoca un'immagine ciclica senza rompere la continuità ai bordi."""
+    modo = "L" if a.ndim == 2 else "RGB"
+    img = Image.fromarray(np.clip(a, 0, 255).astype("uint8"), mode=modo)
+    grande = Image.new(modo, (LATO * 3, LATO * 3))
     for dx in range(3):
         for dy in range(3):
-            grande.paste(img, (dx * lato, dy * lato))
+            grande.paste(img, (dx * LATO, dy * LATO))
     grande = grande.filter(ImageFilter.GaussianBlur(raggio))
-    return grande.crop((lato, lato, lato * 2, lato * 2))
+    return np.array(grande.crop((LATO, LATO, LATO * 2, LATO * 2))).astype(float)
 
 
-def _nove_volte(disegna, lato: int = LATO) -> None:
-    """Ripete il disegno anche sui bordi, per la continuità della piastrella."""
-    for dx in (-lato, 0, lato):
-        for dy in (-lato, 0, lato):
-            disegna(dx, dy)
+def _rumore(caso: np.random.Generator, raggio: float) -> np.ndarray:
+    """Macchie morbide fra 0 e 1, senza giunture."""
+    grezzo = caso.random((LATO, LATO)) * 255
+    morbido = _sfuma(grezzo, raggio)
+    minimo, massimo = morbido.min(), morbido.max()
+    return (morbido - minimo) / max(massimo - minimo, 1e-6)
 
 
+def _distanze_cicliche(punti: np.ndarray) -> np.ndarray:
+    """Per ogni pixel, le distanze ai punti misurate sul toro.
+
+    Restituisce un array (pixel, punti): serve a costruire il reticolo dei
+    riflessi, che è fatto di *confini* fra celle, non di macchie.
+    """
+    y, x = np.mgrid[0:LATO, 0:LATO]
+    coordinate = np.stack([x.ravel(), y.ravel()], axis=1).astype(float)
+    dx = np.abs(coordinate[:, None, 0] - punti[None, :, 0])
+    dy = np.abs(coordinate[:, None, 1] - punti[None, :, 1])
+    # La distanza più corta può passare per il bordo opposto.
+    dx = np.minimum(dx, LATO - dx)
+    dy = np.minimum(dy, LATO - dy)
+    return np.hypot(dx, dy)
+
+
+# --- le tre grane ----------------------------------------------------------
 def erba() -> Image.Image:
-    caso = random.Random(7)
-    tela = Image.new("RGB", (LATO, LATO), (124, 158, 92))
-    matita = ImageDraw.Draw(tela)
+    """Un prato curato: verde uniforme, grana fine, le strisce del taglio.
 
-    # Chiazze larghe: il prato non è di un verde solo.
-    for _ in range(70):
-        x, y = caso.uniform(0, LATO), caso.uniform(0, LATO)
-        r = caso.uniform(14, 40)
-        tono = caso.choice([(112, 146, 82), (136, 170, 100), (118, 152, 86)])
-        _nove_volte(lambda dx, dy, x=x, y=y, r=r, tono=tono: matita.ellipse(
-            [x + dx - r, y + dy - r, x + dx + r, y + dy + r], fill=tono
-        ))
-    tela = _sfuma(tela, 6)
+    Le chiazze grosse fanno sembrare il prato malato; qui la variazione è
+    piccola e la si sente più che vederla.
+    """
+    caso = np.random.default_rng(21)
 
-    # Fili d'erba: trattini corti, tutti più o meno nella stessa direzione.
-    matita = ImageDraw.Draw(tela)
-    for _ in range(1400):
-        x, y = caso.uniform(0, LATO), caso.uniform(0, LATO)
-        lung = caso.uniform(3, 7)
-        ang = caso.uniform(-0.5, 0.5) - math.pi / 2
-        chiaro = caso.random() < 0.5
-        tono = (142, 176, 104) if chiaro else (104, 138, 76)
-        _nove_volte(lambda dx, dy, x=x, y=y, l=lung, a=ang, t=tono: matita.line(
-            [x + dx, y + dy, x + dx + l * math.cos(a), y + dy + l * math.sin(a)],
-            fill=t, width=1,
-        ))
-    return _sfuma(tela, 0.4)
+    chiaro = np.array([138, 178, 96], dtype=float)
+    scuro = np.array([104, 145, 74], dtype=float)
+
+    # Variazione lenta: dove il prato è appena più fitto o più rado.
+    fondo = _rumore(caso, 26)[..., None]
+    tela = scuro + (chiaro - scuro) * (0.35 + 0.65 * fondo)
+
+    # Le strisce del tosaerba: due passate, chiara e scura, appena accennate.
+    x = np.arange(LATO)
+    strisce = np.sin(x / LATO * np.pi * 4)[None, :, None]
+    tela += strisce * 5.0
+
+    # Grana dei fili: rumore fine, schiacciato in verticale come l'erba.
+    fili = _sfuma(caso.random((LATO, LATO)) * 255, 0.45)
+    fili = _sfuma(fili, 0.0)
+    tela += ((fili - 128) / 128.0)[..., None] * 11.0
+
+    return Image.fromarray(np.clip(tela, 0, 255).astype("uint8"), mode="RGB")
 
 
 def acqua() -> Image.Image:
-    caso = random.Random(11)
-    tela = Image.new("RGB", (LATO, LATO), (36, 150, 200))
-    matita = ImageDraw.Draw(tela)
+    """Acqua di piscina vista dall'alto: azzurro pulito e il reticolo del sole.
 
-    for _ in range(40):
-        x, y = caso.uniform(0, LATO), caso.uniform(0, LATO)
-        r = caso.uniform(20, 55)
-        tono = caso.choice([(28, 134, 186), (52, 170, 214)])
-        _nove_volte(lambda dx, dy, x=x, y=y, r=r, t=tono: matita.ellipse(
-            [x + dx - r, y + dy - r, x + dx + r, y + dy + r], fill=t
-        ))
-    tela = _sfuma(tela, 9)
+    I riflessi veri non sono ghirigori: sono una rete di linee chiare, i bordi
+    delle celle in cui la superficie spezza la luce. Si ottengono misurando,
+    per ogni punto, quanto sono vicini fra loro i due centri più prossimi: dove
+    la differenza è quasi zero si è su un confine, e lì il fondo si illumina.
+    """
+    caso = np.random.default_rng(5)
 
-    # I riflessi del sole sul fondo: linee chiare che si intrecciano.
-    riflessi = Image.new("L", (LATO, LATO), 0)
-    matita = ImageDraw.Draw(riflessi)
-    for _ in range(48):
-        x, y = caso.uniform(0, LATO), caso.uniform(0, LATO)
-        punti = [(x, y)]
-        ang = caso.uniform(0, 2 * math.pi)
-        for _ in range(caso.randint(4, 9)):
-            ang += caso.uniform(-0.9, 0.9)
-            passo = caso.uniform(6, 14)
-            punti.append((punti[-1][0] + passo * math.cos(ang), punti[-1][1] + passo * math.sin(ang)))
-        _nove_volte(lambda dx, dy, p=punti: matita.line(
-            [(px + dx, py + dy) for px, py in p], fill=190, width=caso.randint(3, 6), joint="curve"
-        ))
-    riflessi = _sfuma(riflessi, 3.4)
+    chiaro = np.array([86, 196, 232], dtype=float)
+    scuro = np.array([28, 138, 190], dtype=float)
 
-    chiaro = Image.new("RGB", (LATO, LATO), (198, 236, 250))
-    return Image.composite(chiaro, tela, riflessi.point(lambda v: int(v * 0.34)))
+    profondita = _rumore(caso, 30)[..., None]
+    tela = scuro + (chiaro - scuro) * (0.25 + 0.55 * profondita)
+
+    def reticolo(quanti: int, larghezza: float, sfocatura: float) -> np.ndarray:
+        punti = caso.random((quanti, 2)) * LATO
+        vicine = np.sort(_distanze_cicliche(punti), axis=1)[:, :2]
+        confine = (vicine[:, 1] - vicine[:, 0]).reshape(LATO, LATO)
+        # Vicino a zero = sul confine fra due celle = riflesso.
+        rete = np.clip(1.0 - confine / larghezza, 0, 1) ** 1.6
+        return _sfuma(rete * 255, sfocatura) / 255.0
+
+    # Due reti sovrapposte: una larga, che disegna il motivo, e una fitta e
+    # tenue che le toglie la regolarità. Con una sola sembra un vetro rotto;
+    # con due alla pari diventa latte.
+    rete = np.clip(reticolo(30, 6.5, 1.7) + 0.22 * reticolo(85, 3.0, 1.0), 0, 1)
+
+    luce = np.array([232, 251, 255], dtype=float)
+    tela += (luce - tela) * (rete[..., None] * 0.5)
+
+    return Image.fromarray(np.clip(tela, 0, 255).astype("uint8"), mode="RGB")
 
 
 def pavimento() -> Image.Image:
-    caso = random.Random(13)
-    tela = Image.new("RGB", (LATO, LATO), (233, 220, 195))
-    matita = ImageDraw.Draw(tela)
+    """Pietra chiara: granulosità fine e le fughe fra le mattonelle."""
+    caso = np.random.default_rng(13)
 
-    # Granulosità della pietra.
-    for _ in range(9000):
-        x, y = caso.randrange(LATO), caso.randrange(LATO)
-        v = caso.randint(-12, 12)
-        base = tela.getpixel((x, y))
-        matita.point((x, y), fill=tuple(max(0, min(255, c + v)) for c in base))
-    tela = _sfuma(tela, 0.6)
+    base = np.array([234, 222, 198], dtype=float)
+    tela = np.repeat(np.repeat(base[None, None, :], LATO, 0), LATO, 1)
 
-    # Le fughe fra le mattonelle: due righe per lato, sottili e chiare.
-    matita = ImageDraw.Draw(tela)
+    macchie = _rumore(caso, 18)[..., None]
+    tela += (macchie - 0.5) * 9.0
+    grana = _sfuma(caso.random((LATO, LATO)) * 255, 0.5)
+    tela += ((grana - 128) / 128.0)[..., None] * 7.0
+
+    fuga = np.array([220, 205, 176], dtype=float)
     for i in (0, LATO // 2):
-        matita.line([i, 0, i, LATO], fill=(222, 207, 178), width=2)
-        matita.line([0, i, LATO, i], fill=(222, 207, 178), width=2)
-    return tela
+        tela[i : i + 2, :] = fuga
+        tela[:, i : i + 2] = fuga
+
+    return Image.fromarray(np.clip(tela, 0, 255).astype("uint8"), mode="RGB")
 
 
 def main() -> None:
     CARTELLA.mkdir(parents=True, exist_ok=True)
     for nome, disegno in (("erba", erba()), ("acqua", acqua()), ("pavimento", pavimento())):
         percorso = CARTELLA / f"texture-{nome}.webp"
-        disegno.save(percorso, quality=82, method=6)
+        disegno.save(percorso, quality=88, method=6)
         print(f"{percorso.name}: {percorso.stat().st_size // 1024} kB")
 
 

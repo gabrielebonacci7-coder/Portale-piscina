@@ -39,12 +39,20 @@ export function scegliibile(p, fascia) {
   return p.libera_mattina && p.libera_pomeriggio;
 }
 
-export function perche(p, fascia) {
+/** Com'è messa la postazione, detto in italiano.
+
+    Dice sempre la verità sul giorno, non sulla fascia che si sta cercando:
+    "libera solo la mattina" resta l'informazione utile anche quando è la
+    mattina che si sta prenotando, perché avvisa che il pomeriggio è di un
+    altro e alle 14 bisogna liberare il posto. */
+export function perche(p) {
   const stato = statoDi(p);
   if (stato === "spenta") return p.nota || "Non disponibile";
-  if (scegliibile(p, fascia)) return "Libera";
   if (stato === "occupata") return "Occupata tutto il giorno";
-  return p.libera_mattina ? "Libera solo la mattina" : "Libera solo il pomeriggio";
+  if (stato === "mezza") {
+    return p.libera_mattina ? "Libera solo la mattina" : "Libera solo il pomeriggio";
+  }
+  return "Libera tutto il giorno";
 }
 
 // --- Definizioni riusabili -------------------------------------------------
@@ -111,7 +119,7 @@ function vasca(e) {
     }),
     ...scaletta,
     svg("text", {
-      classe: "sc-testo chiaro", x: e.x + e.w / 2, y: e.y + e.h / 2 + 6, testo: e.etichetta,
+      classe: "sc-testo", x: e.x + e.w / 2, y: e.y + e.h / 2 + 6, testo: e.etichetta,
     }),
   ]);
 }
@@ -309,7 +317,7 @@ function disegnaPostazione(p, { fascia, scelte, rotazioni, lettiniDisegnati }) {
       transform: `translate(${p.x} ${p.y})`,
       "data-codice": p.codice,
       role: "img",
-      "aria-label": `${p.codice}: ${perche(p, fascia)}`,
+      "aria-label": `${p.codice}: ${perche(p)}`,
     },
     [
       // L'alone: da lontano è l'unica cosa che si vede, ed è quella che dice
