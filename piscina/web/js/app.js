@@ -118,12 +118,18 @@ async function avvia() {
           occhiello: info.stagione,
           titolo: info.nome,
           nome: nomeRicordato(),
-          alTermine: segnaVisto,
+          ctx,
+          alTermine: () => {
+            segnaVisto();
+            // La guida finisce con "prenota subito": si finisce dove si prenota.
+            if (rottaCorrente() !== "prenota") location.hash = "#/prenota";
+          },
         }),
       ringrazia: (nome, alTermine) =>
         mostraOmino(info.grazie, {
           occhiello: "Prenotazione confermata",
           nome,
+          ctx,
           alTermine,
         }),
     };

@@ -4,7 +4,7 @@
 // dell'API mai. La mappa di oggi cambia ogni minuto, e mostrare una mappa di
 // ieri farebbe scegliere un posto già occupato.
 
-const VERSIONE = "piscina-v2";
+const VERSIONE = "piscina-v3";
 
 const GUSCIO = [
   "/",
@@ -15,6 +15,7 @@ const GUSCIO = [
   "/js/ui.js",
   "/js/mappa.js",
   "/js/omino.js",
+  "/js/vetrine.js",
   "/js/prezzi.js",
   "/js/viste/prenota.js",
   "/js/viste/listino.js",

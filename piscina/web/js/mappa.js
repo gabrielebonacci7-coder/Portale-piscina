@@ -387,6 +387,21 @@ export function disegnaMappa(guscio, dati, { fascia, scelte, alTocco }) {
   return { tela, scorri, larghezza, altezza };
 }
 
+/** Rimpicciolisce la mappa finché ci sta tutta nella sua scatola.
+
+    Serve alla vetrina della guida, dove la mappa si guarda intera e non si
+    scorre: adattarla alla sola larghezza le taglierebbe le file in fondo. */
+export function adattaDentro(vista) {
+  const { tela, scorri, larghezza, altezza } = vista;
+  const scala = Math.min(
+    scorri.clientWidth / larghezza,
+    scorri.clientHeight / altezza
+  );
+  if (!Number.isFinite(scala) || scala <= 0) return;
+  tela.setAttribute("width", larghezza * scala);
+  tela.setAttribute("height", altezza * scala);
+}
+
 /** I comandi dello zoom. Restituisce il nodo da appoggiare sopra la mappa. */
 export function comandiZoom(vista, { adattaSubito = true } = {}) {
   const { tela, scorri, larghezza, altezza } = vista;

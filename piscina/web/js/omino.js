@@ -1,11 +1,15 @@
 // L'omino che accoglie chi entra e ringrazia chi ha prenotato.
 //
 // Il disegno è un'immagine con lo sfondo trasparente, ricavata dall'originale
-// da `python -m piscina.scripts.ritaglia_omino`. Le battute invece arrivano da
-// /api/info, cioè dal file piscina/dominio/struttura.py: per cambiare il
-// discorso non si tocca né questo file né il disegno.
+// da `python -m piscina.scripts.ritaglia_omino`. Il discorso invece arriva da
+// /api/info, cioè dal file piscina/dominio/struttura.py: per cambiarlo non si
+// tocca né questo file né il disegno.
+//
+// Non è un monologo: è una guida. Ogni paragrafo può portarsi dietro una
+// "vetrina", e mentre l'omino racconta una sezione l'app la fa vedere.
 
 import { el, svg } from "./ui.js";
+import { vetrina } from "./vetrine.js";
 
 export const IMMAGINE_OMINO = "/immagini/omino.webp";
 
@@ -148,18 +152,30 @@ function conNome(testo, nome) {
 }
 
 /**
- * L'omino a schermo intero, con le sue battute una alla volta.
+ * La guida: l'omino parla un paragrafo alla volta e, quando racconta una
+ * sezione, la mostra davvero (`vetrina`).
  *
- * `discorso` è { battute, invito }; `intestazione` è quello che sta scritto
- * sopra la testa (nome della piscina, o "Prenotazione confermata").
+ * `discorso` è { passi, invito }; `ctx` serve alle vetrine, che pescano dati
+ * veri (la mappa di oggi, il listino in corso).
  */
-export function mostraOmino(discorso, { occhiello, titolo, nome, alTermine } = {}) {
-  const battute = (discorso.battute || []).map((b) => conNome(b, nome));
+export function mostraOmino(discorso, { occhiello, titolo, nome, ctx, alTermine } = {}) {
+  const passi = discorso.passi || [];
   let indice = 0;
 
   const fumetto = el("div", { classe: "fumetto" });
+  const corpo = el("div", { classe: "scena" });
   const punti = el("div", { classe: "punti" });
   const avanti = el("button", { classe: "bottone avanti", type: "button" });
+
+  const immagine = (classe) =>
+    el("img", {
+      classe: `omino ${classe}`,
+      src: IMMAGINE_OMINO,
+      alt: "",
+      width: "600",
+      height: "2015",
+      decoding: "async",
+    });
 
   const scena = el("div", { classe: "benvenuto", role: "dialog", "aria-modal": "true" }, [
     fondale(),
@@ -167,17 +183,7 @@ export function mostraOmino(discorso, { occhiello, titolo, nome, alTermine } = {
       occhiello ? el("div", { classe: "occhiello", testo: occhiello }) : null,
       titolo ? el("h1", { testo: titolo }) : null,
     ]),
-    el("div", { classe: "scena" }, [
-      el("img", {
-        classe: "omino",
-        src: IMMAGINE_OMINO,
-        alt: "",
-        width: "600",
-        height: "2010",
-        decoding: "async",
-      }),
-      el("div", { classe: "parlato" }, [fumetto]),
-    ]),
+    corpo,
     punti,
     el("div", { classe: "comandi" }, [
       el("button", { classe: "salta", type: "button", testo: "Salta", onclick: chiudi }),
@@ -186,11 +192,23 @@ export function mostraOmino(discorso, { occhiello, titolo, nome, alTermine } = {
   ]);
 
   function disegna() {
-    fumetto.textContent = battute[indice] || "";
+    const passo = passi[indice] || {};
+    const parla = nome && passo.testo_con_nome ? passo.testo_con_nome : passo.testo;
+    fumetto.textContent = conNome(parla || "", nome);
+
+    const mostra = passo.vetrina && ctx ? vetrina(passo.vetrina, ctx) : null;
+    corpo.classList.toggle("compatta", Boolean(mostra));
+    corpo.replaceChildren(
+      ...(mostra
+        // Con la vetrina l'omino si fa da parte: comanda quello che mostra.
+        ? [mostra, el("div", { classe: "guida" }, [immagine("mini"), fumetto])]
+        : [immagine("intero"), el("div", { classe: "parlato" }, [fumetto])])
+    );
+
     avanti.textContent =
-      indice === battute.length - 1 ? discorso.invito || "Iniziamo" : "Avanti";
+      indice === passi.length - 1 ? discorso.invito || "Iniziamo" : "Avanti";
     punti.replaceChildren(
-      ...battute.map((_, i) => el("i", { classe: i === indice ? "attivo" : "" }))
+      ...passi.map((_, i) => el("i", { classe: i === indice ? "attivo" : "" }))
     );
   }
 
@@ -201,7 +219,7 @@ export function mostraOmino(discorso, { occhiello, titolo, nome, alTermine } = {
   }
 
   avanti.addEventListener("click", () => {
-    if (indice < battute.length - 1) {
+    if (indice < passi.length - 1) {
       indice += 1;
       disegna();
     } else {
@@ -215,3 +233,4 @@ export function mostraOmino(discorso, { occhiello, titolo, nome, alTermine } = {
   avanti.focus();
   return { chiudi };
 }
+

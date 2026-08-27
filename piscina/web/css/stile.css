@@ -586,7 +586,7 @@ button { font: inherit; color: inherit; }
 /* L'illustrazione è a figura intera e molto slanciata: a tutta altezza
    occuperebbe due schermi. Si mostra il busto — la si ritaglia dall'alto e la
    si sfuma in fondo, così il taglio sembra voluto invece che un errore. */
-.benvenuto .omino {
+.benvenuto .omino.intero {
   width: min(64vw, 270px);
   height: min(40vh, 360px);
   object-fit: cover;
@@ -597,6 +597,94 @@ button { font: inherit; color: inherit; }
   mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
 }
 .benvenuto .parlato { min-width: 0; }
+
+/* Il passo con la vetrina: comanda quello che si mostra, l'omino si fa da
+   parte e commenta da sotto, piccolo, come una guida che indica. */
+.benvenuto .scena.compatta {
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+}
+.guida {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-2);
+}
+.guida .omino.mini {
+  width: 78px;
+  height: 104px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  object-position: top center;
+  -webkit-mask-image: linear-gradient(to bottom, #000 74%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 74%, transparent 100%);
+}
+.guida .fumetto { flex: 1; min-width: 0; font-size: 0.95rem; padding: var(--sp-3); }
+/* Nel passo compatto il fumetto punta di lato, verso l'omino. */
+.guida .fumetto::after {
+  left: -9px;
+  bottom: 22px;
+  border: 10px solid transparent;
+  border-right-color: #fff;
+  border-left: 0;
+  border-top: 10px solid transparent;
+}
+
+/* La vetrina: la sezione di cui si sta parlando, mostrata davvero. */
+.vetrina {
+  background: var(--superficie);
+  color: var(--inchiostro);
+  border-radius: var(--r-m);
+  padding: var(--sp-3);
+  box-shadow: var(--ombra-alta);
+  animation: sali 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.vetrina-titolo {
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  margin-bottom: var(--sp-2);
+}
+.vetrina-mappa-guscio {
+  border-radius: var(--r-s);
+  overflow: hidden;
+  background: #7c9e5c;
+}
+/* Nella vetrina la mappa si guarda e basta: i tocchi restano alla sezione. */
+.vetrina-mappa .mappa-scorri {
+  height: min(34vh, 300px);
+  max-height: none;
+  overflow: hidden;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.chat-finta {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--sp-3);
+}
+.bolla {
+  max-width: 86%;
+  padding: 8px 12px;
+  border-radius: 16px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+.bolla.loro {
+  justify-self: start;
+  background: var(--superficie-2);
+  border-bottom-left-radius: 5px;
+}
+.bolla.noi {
+  justify-self: end;
+  background: var(--libera-velo);
+  color: var(--libera);
+  border-bottom-right-radius: 5px;
+}
 .benvenuto .chi {
   text-align: center;
   font-size: 0.74rem;

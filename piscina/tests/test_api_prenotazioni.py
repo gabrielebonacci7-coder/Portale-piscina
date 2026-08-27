@@ -137,4 +137,8 @@ def test_listino_e_info(client):
     assert info["telefono"]
     assert info["postazioni"]["ombrelloni"] == 50
     assert [f["valore"] for f in info["fasce"]] == ["giornata", "mattina", "pomeriggio"]
-    assert info["benvenuto"]["battute"]
+    # La guida: paragrafi e sezioni da mostrare mentre si racconta.
+    passi = info["benvenuto"]["passi"]
+    assert len(passi) >= 3
+    assert {"mappa", "prezzi", "contatti"} <= {p.get("vetrina") for p in passi}
+    assert info["contatti"]["whatsapp"]

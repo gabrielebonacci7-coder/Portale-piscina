@@ -63,6 +63,27 @@ export function vistaDove(ctx) {
     ]),
 
     el("div", { classe: "scheda" }, [
+      el("div", { classe: "titolo-sezione" }, [el("h2", { testo: "Scrivici" })]),
+      el("p", { classe: "piccolo tenue", testo:
+        "Per una domanda veloce, un gruppo grande o una postazione particolare: " +
+        "ti rispondiamo dalla piscina." }),
+      el("div", { style: "display:flex;gap:8px;flex-wrap:wrap" }, [
+        i.contatti && i.contatti.whatsapp
+          ? el("a", {
+              classe: "bottone",
+              href: `https://wa.me/${i.contatti.whatsapp}?text=${encodeURIComponent(
+                i.contatti.messaggio_precompilato || ""
+              )}`,
+              target: "_blank",
+              rel: "noopener",
+              testo: "Scrivici su WhatsApp",
+            })
+          : null,
+        el("a", { classe: "bottone secondario", href: `tel:${i.telefono_compatto}`, testo: "Chiama" }),
+      ]),
+    ]),
+
+    el("div", { classe: "scheda" }, [
       el("div", { classe: "titolo-sezione" }, [el("h2", { testo: "Come arrivare" })]),
       ...i.come_arrivare.map((v) =>
         el("div", { style: "margin-bottom:12px" }, [

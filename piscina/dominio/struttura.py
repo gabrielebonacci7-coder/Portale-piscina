@@ -42,28 +42,69 @@ COME_ARRIVARE = [
 ]
 
 # --- Quello che dice l'omino ----------------------------------------------
-# Frasi corte: sono fumetti, non un regolamento. Si cambiano qui e cambiano in
-# tutta l'app.
+# Non è un testo unico ma una piccola guida: un paragrafo alla volta, e a ogni
+# paragrafo l'app mostra la sezione di cui si sta parlando (`vetrina`).
 #
 # `{nome}` diventa il nome di chi sta usando l'app — quello lasciato con
-# l'ultima prenotazione su quel telefono. Se non lo sappiamo ancora, sparisce
-# insieme allo spazio che ha davanti: "Buongiorno!" e non "Buongiorno !".
+# l'ultima prenotazione su quel telefono. Chi non l'ha mai lasciato viene
+# accolto con il saluto generico: per questo il primo passo ha due versioni.
 BENVENUTO = {
-    "battute": [
-        "Buongiorno {nome}! Che splendida giornata per un bagno in piscina.",
-        "Siamo felici che ci abbiate scelto. Scegli il posto che preferisci: "
-        "al resto pensiamo noi.",
+    "passi": [
+        {
+            "testo": "Buongiorno a tutti, benvenuti nel nuovo portale di "
+                     "prenotazione della Piscina Comunale di Ciampino.",
+            "testo_con_nome": "Buongiorno {nome}, benvenuto nel nuovo portale "
+                              "di prenotazione della Piscina Comunale di Ciampino.",
+        },
+        {
+            "testo": "Quante volte vi è capitato di arrivare in piscina e non "
+                     "trovare la postazione che desideravate — o di trovare "
+                     "tutto pieno?",
+        },
+        {
+            "testo": "Questo portale nasce proprio per togliervi questo pensiero.",
+        },
+        {
+            "testo": "Con due tocchi prenoti i lettini e gli ombrelloni che "
+                     "vuoi, esattamente dove vuoi tu.",
+            "vetrina": "mappa",
+        },
+        {
+            "testo": "Qui trovi anche tutti i prezzi e i pacchetti che "
+                     "mettiamo a disposizione.",
+            "vetrina": "prezzi",
+        },
+        {
+            "testo": "E se ti serve qualcosa, scrivi direttamente alla piscina.",
+            "vetrina": "contatti",
+        },
+        {
+            "testo": "Cosa aspetti? Prenota subito la tua prossima giornata "
+                     "in piscina.",
+        },
     ],
-    "invito": "Scegli il posto",
+    "invito": "Prenota adesso",
 }
 
 # Ricompare a prenotazione fatta, per ringraziare.
 GRAZIE = {
-    "battute": [
-        "Grazie {nome}! La tua postazione è prenotata.",
-        "Ti aspettiamo in piscina: il noleggio si paga in cassa quando arrivi.",
+    "passi": [
+        {"testo": "Grazie {nome}! La tua postazione è prenotata."},
+        {"testo": "Ti aspettiamo in piscina: il noleggio si paga in cassa "
+                  "quando arrivi."},
     ],
     "invito": "Vedi il codice",
+}
+
+# --- Come ci si scrive ------------------------------------------------------
+# La chat con la piscina passa da WhatsApp: è il posto dove lo staff risponde
+# già oggi, dal telefono che ha in tasca. Una chat dentro l'app vorrebbe dire
+# che qualcuno la deve guardare, e una chat che nessuno guarda è peggio di non
+# averla.
+CONTATTI = {
+    "whatsapp": "393296836522",
+    "messaggio_precompilato": "Buongiorno! Scrivo dal portale delle prenotazioni.",
+    "email": "",  # DA CONFERMARE: l'indirizzo pubblico della piscina
 }
 
 # --- La legenda dei colori -------------------------------------------------
@@ -93,5 +134,6 @@ def scheda() -> dict:
         "come_arrivare": COME_ARRIVARE,
         "benvenuto": BENVENUTO,
         "grazie": GRAZIE,
+        "contatti": CONTATTI,
         "legenda": LEGENDA,
     }

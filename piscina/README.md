@@ -160,6 +160,27 @@ Sono segnate `DA CONFERMARE` in [`dominio/struttura.py`](dominio/struttura.py):
   (`PISCINA_SCONTO_MEZZA_GIORNATA`): sul cartello 2026 c'è una tariffa sola,
   quindi per ora costano uguale.
 
+### La guida di apertura
+
+Alla prima apertura l'omino non recita un monologo: accompagna. Ogni paragrafo
+del discorso può portarsi dietro una **vetrina** — la sezione di cui sta
+parlando, mostrata davvero — e le vetrine non sono figurine ma dati veri: la
+mappa è quella del giorno, i prezzi vengono dal listino in corso. Una figurina
+invecchierebbe al primo cambio di listino e nessuno se ne accorgerebbe, fino a
+quando un cliente non arriva in cassa con la cifra sbagliata in testa.
+
+Discorso e vetrine stanno in `BENVENUTO` dentro
+[`dominio/struttura.py`](dominio/struttura.py): si aggiunge un paragrafo
+scrivendo una riga, e `"vetrina": "mappa" | "prezzi" | "contatti"` decide cosa
+far vedere mentre lo si legge.
+
+### Scrivere alla piscina
+
+Il bottone *Scrivici* apre **WhatsApp** sul numero della piscina, con il
+messaggio già impostato. Non è una chat dentro l'app, ed è una scelta: una
+chat propria vuole qualcuno che la guardi, e una chat che nessuno guarda è
+peggio che non averla. WhatsApp lo staff ce l'ha già aperto sul telefono.
+
 ### Come saluta l'omino
 
 `Buongiorno {nome}!` — il nome è quello lasciato con l'ultima prenotazione su
