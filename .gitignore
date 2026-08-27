@@ -4,6 +4,9 @@ __pycache__/
 venv/
 env/
 *.db
+# SQLite in modalità WAL lascia due file di servizio accanto al database.
+*.db-shm
+*.db-wal
 *.sqlite3
 .env
 .pytest_cache/

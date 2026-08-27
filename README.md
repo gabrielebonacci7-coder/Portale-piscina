@@ -1,5 +1,9 @@
 # Guardlink
 
+> In questo repository ci sono due progetti. Questo è Guardlink; l'altro è la
+> [Piscina Comunale di Ciampino](piscina/README.md), l'app per prenotare
+> ombrellone e lettini, che vive tutta nella cartella `piscina/`.
+
 Bacheca turni che mette in contatto **bagnini** e **piscine/strutture** a Roma
 e nei Castelli Romani.
 

@@ -1,0 +1,26 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Piscina Comunale di Ciampino">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#3fb3e0"/>
+      <stop offset="1" stop-color="#0a6392"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#fondo)"/>
+
+  <!-- il telo dell'ombrellone, a spicchi -->
+  <path d="M104 268a152 152 0 0 1 304 0z" fill="#ffffff"/>
+  <path d="M256 116c-28 0-52 68-52 152h52z" fill="#f2b134"/>
+  <path d="M256 116c28 0 52 68 52 152h-52z" fill="#ffffff"/>
+  <path d="M104 268a152 152 0 0 1 100-143c-18 30-30 84-32 143z" fill="#f2b134"/>
+  <path d="M408 268a152 152 0 0 0-100-143c18 30 30 84 32 143z" fill="#f2b134"/>
+
+  <!-- il palo -->
+  <rect x="245" y="262" width="22" height="150" rx="11" fill="#ffffff"/>
+
+  <!-- l'acqua -->
+  <path d="M52 400q50-26 100 0t100 0 100 0 108 0" stroke="#ffffff" stroke-width="18"
+        fill="none" stroke-linecap="round" opacity="0.55"/>
+  <path d="M52 448q50-26 100 0t100 0 100 0 108 0" stroke="#ffffff" stroke-width="18"
+        fill="none" stroke-linecap="round" opacity="0.3"/>
+</svg>

@@ -1,0 +1,712 @@
+/* Piscina Comunale di Ciampino — foglio di stile unico.
+
+   I colori vengono dalla piscina vera: l'acqua della vasca, il bianco del
+   bordo, il giallo dell'ombrellone quando ci batte il sole. L'azzurro è
+   l'accento, e serve a dire "qui si tocca".
+
+   Tre colori non si usano mai per decorare, perché dicono una cosa sola:
+   verde = libero, giallo = mezza giornata, rosso = occupato. Su questi tre si
+   regge tutta la mappa, e usarli per un bottone qualsiasi renderebbe la mappa
+   illeggibile.
+*/
+
+/* ---------- Tema chiaro (predefinito) ---------- */
+:root {
+  --fondo: #eef4f7;
+  --superficie: #ffffff;
+  --superficie-2: #f4f9fb;
+  --inchiostro: #0d2b38;
+  --inchiostro-2: #34535f;
+  --tenue: #6b8895;
+  --linea: #d8e5ea;
+  --linea-forte: #bcd0d8;
+
+  --acqua: #0e7fb5;
+  --acqua-scura: #0a6392;
+  --acqua-chiara: #46b3dd;
+  --su-acqua: #ffffff;
+  --acqua-velo: #dcf0f8;
+
+  --sabbia: #f3e3c8;
+  --prato: #dfeadb;
+  --piastrella: #f7fafb;
+
+  /* I tre stati della mappa. */
+  --libera: #2fa36b;
+  --libera-velo: #dcf0e6;
+  --mezza: #e0a021;
+  --mezza-velo: #fbeed4;
+  --occupata: #cf5b4a;
+  --occupata-velo: #fadfda;
+  --spenta: #9fb0b8;
+  --spenta-velo: #e8edef;
+
+  --ombra: 0 1px 2px rgba(13, 43, 56, 0.06), 0 6px 18px rgba(13, 43, 56, 0.07);
+  --ombra-alta: 0 10px 40px rgba(13, 43, 56, 0.2);
+
+  --r-s: 10px;
+  --r-m: 14px;
+  --r-l: 22px;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 36px;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-dati: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --barra-h: 60px;
+  --tab-h: 62px;
+}
+
+/* Il tema scuro va scritto due volte: per chi segue il sistema e per chi lo
+   ha scelto a mano. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="chiaro"]) {
+    --fondo: #071a22;
+    --superficie: #0f2a35;
+    --superficie-2: #143440;
+    --inchiostro: #e6f1f5;
+    --inchiostro-2: #b3cbd4;
+    --tenue: #7f9aa5;
+    --linea: #1e4453;
+    --linea-forte: #2b5a6c;
+
+    --acqua: #3aa9dd;
+    --acqua-scura: #1b7ba8;
+    --acqua-chiara: #6ecbf0;
+    --su-acqua: #04222e;
+    --acqua-velo: #10394a;
+
+    --sabbia: #4a4030;
+    --prato: #1c3830;
+    --piastrella: #17323d;
+
+    --libera: #4cc78d;
+    --libera-velo: #10402f;
+    --mezza: #f0b849;
+    --mezza-velo: #40320f;
+    --occupata: #ec7c6b;
+    --occupata-velo: #46201b;
+    --spenta: #6b8794;
+    --spenta-velo: #1b3a46;
+
+    --ombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
+    --ombra-alta: 0 10px 40px rgba(0, 0, 0, 0.55);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--inchiostro);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Niente zoom involontario del testo quando si gira il telefono. */
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { line-height: 1.25; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.15rem; }
+h3 { font-size: 1rem; }
+p { margin: 0 0 var(--sp-3); }
+
+button { font: inherit; color: inherit; }
+
+/* ---------- Impalcatura ---------- */
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--fondo);
+  position: relative;
+}
+
+.caricamento {
+  padding: var(--sp-6);
+  text-align: center;
+  color: var(--tenue);
+}
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: calc(var(--barra-h) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) var(--sp-4) 0;
+  background: linear-gradient(180deg, var(--acqua-scura), var(--acqua));
+  color: var(--su-acqua);
+  box-shadow: var(--ombra);
+}
+
+.barra .marchio { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+.barra .titolo { font-weight: 650; font-size: 1.02rem; letter-spacing: -0.01em; }
+.barra .sottotitolo { font-size: 0.76rem; opacity: 0.85; }
+.barra .spinta { margin-left: auto; }
+
+.contenuto {
+  flex: 1;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + var(--sp-5));
+}
+
+/* ---------- Tab in basso ---------- */
+.tab {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-1);
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: color-mix(in srgb, var(--superficie) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--linea);
+}
+
+.tab a {
+  flex: 1;
+  max-width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--tenue);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.tab a svg { width: 23px; height: 23px; }
+.tab a[aria-current="page"] { color: var(--acqua); }
+
+/* ---------- Schede e testo ---------- */
+.scheda {
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  padding: var(--sp-4);
+  box-shadow: var(--ombra);
+  margin-bottom: var(--sp-4);
+}
+
+.scheda.stretta { padding: var(--sp-3); }
+.titolo-sezione {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.occhiello {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--tenue);
+}
+.tenue { color: var(--tenue); }
+.piccolo { font-size: 0.85rem; }
+.dati { font-family: var(--font-dati); }
+
+/* ---------- Bottoni ---------- */
+.bottone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: 46px;
+  padding: 0 var(--sp-4);
+  border: 1px solid transparent;
+  border-radius: var(--r-s);
+  background: var(--acqua);
+  color: var(--su-acqua);
+  font-weight: 650;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.06s ease, background 0.15s ease;
+}
+.bottone:active { transform: scale(0.985); }
+.bottone[disabled] { opacity: 0.45; cursor: not-allowed; }
+.bottone.largo { width: 100%; }
+.bottone.secondario {
+  background: var(--superficie);
+  color: var(--inchiostro);
+  border-color: var(--linea-forte);
+}
+.bottone.fantasma { background: transparent; color: var(--acqua); }
+.bottone.piccolo { min-height: 36px; padding: 0 var(--sp-3); font-size: 0.85rem; }
+
+/* ---------- Campi ---------- */
+.campo { display: block; margin-bottom: var(--sp-3); }
+.campo > span {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--inchiostro-2);
+  margin-bottom: 5px;
+}
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px var(--sp-3);
+  border: 1px solid var(--linea-forte);
+  border-radius: var(--r-s);
+  background: var(--superficie);
+  color: var(--inchiostro);
+  /* 16px esatti: sotto, iPhone ingrandisce la pagina appena si tocca. */
+  font-size: 16px;
+  font-family: inherit;
+}
+.campo textarea { min-height: 76px; resize: vertical; }
+.campo input:focus-visible,
+.campo select:focus-visible,
+.campo textarea:focus-visible {
+  outline: 2px solid var(--acqua);
+  outline-offset: 1px;
+}
+.errore-campo { color: var(--occupata); font-size: 0.8rem; margin-top: 4px; }
+
+/* ---------- Segmentato (giornata / mattina / pomeriggio) ---------- */
+.segmentato {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+  padding: 3px;
+  background: var(--superficie-2);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-s);
+}
+.segmentato button {
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 9px 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: var(--inchiostro-2);
+}
+.segmentato button small { display: block; font-weight: 500; font-size: 0.68rem; opacity: 0.7; }
+.segmentato button[aria-pressed="true"] {
+  background: var(--acqua);
+  color: var(--su-acqua);
+  box-shadow: var(--ombra);
+}
+
+/* ---------- La mappa ---------- */
+.mappa-guscio {
+  position: relative;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  overflow: hidden;
+  box-shadow: var(--ombra);
+}
+
+.mappa-scorri {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: min(62vh, 560px);
+  background: var(--prato);
+}
+
+.mappa-scorri svg { display: block; }
+.mappa-scorri svg text { user-select: none; }
+
+/* I comandi dello zoom stanno in una barretta sopra la mappa, non appoggiati
+   sopra il disegno: da lì coprirebbero proprio le postazioni dell'angolo. */
+.barra-mappa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: 2px 2px var(--sp-3);
+}
+.mappa-comandi {
+  display: flex;
+  gap: 4px;
+}
+.mappa-comandi button {
+  width: 38px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--linea-forte);
+  background: var(--superficie);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3);
+  border-top: 1px solid var(--linea);
+  background: var(--superficie);
+  font-size: 0.78rem;
+  color: var(--inchiostro-2);
+}
+.legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.pallino {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+}
+.pallino.libera { background: var(--libera); }
+.pallino.mezza { background: var(--mezza); }
+.pallino.occupata { background: var(--occupata); }
+.pallino.spenta { background: var(--spenta); }
+
+/* Gli stati delle postazioni dentro l'SVG. */
+.posto { cursor: pointer; }
+.posto .corpo { transition: opacity 0.15s ease; }
+.posto.stato-libera .tinta { fill: var(--libera); }
+.posto.stato-mezza .tinta { fill: var(--mezza); }
+.posto.stato-occupata .tinta { fill: var(--occupata); }
+.posto.stato-spenta .tinta { fill: var(--spenta); }
+.posto.stato-occupata, .posto.stato-spenta { cursor: not-allowed; }
+.posto.non-scegliibile .corpo { opacity: 0.42; }
+.posto .etichetta {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--inchiostro);
+  opacity: 0.55;
+  text-anchor: middle;
+}
+.posto .etichetta.a-lato { text-anchor: start; }
+.foglio:focus-visible { outline: none; }
+.posto.scelta .etichetta { opacity: 1; }
+.anello { fill: none; stroke: var(--acqua); stroke-width: 3.5; opacity: 0; }
+.posto.scelta .anello { opacity: 1; }
+
+/* ---------- Carrello e riepilogo ---------- */
+.scelte { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.gettone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 11px;
+  border-radius: 999px;
+  background: var(--acqua-velo);
+  color: var(--acqua-scura);
+  border: 1px solid color-mix(in srgb, var(--acqua) 30%, transparent);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.gettone button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 1rem;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.riga-conto {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px dashed var(--linea);
+}
+.riga-conto:last-child { border-bottom: 0; }
+.riga-conto.totale { font-weight: 750; font-size: 1.05rem; border-top: 2px solid var(--linea-forte); }
+
+/* ---------- Foglio che sale dal basso ---------- */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(6, 26, 34, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sfuma 0.16s ease;
+}
+.foglio {
+  width: 100%;
+  max-width: 720px;
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--superficie);
+  border-radius: var(--r-l) var(--r-l) 0 0;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--sp-5) + env(safe-area-inset-bottom));
+  box-shadow: var(--ombra-alta);
+  animation: sali 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.foglio .maniglia {
+  width: 42px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--linea-forte);
+  margin: 0 auto var(--sp-3);
+}
+@keyframes sali { from { transform: translateY(14%); opacity: 0.6; } }
+@keyframes sfuma { from { opacity: 0; } }
+
+/* ---------- Scelta del pacchetto ---------- */
+.pacchetti { display: grid; gap: var(--sp-2); }
+.pacchetto {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3);
+  border: 1.5px solid var(--linea);
+  border-radius: var(--r-s);
+  background: var(--superficie);
+  text-align: left;
+  cursor: pointer;
+}
+.pacchetto[aria-pressed="true"] {
+  border-color: var(--acqua);
+  background: var(--acqua-velo);
+}
+.pacchetto .disegno { flex: 0 0 46px; }
+.pacchetto .nome { font-weight: 650; }
+.pacchetto .prezzo { margin-left: auto; font-weight: 750; white-space: nowrap; }
+
+/* ---------- Tabelle prezzi ---------- */
+.tabella { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.tabella th, .tabella td { padding: 9px 6px; text-align: left; border-bottom: 1px solid var(--linea); }
+.tabella th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--tenue); }
+.tabella td.cifra, .tabella th.cifra { text-align: right; font-family: var(--font-dati); white-space: nowrap; }
+.tabella tr:last-child td { border-bottom: 0; }
+.scorri-x { overflow-x: auto; }
+
+/* ---------- Avvisi ---------- */
+.avviso {
+  padding: var(--sp-3);
+  border-radius: var(--r-s);
+  font-size: 0.9rem;
+  margin-bottom: var(--sp-3);
+  border: 1px solid transparent;
+}
+.avviso.info { background: var(--acqua-velo); border-color: color-mix(in srgb, var(--acqua) 25%, transparent); }
+.avviso.buono { background: var(--libera-velo); border-color: color-mix(in srgb, var(--libera) 30%, transparent); }
+.avviso.attenzione { background: var(--mezza-velo); border-color: color-mix(in srgb, var(--mezza) 35%, transparent); }
+.avviso.guaio { background: var(--occupata-velo); border-color: color-mix(in srgb, var(--occupata) 35%, transparent); }
+
+/* ---------- Il benvenuto con l'omino ---------- */
+.benvenuto {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(70, 179, 221, 0.35), transparent 60%),
+    linear-gradient(180deg, var(--acqua-scura), #062430);
+  color: #fff;
+  padding: var(--sp-5) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom));
+  animation: sfuma 0.25s ease;
+}
+.benvenuto .insegna {
+  /* Spinge titolo, omino e fumetto in un blocco solo appoggiato in basso:
+     lo spazio vuoto resta tutto sopra, e si legge come cielo invece che
+     come un buco fra due pezzi. */
+  margin-top: auto;
+  max-width: 560px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.benvenuto .insegna .occhiello { color: rgba(255, 255, 255, 0.7); }
+.benvenuto .insegna h1 { margin-top: 4px; font-size: 1.45rem; }
+
+.benvenuto .scena {
+  /* Il fumetto sopra e l'omino sotto: affiancati, su un telefono stretto, il
+     discorso verrebbe fuori a una parola per riga. */
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: var(--sp-3);
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: var(--sp-3);
+}
+.benvenuto .omino {
+  width: min(58vw, 250px);
+  align-self: center;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+}
+.benvenuto .parlato { min-width: 0; }
+.benvenuto .chi {
+  text-align: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 6px;
+}
+.fumetto {
+  position: relative;
+  background: #fff;
+  color: var(--inchiostro);
+  border-radius: var(--r-l);
+  padding: var(--sp-4);
+  margin-bottom: 12%;
+  box-shadow: var(--ombra-alta);
+  font-size: 1rem;
+  line-height: 1.45;
+  animation: sali 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.fumetto::after {
+  content: "";
+  position: absolute;
+  left: 42px;
+  bottom: -9px;
+  border: 10px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+}
+.benvenuto .comandi {
+  max-width: 560px;
+  width: 100%;
+  margin: var(--sp-4) auto 0;
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+}
+.benvenuto .salta {
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-weight: 600;
+  padding: var(--sp-2);
+}
+.benvenuto .avanti { flex: 1; background: #fff; color: var(--acqua-scura); }
+.punti { display: flex; gap: 5px; justify-content: center; margin-top: var(--sp-3); }
+.punti i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, 0.35); }
+.punti i.attivo { background: #fff; width: 18px; border-radius: 3px; }
+
+/* ---------- Elenco postazioni (alternativa alla mappa) ---------- */
+.elenco-file { display: grid; gap: var(--sp-3); }
+.fila-titolo { font-weight: 700; font-size: 0.85rem; color: var(--tenue); margin-bottom: 6px; }
+.griglia-codici { display: flex; flex-wrap: wrap; gap: 6px; }
+.codice-posto {
+  min-width: 46px;
+  min-height: 40px;
+  padding: 4px 8px;
+  border-radius: 9px;
+  border: 1.5px solid var(--linea);
+  background: var(--superficie);
+  font-family: var(--font-dati);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.codice-posto.libera { border-color: var(--libera); color: var(--libera); }
+.codice-posto.mezza { border-color: var(--mezza); color: var(--mezza); }
+.codice-posto.occupata, .codice-posto.spenta {
+  border-color: var(--linea);
+  color: var(--tenue);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.codice-posto.scelta { background: var(--acqua); border-color: var(--acqua); color: var(--su-acqua); }
+
+/* ---------- Gestionale ---------- */
+.prenotazione-riga {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--linea);
+  align-items: start;
+}
+.prenotazione-riga:last-child { border-bottom: 0; }
+.bollo {
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.bollo.in_attesa { background: var(--acqua-velo); color: var(--acqua-scura); }
+.bollo.arrivato { background: var(--libera-velo); color: var(--libera); }
+.bollo.annullata { background: var(--occupata-velo); color: var(--occupata); }
+.prenotazione-riga > b { white-space: nowrap; }
+.contatti a { color: var(--acqua); text-decoration: none; font-weight: 600; }
+.numeri { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: var(--sp-2); }
+.numero { background: var(--superficie-2); border-radius: var(--r-s); padding: var(--sp-3); text-align: center; }
+.numero b { display: block; font-size: 1.35rem; line-height: 1.1; }
+.numero span { font-size: 0.72rem; color: var(--tenue); }
+
+/* ---------- Rispetto delle preferenze di sistema ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- La scenografia della mappa ----------
+   I colori stanno qui e non negli attributi dell'SVG, così la mappa cambia
+   con il tema scuro come tutto il resto. */
+.sc-fondo { fill: var(--prato); }
+.sc-recinto { fill: var(--piastrella); stroke: var(--linea-forte); stroke-width: 2.5; }
+.sc-vasca { fill: url(#acqua); stroke: #ffffff; stroke-width: 4; }
+.sc-onda { stroke: #ffffff; stroke-width: 2; opacity: 0.35; fill: none; }
+.sc-solarium { fill: var(--superficie-2); stroke: var(--linea-forte); stroke-width: 2; stroke-dasharray: 7 5; }
+.sc-sabbia { fill: var(--sabbia); stroke: var(--linea-forte); stroke-width: 2; }
+.sc-rete { stroke: var(--tenue); stroke-width: 2; stroke-dasharray: 4 4; }
+.sc-edificio { fill: var(--superficie); stroke: var(--linea-forte); stroke-width: 2.5; }
+.sc-dettaglio { fill: var(--acqua); opacity: 0.75; }
+.sc-testo { fill: var(--inchiostro-2); font-size: 17px; font-weight: 650; text-anchor: middle; }
+.sc-testo.chiaro { fill: #ffffff; opacity: 0.92; }
+.sc-testo.minuta { font-size: 13px; font-weight: 600; fill: var(--tenue); }
+
+/* Le postazioni: il colore lo mettono le classi di stato più in alto. */
+.posto .lettino { fill: var(--superficie); stroke: currentColor; stroke-width: 1.5; }
+.posto .telo { opacity: 0.9; }
+.posto .palo { fill: var(--inchiostro); opacity: 0.35; }
+.posto .spicchio { fill: #ffffff; opacity: 0.55; }
+
+/* La mappa di Google dentro la pagina "Dove siamo". */
+.mappa-incorporata {
+  width: 100%;
+  height: 220px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-s);
+  margin-top: var(--sp-4);
+  display: block;
+}
