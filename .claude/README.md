@@ -31,3 +31,29 @@ origine. Lì dentro ci sono anche altre sei skill dello stesso pacchetto
 (`design`, `ui-styling`, `brand`, `design-system`, `slides`, `banner-design`):
 non sono state prese perché pesano insieme una decina di megabyte, ma si
 aggiungono allo stesso modo se servono.
+
+## Le dodici skill di Emil Kowalski
+
+Regole di animazione e di rifinitura dell'interfaccia, scritte da chi ha fatto
+Sonner e Vaul e ha lavorato in Vercel e Linear. Sono **solo testo**: nessuno
+script, nessun dato, nessuna chiamata a niente.
+
+- Origine: <https://github.com/emilkowalski/skills> (licenza MIT)
+- Copiate da `skills/` di quel repository, senza modifiche
+
+| Skill | A cosa serve |
+|---|---|
+| `animate` | costruire un'animazione dall'inizio, decidendo nell'ordine giusto |
+| `review-animations` | rivedere un'animazione già scritta con l'asticella alta |
+| `improve-animations` | passare al setaccio le animazioni di tutto il progetto |
+| `find-animation-opportunities` | trovare i punti che dovrebbero muoversi e non si muovono |
+| `animation-vocabulary` | dare il nome giusto a un effetto descritto a parole |
+| `apple-design` | il modo di fare di Apple, tradotto per il web |
+| `emil-design-eng` | i dettagli invisibili che fanno sembrare curata un'interfaccia |
+| `prototype` | fare più versioni di un pezzo di interfaccia e sceglierne una |
+| `pick-ui-library` | scegliere la libreria giusta per un problema di interfaccia |
+| `animate-expo`, `write-swift`, `ask-sonner` | React Native, Swift e Sonner |
+
+Le ultime tre non riguardano questo progetto — qui non c'è né React Native né
+Swift né Sonner — e si possono cancellare senza rompere niente. Restano perché
+il pacchetto è quello e pesa in tutto 336 kB.
