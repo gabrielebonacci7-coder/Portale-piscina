@@ -22,3 +22,6 @@ backup/
 /demo/
 demo_video.db*
 media_video/
+
+# Pilates G&E: il video si rigenera con python pilates/video/gira.py
+pilates/video/uscita/

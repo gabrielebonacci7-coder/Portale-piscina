@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pilates G&amp;E — palco per il video</title>
+    <style>
+      /* Il "palco": un telefono in verticale, una didascalia sotto, i colori
+         dello studio attorno. Serve solo a girare il video: l'app sta dentro
+         l'iframe e non sa di essere ripresa.
+
+         La misura è quella dei social in verticale (1080×1920), che è anche
+         quella che si guarda meglio su WhatsApp. */
+      @font-face { font-family: "Fraunces"; src: url("../prototipo/font/Fraunces.woff2") format("woff2"); font-weight: 300 700; }
+      @font-face { font-family: "DM Sans"; src: url("../prototipo/font/DMSans.woff2") format("woff2"); font-weight: 300 800; }
+
+      :root {
+        --verde: #1f4d3a;
+        --verde-scuro: #163a2b;
+        --crema: #faf7ee;
+        --salvia: #a9bfa8;
+        --terracotta: #b8653f;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; width: 1080px; height: 1920px; overflow: hidden; position: relative;
+        font-family: "DM Sans", system-ui, sans-serif; color: var(--verde-scuro);
+        background: var(--crema);
+        display: flex; flex-direction: column; align-items: center;
+      }
+
+      .sfondo { position: absolute; inset: 0; pointer-events: none; }
+      .sfondo i { position: absolute; border-radius: 50%; }
+      .sfondo i:nth-child(1) { width: 1100px; height: 1100px; top: -620px; right: -420px; background: #e3ebe2; }
+      .sfondo i:nth-child(2) { width: 700px; height: 700px; bottom: -260px; left: -380px; background: #efe6d6; }
+      .sfondo i:nth-child(3) { width: 260px; height: 260px; bottom: 380px; right: -110px; background: #f3e4d9; }
+
+      header { position: relative; display: flex; align-items: center; gap: 22px; padding: 40px 0 22px; }
+      header img { height: 70px; }
+      header .nome { font-family: "Fraunces", Georgia, serif; font-size: 46px; font-weight: 600; color: var(--verde); line-height: 1; }
+      header .sotto { font-size: 22px; opacity: 0.7; margin-top: 6px; }
+
+      .telefono {
+        position: relative; width: 700px; height: 1452px; border-radius: 62px; padding: 12px;
+        background: linear-gradient(160deg, #2a4a3c, #10241b);
+        box-shadow: 0 50px 90px rgba(22, 58, 43, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.5);
+        flex: 0 0 auto;
+      }
+      .schermo { width: 676px; height: 1428px; border-radius: 50px; overflow: hidden; background: var(--crema); }
+      /* L'app gira alla misura di un telefono vero (414×874) e la si
+         ingrandisce: i caratteri restano quelli veri. */
+      .schermo iframe { width: 414px; height: 874px; border: 0; transform: scale(1.633); transform-origin: top left; }
+
+      .didascalia { position: relative; width: 960px; min-height: 230px; padding: 30px 0 0; text-align: center; }
+      .passo {
+        font-size: 22px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+        color: var(--terracotta); opacity: 0; transition: opacity 0.35s ease;
+      }
+      .frase {
+        margin-top: 14px; font-family: "Fraunces", Georgia, serif; font-size: 50px; font-weight: 600;
+        line-height: 1.2; color: var(--verde-scuro);
+        opacity: 0; transform: translateY(14px); transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+      .passo.dentro, .frase.dentro { opacity: 1; transform: none; }
+
+      .tocco {
+        position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
+        border: 5px solid rgba(31, 77, 58, 0.9); background: rgba(31, 77, 58, 0.18);
+        pointer-events: none; opacity: 0;
+      }
+      .tocco.batti { animation: batti 0.75s ease-out; }
+      @keyframes batti {
+        0% { opacity: 0; transform: scale(0.35); }
+        18% { opacity: 1; transform: scale(0.75); }
+        100% { opacity: 0; transform: scale(1.55); }
+      }
+
+      .finale {
+        position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 22px; text-align: center; background: var(--crema); opacity: 0; transition: opacity 0.7s ease; pointer-events: none;
+      }
+      .finale.dentro { opacity: 1; }
+      .finale .marchio { width: 360px; }
+      .finale h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 96px; font-weight: 600; color: var(--verde); }
+      .finale .invito { font-size: 44px; font-weight: 600; color: var(--terracotta); }
+      .coppia { display: flex; gap: 70px; margin-top: 50px; }
+      .chi { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+      .chi .faccia { width: 230px; height: 230px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 8px #fffdf7, 0 24px 50px rgba(22, 58, 43, 0.18); }
+      .chi .faccia > * { width: 100%; height: 100%; display: block; }
+      .chi b { font-family: "Fraunces", Georgia, serif; font-size: 42px; color: var(--verde); }
+      .chi span { font-size: 30px; opacity: 0.75; }
+    </style>
+  </head>
+  <body>
+    <div class="sfondo"><i></i><i></i><i></i></div>
+
+    <header>
+      <img id="marchio" alt="" />
+      <div>
+        <div class="nome">Pilates G&amp;E</div>
+        <div class="sotto">La nuova app per prenotare le lezioni</div>
+      </div>
+    </header>
+
+    <div class="telefono">
+      <div class="schermo"><iframe id="app" title="app"></iframe></div>
+    </div>
+
+    <div class="didascalia">
+      <div class="passo" id="passo"></div>
+      <div class="frase" id="frase"></div>
+    </div>
+
+    <div class="tocco" id="tocco"></div>
+
+    <div class="finale" id="finale">
+      <img class="marchio" id="marchio-finale" alt="" />
+      <h2>Pilates G&amp;E</h2>
+      <div class="invito">Ti aspettiamo sul reformer</div>
+      <div class="coppia">
+        <div class="chi"><div class="faccia" id="faccia-greta"></div><b>Greta</b><span>379 156 7202</span></div>
+        <div class="chi"><div class="faccia" id="faccia-elisa"></div><b>Elisa</b><span>393 650 6230</span></div>
+      </div>
+    </div>
+
+    <script>
+      // Palco e app stanno sullo stesso server (cartella pilates/), così il
+      // palco può leggere dentro l'app. ?app= porta i parametri dell'app.
+      const parametri = new URLSearchParams(location.search);
+      const BASE = "../prototipo";
+      const APP = `${BASE}/${parametri.get("app") || ""}`;
+      document.getElementById("app").src = APP;
+      for (const id of ["marchio", "marchio-finale"]) {
+        document.getElementById(id).src = `${BASE}/immagini/marchio.png`;
+      }
+      // --- Quello che chiama il regista (lo script Python) ---
+      function didascalia(passo, frase) {
+        const p = document.getElementById("passo");
+        const f = document.getElementById("frase");
+        p.classList.remove("dentro");
+        f.classList.remove("dentro");
+        setTimeout(() => {
+          p.textContent = passo || "";
+          f.textContent = frase || "";
+          p.classList.add("dentro");
+          f.classList.add("dentro");
+        }, 220);
+      }
+
+      function tocco(x, y) {
+        const nodo = document.getElementById("tocco");
+        nodo.style.left = `${x}px`;
+        nodo.style.top = `${y}px`;
+        nodo.classList.remove("batti");
+        void nodo.offsetWidth;
+        nodo.classList.add("batti");
+      }
+
+      function finale() {
+        // Gli avatar sono quelli dell'app: si copiano dal benvenuto già disegnato.
+        const app = document.getElementById("app").contentDocument;
+        for (const chi of ["greta", "elisa"]) {
+          const a = app.querySelector(`.avatar-${chi}`);
+          if (a) {
+            const copia = a.cloneNode(true);
+            copia.style.cssText = "width:100%;height:100%;display:grid;place-items:end center;background:" + (chi === "greta" ? "#e7efe5" : "#f1e6d8");
+            document.getElementById(`faccia-${chi}`).replaceChildren(copia);
+          }
+        }
+        document.getElementById("finale").classList.add("dentro");
+      }
+    </script>
+  </body>
+</html>
