@@ -1,7 +1,7 @@
 // L'app: accesso, cornice (testata e barra in basso) e smistamento delle
 // pagine. Le pagine stanno in viste/cliente.js e viste/studio.js.
 
-import { el, icona, avviso } from "./ui.js";
+import { el, icona, avviso, foglio } from "./ui.js";
 import * as D from "./dati.js";
 import { mostraGuida } from "./avatar.js";
 import * as cliente from "./viste/cliente.js";
@@ -11,6 +11,24 @@ const radice = document.getElementById("radice");
 const PARAMETRI = new URLSearchParams(location.search);
 // Nel video il selettore "Prototipo" non deve comparire.
 const IN_VIDEO = PARAMETRI.has("video");
+
+// Dove siamo. Si tiene qui e non solo nell'indirizzo: dentro una pagina
+// pubblicata l'indirizzo non sempre si può cambiare.
+let percorsoCorrente = (location.hash || "#/accesso").split("?")[0];
+
+export function vai(href) {
+  percorsoCorrente = href;
+  try { history.replaceState(null, "", href); } catch { /* pazienza */ }
+  disegna();
+}
+
+// I link interni (href="#/...") passano da vai().
+document.addEventListener("click", (e) => {
+  const a = e.target.closest?.('a[href^="#/"]');
+  if (!a) return;
+  e.preventDefault();
+  vai(a.getAttribute("href"));
+});
 
 // Chi sta usando l'app in questo momento: una cliente o lo studio.
 let ruolo = leggi("pilates-ruolo") || null; // "cliente" | "greta" | "elisa"
@@ -32,7 +50,7 @@ export function entra(nuovo) {
 
 export function esci() {
   entra(null);
-  location.hash = "#/accesso";
+  vai("#/accesso");
 }
 
 // ------------------------------------------------------------------ accesso
@@ -49,7 +67,7 @@ function paginaAccesso() {
         e.preventDefault();
         D.entraComeDemo();
         entra("cliente");
-        location.hash = "#/lezioni";
+        vai("#/lezioni");
       },
     }, [
       campo("Email", "email", "email", "sofia.marini@example.com"),
@@ -66,7 +84,7 @@ function paginaAccesso() {
           classe: "bottone fantasma",
           type: "button",
           testo: `Entra come ${chi === "greta" ? "Greta" : "Elisa"}`,
-          onclick: () => { entra(chi); location.hash = "#/studio/oggi"; },
+          onclick: () => { entra(chi); vai("#/studio/oggi"); },
         })
       )),
     ]),
@@ -91,7 +109,7 @@ function paginaRegistrati() {
         telefono: f.telefono.trim(), email: f.email.trim(),
       });
       entra("cliente");
-      location.hash = "#/lezioni";
+      vai("#/lezioni");
       benvenuto(nuova.nome);
     },
   }, [
@@ -153,7 +171,7 @@ const TAB_STUDIO = [
 ];
 
 function cornice(contenuto, { tab, titolo, sottotitolo, campanella }) {
-  const percorso = location.hash.split("?")[0];
+  const percorso = percorsoCorrente;
   const nonLette = campanella ? D.nonLette() : 0;
   return el("div", { classe: `cornice ${ruolo === "cliente" ? "" : "studio"}` }, [
     el("header", { classe: "testata" }, [
@@ -176,6 +194,20 @@ function cornice(contenuto, { tab, titolo, sottotitolo, campanella }) {
   ]);
 }
 
+/** Chiede conferma dentro la pagina: confirm() non sempre si vede. */
+function ricominciaChiedendo() {
+  const f = foglio(el("div", { classe: "dettaglio" }, [
+    el("p", { testo: "Tutte le prenotazioni di prova tornano come all'inizio." }),
+    el("div", { classe: "azioni" }, [
+      el("button", {
+        classe: "bottone largo", type: "button", testo: "Ricomincia",
+        onclick: () => { f.chiudi(); D.ricomincia(); entra(null); vai("#/accesso"); },
+      }),
+      el("button", { classe: "bottone secondario largo", type: "button", testo: "Lascia com'è", onclick: () => f.chiudi() }),
+    ]),
+  ]), { titolo: "Rimettere il prototipo com'era?" });
+}
+
 /** Il selettore del prototipo: passa al volo da cliente a studio. */
 function selettore() {
   if (IN_VIDEO || !ruolo) return null;
@@ -190,28 +222,19 @@ function selettore() {
         onclick: () => {
           if (chi === "cliente") D.entraComeDemo();
           entra(chi);
-          location.hash = chi === "cliente" ? "#/lezioni" : "#/studio/oggi";
-          disegna();
+          vai(chi === "cliente" ? "#/lezioni" : "#/studio/oggi");
         },
       })
     ),
     el("button", {
       type: "button", testo: "↺", title: "Ricomincia da capo",
-      onclick: () => {
-        if (confirm("Rimettere il prototipo com'era all'inizio?")) {
-          D.ricomincia();
-          entra(null);
-          location.hash = "#/accesso";
-          disegna();
-        }
-      },
-    }),
+      onclick: ricominciaChiedendo,    }),
   ]);
 }
 
 // ------------------------------------------------------------------- smista
 export function disegna() {
-  const percorso = location.hash.replace(/^#/, "").split("?")[0] || "/accesso";
+  const percorso = percorsoCorrente.replace(/^#/, "") || "/accesso";
   const pezzi = percorso.split("/").filter(Boolean);
   let pagina;
 
@@ -251,7 +274,7 @@ export function disegna() {
   window.scrollTo(0, stessaPagina ? scorrimento : 0);
 }
 
-window.addEventListener("hashchange", disegna);
+window.addEventListener("hashchange", () => { percorsoCorrente = location.hash.split("?")[0]; disegna(); });
 disegna();
 
 // Si può aprire direttamente il benvenuto: utile per farlo vedere.

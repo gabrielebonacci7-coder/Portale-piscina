@@ -210,19 +210,8 @@ function conferma(id) {
       riga("pacchetto", io.ingressi >= 0 ? `Ti restano ${io.ingressi} lezioni nel pacchetto.` : "Da saldare in studio alla lezione."),
     ]),
     el("button", { classe: "bottone largo", type: "button", testo: "Perfetto", onclick: () => f.chiudi() }),
-    el("a", { classe: "link-piccolo", href: ics(l), download: "lezione-pilates.ics", testo: "Aggiungi al calendario del telefono" }),
   ]);
   const f = foglio(contenuto);
-}
-
-function ics(l) {
-  const t = (d) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
-  const testo = [
-    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Pilates G&E//IT", "BEGIN:VEVENT",
-    `UID:${l.id}@pilates-ge`, `DTSTAMP:${t(new Date())}`, `DTSTART:${t(l.inizio)}`, `DTEND:${t(l.fine)}`,
-    `SUMMARY:${l.titolo} con ${l.istruttrice.nome}`, "END:VEVENT", "END:VCALENDAR",
-  ].join("\r\n");
-  return `data:text/calendar;charset=utf-8,${encodeURIComponent(testo)}`;
 }
 
 // ------------------------------------------------------------------- le mie

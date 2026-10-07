@@ -30,6 +30,12 @@ Parametri utili nell'indirizzo:
 | `?video=1` | nasconde la barra *Prototipo* |
 | `?benvenuto` | riapre la guida di Greta ed Elisa |
 
+`artifact.html` è la stessa app senza l'intestazione della pagina: è il file
+che si pubblica come pagina da aprire sul telefono. Lì le finestre del
+browser (conferma, richiesta di testo) non si vedono, perciò l'app chiede
+conferma con i suoi fogli e tiene la pagina corrente da sé, senza dipendere
+dall'indirizzo.
+
 ## Le regole
 
 | | |

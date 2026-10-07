@@ -82,6 +82,9 @@ input, select, textarea { font: inherit; color: inherit; }
 .bottone.attesa { background: var(--terracotta); }
 .bottone.pericolo { background: transparent; color: var(--rosso); box-shadow: inset 0 0 0 1.5px #e3c3bd; margin-top: 18px; }
 .bottone.whatsapp { background: var(--whatsapp); }
+.bottone.conferma-annulla { background: var(--rosso); }
+.annulla { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.annulla .bottone.pericolo { margin-top: 0; }
 .bottone.whatsapp.secondario { background: var(--carta); color: var(--whatsapp); }
 
 .tondo {

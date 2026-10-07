@@ -156,6 +156,28 @@ function gestisci(id, ctx) {
     } catch (e) { avviso(e.message); }
   });
 
+  // Annullare chiede il motivo nel foglio stesso, senza finestre del browser.
+  const motivo = el("input", { value: "imprevisto dell'istruttrice", "aria-label": "Motivo", maxlength: 80 });
+  const annulla = el("div", { classe: "annulla" });
+  const mostraBottone = () => annulla.replaceChildren(el("button", {
+    classe: "bottone pericolo largo", type: "button", testo: "Annulla la lezione",
+    onclick: () => annulla.replaceChildren(
+      el("label", { classe: "campo" }, [el("span", { testo: "Motivo da mandare alle iscritte" }), motivo]),
+      el("div", { classe: "riga-bottoni" }, [
+        el("button", { classe: "bottone secondario", type: "button", testo: "Lascia stare", onclick: mostraBottone }),
+        el("button", {
+          classe: "bottone conferma-annulla", type: "button", testo: "Annulla e avvisa",
+          onclick: () => {
+            D.annullaLezione(id, motivo.value.trim());
+            avviso("Lezione annullata: le iscritte sono state avvisate", "ok");
+            ridisegna();
+          },
+        }),
+      ])
+    ),
+  }));
+  mostraBottone();
+
   const contenuto = el("div", { classe: "dettaglio" }, [
     el("label", { classe: "campo" }, [
       el("span", { testo: "Titolo che vedono le clienti" }),
@@ -192,16 +214,7 @@ function gestisci(id, ctx) {
           l.attesa.length ? el("h3", { classe: "titolo-sezione", testo: "Lista d'attesa" }) : null,
           ...l.attesa.map((cid, i) => el("div", { classe: "riga-iscritta" }, [el("span", { testo: `${i + 1}. ${nome(cid)}` })])),
           el("p", { classe: "nota", testo: "Le clienti prenotate per telefono le aggiungi da qui." }),
-          el("button", {
-            classe: "bottone pericolo largo", type: "button", testo: "Annulla la lezione",
-            onclick: () => {
-              const motivo = prompt("Motivo da mandare alle iscritte (facoltativo):", "imprevisto dell'istruttrice");
-              if (motivo === null) return;
-              D.annullaLezione(id, motivo.trim());
-              avviso("Lezione annullata: le iscritte sono state avvisate", "ok");
-              ridisegna();
-            },
-          }),
+          annulla,
         ]),
   ]);
   const f = foglio(contenuto, { titolo: `${cap(D.GIORNI[l.inizio.getDay()])} ${l.inizio.getDate()} · ${D.oraDi(l.inizio)}`, sottotitolo: `con ${l.istruttrice.nome}` });
