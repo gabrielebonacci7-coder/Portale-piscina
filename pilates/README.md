@@ -44,6 +44,7 @@ dall'indirizzo.
 | Sabato | 11:30 · 12:30 |
 | Istruttrice | Greta lunedì, mercoledì, venerdì, sabato · Elisa martedì e giovedì |
 | Posti | 3 per lezione (i 3 reformer) |
+| Quanto prima | si prenota fino a un mese avanti (`GIORNI_PRENOTABILI`) |
 | Disdetta | fino a 12 ore prima, l'ingresso torna nel pacchetto |
 | Lista d'attesa | se una disdice, entra in automatico la prima in lista e riceve una notifica |
 | Pagamento | solo in studio: Greta o Elisa caricano il pacchetto dal gestionale |
@@ -54,7 +55,8 @@ Tutte stanno in cima a [`prototipo/js/dati.js`](prototipo/js/dati.js).
 
 ## Cosa c'è
 
-**Cliente** — calendario a giorni con i pallini dei posti liberi, prenotazione
+**Cliente** — calendario fino a un mese avanti, a giorni (*Settimana*) o a
+griglia (*Mese*), con i pallini dei posti liberi, prenotazione
 con conferma e promemoria, lista d'attesa, le mie lezioni con la disdetta,
 il pacchetto (lezioni rimaste, scadenza, listino), contatti con *Scrivi a
 Greta / Elisa* su WhatsApp, notifiche e avvisi dello studio.

@@ -138,7 +138,10 @@ def gira(pagina) -> None:
 
     # --- 4. Prenotare ---
     didascalia("Prenotare", "Scegli il giorno: sotto ci sono le lezioni, con chi le tiene.", 1.0)
-    tocca(app.locator('[data-giorno="2026-10-14"]'), 1.6)
+    tocca(app.locator('.striscia [data-giorno="2026-10-14"]'), 1.6)
+    tocca(app.locator('[data-vista="mese"]'), 0.6)
+    didascalia("Tutto il mese", "Con «Mese» vedi tutto il calendario: si prenota fino a un mese prima.", 3.0)
+    tocca(app.locator('.cella[data-giorno="2026-10-14"]'), 1.0)
     didascalia("I pallini", "Ogni pallino è un reformer: vuoto vuol dire libero.", 2.0)
     libera = app.locator(".lezione.libera, .lezione.ultimo").first
     tocca(libera, 1.6)
@@ -146,6 +149,7 @@ def gira(pagina) -> None:
     tocca(app.locator(".foglio .bottone.prenota"), 1.6)
     didascalia("Fatto", "Prenotata! Il giorno prima arriva il promemoria.", 2.4)
     tocca(app.locator(".foglio .conferma .bottone"), 0.8)
+    tocca(app.locator('[data-vista="settimana"]'), 0.6)
 
     # --- 5. Lezione piena: lista d'attesa ---
     giorni = app.locator(".striscia .giorno")
@@ -232,7 +236,7 @@ def main() -> int:
         webm = Path(percorso)
         mp4 = USCITA / "video.mp4"
         in_mp4(webm, mp4)
-        copertina(mp4, USCITA / "copertina.jpg", secondo=15.39)
+        copertina(mp4, USCITA / "copertina.jpg", secondo=15.5)
         scrivi_copione(USCITA / "copione.txt")
         webm.unlink(missing_ok=True)
         print(f"Video:     {mp4}  ({mp4.stat().st_size // 1024} kB)")

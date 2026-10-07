@@ -9,6 +9,8 @@
 
 export const POSTI = 3;
 export const ORE_DISDETTA = 12;
+/** Si prenota al massimo un mese in avanti. */
+export const GIORNI_PRENOTABILI = 30;
 
 export const ISTRUTTRICI = {
   greta: { id: "greta", nome: "Greta", cognome: "Lorenzetti", telefono: "393791567202", leggibile: "379 156 7202" },
@@ -141,6 +143,22 @@ export function disdicibile(lez) {
   return lez.inizio.getTime() - adesso().getTime() >= ORE_DISDETTA * 3600000;
 }
 
+/** L'ultimo giorno che si può già prenotare. */
+export function ultimoGiornoPrenotabile() {
+  const d = new Date(adesso()); d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + GIORNI_PRENOTABILI);
+  return d;
+}
+
+/** Tutti i giorni con lezioni da oggi fino a un mese avanti. */
+export function giorniPrenotabili() {
+  const giorni = [];
+  const d = new Date(adesso()); d.setHours(0, 0, 0, 0);
+  const fine = ultimoGiornoPrenotabile();
+  for (; d <= fine; d.setDate(d.getDate() + 1)) if (ORARIO[d.getDay()]) giorni.push(new Date(d));
+  return giorni;
+}
+
 /** I giorni con lezioni a partire da oggi (la domenica lo studio è chiuso). */
 export function prossimiGiorni(quanti) {
   const giorni = [];
@@ -184,6 +202,9 @@ export function prenota(idLez, idCliente = stato.io) {
   if (lez.passata) throw new Error("La lezione è già iniziata.");
   if (lez.iscritte.includes(idCliente)) throw new Error("Sei già iscritta.");
   if (lez.liberi <= 0) throw new Error("La lezione è piena.");
+  if (lez.inizio > new Date(ultimoGiornoPrenotabile().getTime() + 86400000)) {
+    throw new Error(`Si può prenotare al massimo ${GIORNI_PRENOTABILI} giorni prima.`);
+  }
   stato.prenotazioni[idLez] = [...lez.iscritte, idCliente];
   stato.attesa[idLez] = lez.attesa.filter((x) => x !== idCliente);
   stato.clienti[idCliente].ingressi -= 1;
@@ -358,11 +379,11 @@ function datiEsempio() {
     return libere[Math.floor(caso() * libere.length)];
   };
 
-  // Un mese indietro e due settimane avanti, piene più o meno come uno studio vero.
+  // Un mese indietro e uno avanti, piene più o meno come uno studio vero.
   const inizio = new Date(ora); inizio.setDate(inizio.getDate() - 30);
   const elenco = [];
   const d = new Date(inizio); d.setHours(0, 0, 0, 0);
-  for (let i = 0; i < 45; i++, d.setDate(d.getDate() + 1)) {
+  for (let i = 0; i < 62; i++, d.setDate(d.getDate() + 1)) {
     for (const o of ORARIO[d.getDay()] || []) elenco.push({ id: idLezione(d, o), inizio: new Date(`${chiaveGiorno(d)}T${o}:00`) });
   }
   for (const { id, inizio: quando } of elenco) {

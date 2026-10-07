@@ -4,12 +4,21 @@ import { el, icona, avviso, foglio, pallini } from "../ui.js";
 import * as D from "../dati.js";
 import { avatar } from "../avatar.js";
 
-// Il giorno scelto nella striscia resta scelto mentre si naviga.
+// Il giorno scelto e la vista (settimana o mese) restano mentre si naviga.
 let giornoScelto = null;
+let vista = "settimana";
+
+/** Com'è messo un giorno: ci sono io? c'è ancora posto? */
+function statoGiorno(g, io) {
+  const lez = D.lezioni(g, 1).filter((l) => !l.passata && !l.annullata);
+  if (lez.some((l) => l.iscritte.includes(io.id))) return "mio";
+  if (!lez.length) return "vuoto";
+  return lez.some((l) => l.liberi > 0) ? "libero" : "pieno";
+}
 
 // ------------------------------------------------------------------ lezioni
 export function lezioni(ridisegna) {
-  const giorni = D.prossimiGiorni(12);
+  const giorni = D.giorniPrenotabili();
   if (!giornoScelto || !giorni.some((g) => D.chiaveGiorno(g) === giornoScelto)) {
     // Si apre sul primo giorno che ha ancora lezioni da fare.
     const conPosto = giorni.find((g) => D.lezioni(g, 1).some((l) => !l.passata));
@@ -19,31 +28,21 @@ export function lezioni(ridisegna) {
   const delGiorno = D.lezioni(giorno, 1);
   const chi = D.istruttriceDel(giorno.getDay());
   const io = D.io();
+  const scegli = (g) => { giornoScelto = D.chiaveGiorno(g); ridisegna(); };
 
-  const striscia = el("div", { classe: "striscia", role: "tablist" }, giorni.map((g) => {
-    const lez = D.lezioni(g, 1).filter((l) => !l.passata && !l.annullata);
-    const libere = lez.some((l) => l.liberi > 0);
-    const mie = lez.some((l) => l.iscritte.includes(io.id));
-    const scelto = D.chiaveGiorno(g) === giornoScelto;
-    return el("button", {
-      type: "button",
-      role: "tab",
-      "aria-selected": scelto ? "true" : "false",
-      classe: `giorno ${scelto ? "scelto" : ""} ${lez.length && !libere ? "pieno" : ""}`,
-      "data-giorno": D.chiaveGiorno(g),
-      onclick: () => { giornoScelto = D.chiaveGiorno(g); ridisegna(); },
-    }, [
-      el("span", { classe: "giorno-nome", testo: D.GIORNI_CORTI[g.getDay()] }),
-      el("span", { classe: "giorno-num", testo: g.getDate() }),
-      el("i", { classe: mie ? "segno mio" : libere ? "segno" : "segno vuoto" }),
-    ]);
-  }));
-
-  // Tiene in vista il giorno scelto.
-  requestAnimationFrame(() => striscia.querySelector(".scelto")?.scrollIntoView({ inline: "center", block: "nearest" }));
+  const commutatore = el("div", { classe: "vista-testa" }, [
+    el("div", { classe: "vista-mese", testo: cap(D.MESI[giorno.getMonth()]) + " " + giorno.getFullYear() }),
+    el("div", { classe: "segmentato", role: "group", "aria-label": "Vista" }, [["settimana", "Settimana"], ["mese", "Mese"]].map(([v, t]) =>
+      el("button", {
+        type: "button", classe: vista === v ? "attivo" : "", "aria-pressed": vista === v ? "true" : "false",
+        "data-vista": v, testo: t,
+        onclick: () => { vista = v; ridisegna(); },
+      }))),
+  ]);
 
   return el("div", { classe: "pagina" }, [
-    striscia,
+    commutatore,
+    vista === "mese" ? calendarioMese(giorni, io, scegli) : striscia(giorni, io, scegli),
     el("div", { classe: "con-chi" }, [
       avatar(chi.id, "piccolo"),
       el("div", {}, [
@@ -52,7 +51,79 @@ export function lezioni(ridisegna) {
       ]),
     ]),
     el("div", { classe: "elenco-lezioni" }, delGiorno.map((l) => schedaLezione(l, ridisegna))),
-    el("p", { classe: "nota", testo: `Ogni lezione dura un'ora · ${D.POSTI} reformer · disdetta fino a ${D.ORE_DISDETTA} ore prima` }),
+    el("p", { classe: "nota", testo: `Si prenota fino a un mese prima · ${D.POSTI} reformer · disdetta fino a ${D.ORE_DISDETTA} ore prima` }),
+  ]);
+}
+
+/** La striscia dei giorni, da scorrere col dito fino a un mese avanti. */
+function striscia(giorni, io, scegli) {
+  const nodo = el("div", { classe: "striscia", role: "tablist" }, giorni.flatMap((g, i) => {
+    const stato = statoGiorno(g, io);
+    const scelto = D.chiaveGiorno(g) === giornoScelto;
+    // Un segno sottile fra una settimana e l'altra.
+    const nuovaSettimana = i > 0 && g.getDay() === 1;
+    return [
+      nuovaSettimana ? el("span", { classe: "striscia-stacco", "aria-hidden": "true" }) : null,
+      el("button", {
+        type: "button",
+        role: "tab",
+        "aria-selected": scelto ? "true" : "false",
+        classe: `giorno ${scelto ? "scelto" : ""} ${stato === "pieno" ? "pieno" : ""}`,
+        "data-giorno": D.chiaveGiorno(g),
+        onclick: () => scegli(g),
+      }, [
+        el("span", { classe: "giorno-nome", testo: D.GIORNI_CORTI[g.getDay()] }),
+        el("span", { classe: "giorno-num", testo: g.getDate() }),
+        el("i", { classe: stato === "mio" ? "segno mio" : stato === "libero" ? "segno" : "segno vuoto" }),
+      ]),
+    ];
+  }).filter(Boolean));
+  // Tiene in vista il giorno scelto.
+  requestAnimationFrame(() => nodo.querySelector(".scelto")?.scrollIntoView({ inline: "center", block: "nearest" }));
+  return nodo;
+}
+
+/** Il mese intero: lunedì–sabato, da questa settimana a un mese avanti. */
+function calendarioMese(giorni, io, scegli) {
+  const prenotabili = new Set(giorni.map(D.chiaveGiorno));
+  const inizio = new Date(giorni[0]);
+  inizio.setDate(inizio.getDate() - ((inizio.getDay() + 6) % 7)); // il lunedì
+  const fine = D.ultimoGiornoPrenotabile();
+
+  const celle = [];
+  let mesePrima = inizio.getMonth();
+  for (const d = new Date(inizio); d <= fine || d.getDay() !== 1; d.setDate(d.getDate() + 1)) {
+    if (d.getDay() === 0) continue; // la domenica lo studio è chiuso
+    const chiave = D.chiaveGiorno(d);
+    const attivo = prenotabili.has(chiave);
+    const stato = attivo ? statoGiorno(d, io) : "fuori";
+    const g = new Date(d);
+    celle.push(el("button", {
+      type: "button",
+      classe: `cella ${stato} ${chiave === giornoScelto ? "scelta" : ""}`,
+      disabled: attivo ? null : true,
+      "data-giorno": chiave,
+      "aria-label": `${D.dataLunga(g)}${attivo ? "" : ", non prenotabile"}`,
+      onclick: () => scegli(g),
+    }, [
+      // Il primo giorno di un mese nuovo ne porta il nome (il 1° può essere domenica).
+      d.getMonth() !== mesePrima ? el("span", { classe: "cella-mese", testo: D.MESI[d.getMonth()].slice(0, 3) }) : null,
+      el("span", { classe: "cella-num", testo: d.getDate() }),
+      el("i"),
+    ]));
+    mesePrima = d.getMonth();
+  }
+
+  return el("div", { classe: "mese" }, [
+    el("div", { classe: "mese-griglia" }, [
+      ...[1, 2, 3, 4, 5, 6].map((n) => el("span", { classe: "mese-intestazione", testo: D.GIORNI_CORTI[n] })),
+      ...celle,
+    ]),
+    el("div", { classe: "mese-legenda" }, [
+      el("span", {}, [el("i", { classe: "libero" }), "posti liberi"]),
+      el("span", {}, [el("i", { classe: "pieno" }), "tutto pieno"]),
+      el("span", {}, [el("i", { classe: "mio" }), "prenotata"]),
+    ]),
   ]);
 }
 
