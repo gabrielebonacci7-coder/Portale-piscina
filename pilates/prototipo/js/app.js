@@ -136,7 +136,7 @@ function paginaRegistrati() {
 
 // --------------------------------------------------------------- benvenuto
 export const DISCORSO = [
-  { chi: "greta", testo: "Ciao {nome}! Sono Greta, e lei è Elisa. Ti presentiamo la nuova app per prenotare le lezioni." },
+  { chi: "entrambe", testo: "Ciao {nome}! Siamo Greta ed Elisa: ti presentiamo la nuova app per prenotare le lezioni." },
   { chi: "elisa", vetrina: "calendario", testo: "Qui trovi tutte le lezioni della settimana: dal lunedì al venerdì 16:30, 17:30 e 18:30, il sabato 11:30 e 12:30." },
   { chi: "greta", vetrina: "istruttrici", testo: "Lunedì, mercoledì, venerdì e sabato ci sono io. Martedì e giovedì c'è Elisa." },
   { chi: "elisa", vetrina: "posti", testo: "Ogni lezione ha 3 reformer. I pallini ti dicono quanti posti sono ancora liberi." },

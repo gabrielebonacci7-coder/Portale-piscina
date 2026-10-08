@@ -69,10 +69,17 @@ la scheda e la registrazione dei pagamenti, *Avvisi* a tutte, *Numeri*
 
 ## Da completare
 
-- **Avatar** di Greta ed Elisa: le immagini vanno in `prototipo/immagini/` e
-  il percorso in `RITRATTI`, in cima a [`prototipo/js/avatar.js`](prototipo/js/avatar.js).
-  Finché mancano c'è una sagoma disegnata.
 - **Prezzi**: nel listino `PACCHETTI` di `dati.js`.
+
+## Gli avatar
+
+Vengono da un'unica illustrazione di Greta ed Elisa insieme
+(`risorse/avatar-originale.png`): Greta è a sinistra, Elisa a destra. Da lì
+escono `immagini/insieme.webp` e i visi `greta.webp` / `elisa.webp`.
+
+Nella guida di benvenuto all'inizio e alla fine compaiono insieme; nel mezzo
+parlano a turno, e chi parla sta dalla sua parte del fumetto (Greta a
+sinistra, Elisa a destra, come nell'illustrazione).
 
 ## Il video
 

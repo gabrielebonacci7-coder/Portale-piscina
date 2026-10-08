@@ -79,15 +79,14 @@
         gap: 22px; text-align: center; background: var(--crema); opacity: 0; transition: opacity 0.7s ease; pointer-events: none;
       }
       .finale.dentro { opacity: 1; }
-      .finale .marchio { width: 360px; }
-      .finale h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 96px; font-weight: 600; color: var(--verde); }
+      .finale .marchio { width: 260px; }
+      .finale h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 84px; font-weight: 600; color: var(--verde); }
       .finale .invito { font-size: 44px; font-weight: 600; color: var(--terracotta); }
-      .coppia { display: flex; gap: 70px; margin-top: 50px; }
-      .chi { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-      .chi .faccia { width: 230px; height: 230px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 8px #fffdf7, 0 24px 50px rgba(22, 58, 43, 0.18); }
-      .chi .faccia > * { width: 100%; height: 100%; display: block; }
-      .chi b { font-family: "Fraunces", Georgia, serif; font-size: 42px; color: var(--verde); }
-      .chi span { font-size: 30px; opacity: 0.75; }
+      .insieme { width: 860px; max-width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 48px; margin-top: 30px; box-shadow: 0 0 0 10px #fffdf7, 0 30px 60px rgba(22, 58, 43, 0.18); }
+      .numeri { display: flex; gap: 0; width: 860px; justify-content: space-around; margin-top: 12px; }
+      .chi { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+      .chi b { font-family: "Fraunces", Georgia, serif; font-size: 44px; color: var(--verde); }
+      .chi span { font-size: 32px; opacity: 0.75; }
     </style>
   </head>
   <body>
@@ -116,9 +115,10 @@
       <img class="marchio" id="marchio-finale" alt="" />
       <h2>Pilates G&amp;E</h2>
       <div class="invito">Ti aspettiamo sul reformer</div>
-      <div class="coppia">
-        <div class="chi"><div class="faccia" id="faccia-greta"></div><b>Greta</b><span>379 156 7202</span></div>
-        <div class="chi"><div class="faccia" id="faccia-elisa"></div><b>Elisa</b><span>393 650 6230</span></div>
+      <img class="insieme" id="insieme" alt="Greta ed Elisa" />
+      <div class="numeri">
+        <div class="chi"><b>Greta</b><span>379 156 7202</span></div>
+        <div class="chi"><b>Elisa</b><span>393 650 6230</span></div>
       </div>
     </div>
 
@@ -132,6 +132,7 @@
       for (const id of ["marchio", "marchio-finale"]) {
         document.getElementById(id).src = `${BASE}/immagini/marchio.png`;
       }
+      document.getElementById("insieme").src = `${BASE}/immagini/insieme.webp`;
       // --- Quello che chiama il regista (lo script Python) ---
       function didascalia(passo, frase) {
         const p = document.getElementById("passo");
@@ -156,16 +157,6 @@
       }
 
       function finale() {
-        // Gli avatar sono quelli dell'app: si copiano dal benvenuto già disegnato.
-        const app = document.getElementById("app").contentDocument;
-        for (const chi of ["greta", "elisa"]) {
-          const a = app.querySelector(`.avatar-${chi}`);
-          if (a) {
-            const copia = a.cloneNode(true);
-            copia.style.cssText = "width:100%;height:100%;display:grid;place-items:end center;background:" + (chi === "greta" ? "#e7efe5" : "#f1e6d8");
-            document.getElementById(`faccia-${chi}`).replaceChildren(copia);
-          }
-        }
         document.getElementById("finale").classList.add("dentro");
       }
     </script>

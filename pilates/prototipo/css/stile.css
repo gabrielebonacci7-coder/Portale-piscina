@@ -291,6 +291,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .avatar.piccolo { width: 44px; height: 44px; }
 .avatar.medio { width: 56px; height: 56px; }
 .avatar.grande { width: 84px; height: 84px; }
+.avatar img { object-position: center 30%; }
 
 /* ---------------------------------------------------------------- fogli */
 .velo { position: fixed; inset: 0; z-index: 20; background: rgba(22, 32, 27, 0.35); opacity: 0; transition: opacity 0.28s; }
@@ -435,26 +436,43 @@ input, select, textarea { font: inherit; color: inherit; }
 .benvenuto-nome { font-family: var(--titoli); font-size: 22px; font-weight: 600; color: var(--verde); }
 
 .guida-palco { flex: 1; width: 100%; display: grid; place-items: center; min-height: 0; padding: 14px 0; }
-.coppia { display: flex; gap: 20px; align-items: flex-end; }
-.persona { display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform 0.45s var(--fuori), opacity 0.45s; }
-.persona .avatar.grande { width: 150px; height: 150px; box-shadow: 0 0 0 5px var(--carta), 0 16px 30px rgba(29, 42, 35, 0.14); }
-.persona-nome { font-family: var(--titoli); font-size: 20px; font-weight: 600; color: var(--verde); }
-.persona.parla { transform: scale(1.06); }
-.persona.ascolta { opacity: 0.5; transform: scale(0.9); }
+.persona-nome { font-family: var(--titoli); font-size: 22px; font-weight: 600; color: var(--verde); }
+
+/* Le due insieme: apertura e chiusura. */
+.insieme { margin: 0; width: 100%; display: flex; flex-direction: column; gap: 10px; animation: compare 0.5s var(--fuori); }
+.insieme img { width: 100%; max-width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 24px; box-shadow: 0 0 0 5px var(--carta), 0 18px 40px rgba(29, 42, 35, 0.16); }
+.insieme figcaption { display: flex; justify-content: space-around; font-family: var(--titoli); font-size: 20px; font-weight: 600; color: var(--verde); }
+
+/* Una alla volta: Greta entra da sinistra, Elisa da destra. */
+.sola { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.sola.da-greta { animation: daSinistra 0.5s var(--fuori); }
+.sola.da-elisa { animation: daDestra 0.5s var(--fuori); }
+.avatar.ritratto { width: 200px; height: 200px; box-shadow: 0 0 0 6px var(--carta), 0 18px 36px rgba(29, 42, 35, 0.16); }
+@keyframes daSinistra { from { opacity: 0; transform: translateX(-40px); } }
+@keyframes daDestra { from { opacity: 0; transform: translateX(40px); } }
+
 .vetrina { width: 100%; animation: compare 0.4s var(--fuori); }
 .vetrina-colonna { display: flex; flex-direction: column; gap: 9px; width: 100%; }
 .vetrina .lezione { box-shadow: var(--ombra), inset 0 0 0 1px var(--linea); }
 .vetrina .lezione.mia { box-shadow: inset 0 0 0 1.5px var(--verde); }
 .vetrina .striscia { margin: 0; padding: 0 0 4px; overflow: hidden; justify-content: center; }
 
-.parlato { width: 100%; }
-.fumetto-firma { display: flex; align-items: center; gap: 6px; margin: 0 0 6px 6px; font-size: 13px; font-weight: 700; color: var(--verde); }
-.fumetto-firma .avatar + .avatar { margin-left: -12px; }
+/* Il fumetto, con chi parla dalla sua parte. */
+.parlato { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.chi-parla { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--verde); }
+.chi-parla .avatar.parla { width: 48px; height: 48px; box-shadow: 0 0 0 3px var(--carta), 0 6px 14px rgba(29, 42, 35, 0.14); }
+.chi-parla .avatar + .avatar { margin-left: -14px; }
+.parlato.da-elisa .chi-parla { flex-direction: row-reverse; }
+.chi-parla.entra { animation: compare 0.4s var(--fuori); }
+.parlato.da-greta .chi-parla.entra { animation-name: daSinistra; }
+.parlato.da-elisa .chi-parla.entra { animation-name: daDestra; }
 .fumetto {
-  position: relative; padding: 16px 18px; border-radius: 20px 20px 20px 6px;
+  position: relative; padding: 16px 18px; border-radius: 6px 20px 20px 20px;
   background: var(--carta); box-shadow: var(--ombra), inset 0 0 0 1px var(--linea);
   font-size: 17px; line-height: 1.45; min-height: 82px;
 }
+.parlato.da-elisa .fumetto { border-radius: 20px 6px 20px 20px; }
+.parlato.da-entrambe .fumetto { border-radius: 20px; }
 .fumetto.entra { animation: fumetto 0.42s var(--fuori); }
 @keyframes fumetto { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
 .punti { display: flex; gap: 6px; margin: 16px 0 12px; }
