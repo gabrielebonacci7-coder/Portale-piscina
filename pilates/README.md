@@ -48,6 +48,7 @@ dall'indirizzo.
 | Disdetta | fino a 12 ore prima, l'ingresso torna nel pacchetto |
 | Lista d'attesa | se una disdice, entra in automatico la prima in lista e riceve una notifica |
 | Pagamento | solo in studio: Greta o Elisa caricano il pacchetto dal gestionale |
+| Prezzi e numeri | non compaiono nell'app: i pacchetti dicono solo quante lezioni contengono, e per scrivere a Greta ed Elisa c'è il tasto WhatsApp |
 | Titolo lezione | lo scelgono Greta ed Elisa (di base "Reformer") |
 | Clienti | si registrano da sole |
 
@@ -66,10 +67,6 @@ nuove iscritte, *Settimana* con titolo modificabile, aggiunta a mano di chi
 prenota per telefono, annullamento con avviso alle iscritte, *Clienti* con
 la scheda e la registrazione dei pagamenti, *Avvisi* a tutte, *Numeri*
 (riempimento, orari più richiesti, pacchetti venduti).
-
-## Da completare
-
-- **Prezzi**: nel listino `PACCHETTI` di `dati.js`.
 
 ## Colori e avatar
 

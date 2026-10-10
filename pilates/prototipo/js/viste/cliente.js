@@ -328,17 +328,16 @@ export function pacchetto() {
         el("p", { testo: "Contanti o carta, prima della lezione. Greta o Elisa caricano il pacchetto e lo vedi subito qui." }),
       ]),
     ]),
-    el("h2", { classe: "titolo-sezione", testo: "Listino" }),
+    el("h2", { classe: "titolo-sezione", testo: "I pacchetti" }),
     el("div", { classe: "listino" }, D.PACCHETTI.map((p) =>
       el("div", { classe: "voce-listino" }, [
         el("div", {}, [
           el("b", { testo: p.nome }),
           el("span", { testo: p.validita ? `Valido ${p.validita}` : p.id === "prova" ? "Per chi inizia" : "Una lezione" }),
         ]),
-        el("div", { classe: "prezzo", testo: p.prezzo ? `€ ${p.prezzo}` : "€ —" }),
+        el("div", { classe: "quante", testo: p.ingressi === 1 ? "1 lezione" : `${p.ingressi} lezioni` }),
       ])
     )),
-    el("p", { classe: "nota", testo: "I prezzi arrivano a breve." }),
     acquisti.length ? el("h2", { classe: "titolo-sezione", testo: "I tuoi acquisti" }) : null,
     ...acquisti.map((m) => {
       const p = D.PACCHETTI.find((x) => x.id === m.pacchetto);
@@ -372,7 +371,6 @@ export function contatti() {
           el("div", { classe: "sotto", testo: giorni[ist.id] }),
           el("div", { classe: "riga-bottoni" }, [
             bottoneWhatsApp(ist),
-            el("a", { classe: "bottone secondario", href: `tel:+${ist.telefono}`, testo: ist.leggibile }),
           ]),
         ]),
       ])

@@ -13,8 +13,8 @@ export const ORE_DISDETTA = 12;
 export const GIORNI_PRENOTABILI = 30;
 
 export const ISTRUTTRICI = {
-  greta: { id: "greta", nome: "Greta", cognome: "Lorenzetti", telefono: "393791567202", leggibile: "379 156 7202" },
-  elisa: { id: "elisa", nome: "Elisa", cognome: "Bonacci", telefono: "393936506230", leggibile: "393 650 6230" },
+  greta: { id: "greta", nome: "Greta", cognome: "Lorenzetti", telefono: "393791567202" },
+  elisa: { id: "elisa", nome: "Elisa", cognome: "Bonacci", telefono: "393936506230" },
 };
 
 /** Giorno della settimana (0 = domenica) → orari d'inizio. Lezioni da un'ora. */
@@ -32,12 +32,12 @@ export function istruttriceDel(giorno) {
   return [2, 4].includes(giorno) ? ISTRUTTRICI.elisa : ISTRUTTRICI.greta;
 }
 
-/** I prezzi arrivano domani: per ora i pacchetti hanno solo il numero di ingressi. */
+/** I pacchetti: niente prezzi nell'app, si parla di quelli in studio. */
 export const PACCHETTI = [
-  { id: "prova", nome: "Lezione di prova", ingressi: 1, prezzo: null },
-  { id: "singola", nome: "Lezione singola", ingressi: 1, prezzo: null },
-  { id: "p5", nome: "Pacchetto 5 lezioni", ingressi: 5, prezzo: null, validita: "2 mesi" },
-  { id: "p10", nome: "Pacchetto 10 lezioni", ingressi: 10, prezzo: null, validita: "3 mesi" },
+  { id: "prova", nome: "Lezione di prova", ingressi: 1 },
+  { id: "singola", nome: "Lezione singola", ingressi: 1 },
+  { id: "p5", nome: "Pacchetto 5 lezioni", ingressi: 5, validita: "2 mesi" },
+  { id: "p10", nome: "Pacchetto 10 lezioni", ingressi: 10, validita: "3 mesi" },
 ];
 
 // ------------------------------------------------------------------ orologio

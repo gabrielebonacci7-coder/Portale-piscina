@@ -384,9 +384,8 @@ function numeri() {
     el("h2", { classe: "titolo-sezione", testo: "Questo mese" }),
     el("div", { classe: "riepilogo" }, [
       tessera(mese.length, "pacchetti venduti"),
-      tessera("€ —", "incassato"),
+      tessera(mese.reduce((n, m) => n + D.PACCHETTI.find((p) => p.id === m.pacchetto).ingressi, 0), "lezioni vendute"),
       tessera(D.clienti().length, "clienti"),
     ]),
-    el("p", { classe: "nota", testo: "L'incasso si calcola appena ci sono i prezzi." }),
   ]);
 }
