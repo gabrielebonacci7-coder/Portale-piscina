@@ -1,4 +1,4 @@
-"""Gira il video di presentazione dell'app per le clienti di Pilates G&E.
+"""Gira il video di presentazione dell'app per le clienti di RE FORMER.
 
     python pilates/video/gira.py            # video completo
     python pilates/video/gira.py --veloce   # pause dimezzate, per provare i tagli
@@ -129,7 +129,7 @@ def gira(pagina) -> None:
     tocca(app.locator('button[type="submit"]'), 1.0)
 
     # --- 3. Greta ed Elisa spiegano ---
-    didascalia("Benvenuta", "Greta ed Elisa ti spiegano come funziona.", 2.6)
+    didascalia("Benvenuta", "Una breve guida ti mostra come funziona.", 2.6)
     avanti = app.locator(".benvenuto .comandi .bottone")
     for i in range(7):
         tocca(avanti, 3.4 if i else 2.4)
@@ -188,7 +188,7 @@ def gira(pagina) -> None:
     pausa(2.0)
 
     # --- 9. Cartello finale ---
-    COPIONE.append((time.monotonic() - AVVIO, "Finale", "Pilates G&E — ti aspettiamo sul reformer."))
+    COPIONE.append((time.monotonic() - AVVIO, "Finale", "RE FORMER — ti aspettiamo sul reformer."))
     pagina.evaluate("() => finale()")
     pausa(4.2)
 

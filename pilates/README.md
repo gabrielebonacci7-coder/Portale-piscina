@@ -1,7 +1,7 @@
-# Pilates G&E
+# RE FORMER
 
-App per prenotare le lezioni di **reformer** con Greta Lorenzetti ed Elisa
-Bonacci. Stessa idea della PWA della piscina di Ciampino: si installa sul
+App dello studio **RE FORMER** per prenotare le lezioni di pilates reformer
+con Greta Lorenzetti ed Elisa Bonacci. Stessa idea della PWA della piscina di Ciampino: si installa sul
 telefono, e due avatar (Greta ed Elisa) accolgono la cliente e le spiegano
 come si usa.
 
@@ -71,15 +71,19 @@ la scheda e la registrazione dei pagamenti, *Avvisi* a tutte, *Numeri*
 
 - **Prezzi**: nel listino `PACCHETTI` di `dati.js`.
 
-## Gli avatar
+## Colori e avatar
 
-Vengono da un'unica illustrazione di Greta ed Elisa insieme
-(`risorse/avatar-originale.png`): Greta è a sinistra, Elisa a destra. Da lì
-escono `immagini/insieme.webp` e i visi `greta.webp` / `elisa.webp`.
+La palette l'ha scelta lo studio: crema rosato `#F5E9DF` per lo sfondo, beige
+`#DCC7B5` e tortora `#BFA091` per superfici e dettagli, marrone malva
+`#7B5A59` come colore principale (anche il logo è ricolorato così). Fuori
+palette solo un ruggine tenue per l'ultimo posto e la lista d'attesa, e il
+verde di WhatsApp. Tutto sta nei token in cima a `css/stile.css`.
 
-Nella guida di benvenuto all'inizio e alla fine compaiono insieme; nel mezzo
-parlano a turno, e chi parla sta dalla sua parte del fumetto (Greta a
-sinistra, Elisa a destra, come nell'illustrazione).
+Gli avatar vengono da un'unica illustrazione delle due insieme
+(`risorse/avatar-originale.png`, Greta a sinistra, Elisa a destra): da lì
+escono i visi `greta.webp` / `elisa.webp` e `insieme.webp`. Compaiono solo
+dove serve sapere chi insegna (schede delle lezioni, giorno scelto, orario,
+contatti); la guida di benvenuto non li usa. `insieme.webp` chiude il video.
 
 ## Il video
 

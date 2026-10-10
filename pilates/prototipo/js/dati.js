@@ -71,7 +71,7 @@ export function quandoRelativo(d) {
 }
 
 // ------------------------------------------------------------------ archivio
-const CHIAVE = "pilates-ge-prototipo-v1";
+const CHIAVE = "re-former-prototipo-v1";
 
 let stato = carica();
 

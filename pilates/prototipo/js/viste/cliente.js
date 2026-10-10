@@ -154,6 +154,7 @@ export function schedaLezione(l, ridisegna, { conData = false } = {}) {
     el("div", { classe: "lezione-corpo" }, [
       el("div", { classe: "lezione-titolo", testo: l.titolo }),
       el("div", { classe: "lezione-sotto" }, [
+        avatar(l.istruttrice.id, "mini"),
         conData ? el("span", { testo: `${cap(D.quandoRelativo(l.inizio))} · con ${l.istruttrice.nome}` }) : el("span", { testo: `con ${l.istruttrice.nome}` }),
       ]),
     ]),
@@ -401,9 +402,7 @@ export function notifiche() {
     ...elenco.map((n) => {
       const d = new Date(n.quando);
       return el("div", { classe: `notifica ${n.letta ? "" : "nuova"} ${n.tipo}` }, [
-        n.tipo === "avviso"
-          ? el("div", { classe: "notifica-avatar" }, [avatar("greta", "mini"), avatar("elisa", "mini")])
-          : el("div", { classe: "notifica-icona" }, [icona("campana", "icona piccola")]),
+        el("div", { classe: "notifica-icona" }, [icona(n.tipo === "avviso" ? "megafono" : "campana", "icona piccola")]),
         el("div", {}, [
           el("div", { classe: "notifica-da", testo: n.tipo === "avviso" ? `Avviso da ${n.da}` : "Per te" }),
           el("p", { testo: n.testo }),
@@ -428,7 +427,7 @@ export function vetrina(nome) {
       el("div", { classe: "lezione-ora" }, [el("b", { testo: D.oraDi(l.inizio) }), el("span", { testo: D.oraDi(l.fine) })]),
       el("div", { classe: "lezione-corpo" }, [
         el("div", { classe: "lezione-titolo", testo: l.titolo }),
-        el("div", { classe: "lezione-sotto", testo: `con ${l.istruttrice.nome}` }),
+        el("div", { classe: "lezione-sotto" }, [avatar(l.istruttrice.id, "mini"), el("span", { testo: `con ${l.istruttrice.nome}` })]),
       ]),
       el("div", { classe: "lezione-stato" }, [pallini(l.iscritte.length, D.POSTI), el("span", { classe: `etichetta ${s.classe}`, testo: s.testo })]),
     ]);

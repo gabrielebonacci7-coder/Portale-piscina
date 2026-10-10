@@ -57,10 +57,10 @@ export function esci() {
 function paginaAccesso() {
   return el("div", { classe: "accesso" }, [
     el("div", { classe: "accesso-marchio" }, [
-      el("img", { src: "immagini/marchio.png", alt: "Pilates G&E" }),
+      el("img", { src: "immagini/marchio.png", alt: "RE FORMER" }),
     ]),
-    el("h1", { testo: "Pilates G&E" }),
-    el("p", { classe: "accesso-motto", testo: "Reformer con Greta ed Elisa" }),
+    el("h1", { classe: "nome-studio", testo: "RE FORMER" }),
+    el("p", { classe: "accesso-motto", testo: "Pilates reformer con Greta ed Elisa" }),
     el("form", {
       classe: "modulo",
       onsubmit: (e) => {
@@ -136,14 +136,14 @@ function paginaRegistrati() {
 
 // --------------------------------------------------------------- benvenuto
 export const DISCORSO = [
-  { chi: "entrambe", testo: "Ciao {nome}! Siamo Greta ed Elisa: ti presentiamo la nuova app per prenotare le lezioni." },
-  { chi: "elisa", vetrina: "calendario", testo: "Qui trovi tutte le lezioni della settimana: dal lunedì al venerdì 16:30, 17:30 e 18:30, il sabato 11:30 e 12:30." },
-  { chi: "greta", vetrina: "istruttrici", testo: "Lunedì, mercoledì, venerdì e sabato ci sono io. Martedì e giovedì c'è Elisa." },
-  { chi: "elisa", vetrina: "posti", testo: "Ogni lezione ha 3 reformer. I pallini ti dicono quanti posti sono ancora liberi." },
-  { chi: "greta", vetrina: "attesa", testo: "Lezione piena? Mettiti in lista d'attesa: se si libera un posto entri tu, e ti avvisiamo." },
-  { chi: "elisa", vetrina: "disdetta", testo: "Se non puoi venire, disdici fino a 12 ore prima: la lezione torna nel tuo pacchetto." },
-  { chi: "greta", vetrina: "pacchetto", testo: "Si paga sempre in studio. Qui vedi quante lezioni ti restano e fino a quando valgono." },
-  { chi: "entrambe", testo: "Per qualsiasi cosa scrivici su WhatsApp. Ci vediamo sul reformer!" },
+  { testo: "Ciao {nome}! Ecco la nuova app di RE FORMER: da qui prenoti le tue lezioni in due tocchi." },
+  { vetrina: "calendario", testo: "Qui trovi tutte le lezioni: dal lunedì al venerdì 16:30, 17:30 e 18:30, il sabato 11:30 e 12:30." },
+  { vetrina: "istruttrici", testo: "Lunedì, mercoledì, venerdì e sabato c'è Greta. Martedì e giovedì c'è Elisa." },
+  { vetrina: "posti", testo: "Ogni lezione ha 3 reformer. I pallini ti dicono quanti posti sono ancora liberi." },
+  { vetrina: "attesa", testo: "Lezione piena? Mettiti in lista d'attesa: se si libera un posto entri tu, e ti avvisiamo." },
+  { vetrina: "disdetta", testo: "Se non puoi venire, disdici fino a 12 ore prima: la lezione torna nel tuo pacchetto." },
+  { vetrina: "pacchetto", testo: "Si paga sempre in studio. Qui vedi quante lezioni ti restano e fino a quando valgono." },
+  { testo: "Per qualsiasi cosa scrivi a Greta o a Elisa su WhatsApp. Ci vediamo sul reformer!" },
 ];
 
 export function benvenuto(nome) {

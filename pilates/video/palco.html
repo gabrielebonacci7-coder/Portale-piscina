@@ -2,7 +2,7 @@
 <html lang="it">
   <head>
     <meta charset="utf-8" />
-    <title>Pilates G&amp;E — palco per il video</title>
+    <title>RE FORMER — palco per il video</title>
     <style>
       /* Il "palco": un telefono in verticale, una didascalia sotto, i colori
          dello studio attorno. Serve solo a girare il video: l'app sta dentro
@@ -14,35 +14,35 @@
       @font-face { font-family: "DM Sans"; src: url("../prototipo/font/DMSans.woff2") format("woff2"); font-weight: 300 800; }
 
       :root {
-        --verde: #1f4d3a;
-        --verde-scuro: #163a2b;
-        --crema: #faf7ee;
-        --salvia: #a9bfa8;
-        --terracotta: #b8653f;
+        --primario: #7b5a59;
+        --primario-scuro: #5e4342;
+        --crema: #f5e9df;
+        --taupe: #bfa091;
+        --accento: #a9654b;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0; width: 1080px; height: 1920px; overflow: hidden; position: relative;
-        font-family: "DM Sans", system-ui, sans-serif; color: var(--verde-scuro);
+        font-family: "DM Sans", system-ui, sans-serif; color: var(--primario-scuro);
         background: var(--crema);
         display: flex; flex-direction: column; align-items: center;
       }
 
       .sfondo { position: absolute; inset: 0; pointer-events: none; }
       .sfondo i { position: absolute; border-radius: 50%; }
-      .sfondo i:nth-child(1) { width: 1100px; height: 1100px; top: -620px; right: -420px; background: #e3ebe2; }
-      .sfondo i:nth-child(2) { width: 700px; height: 700px; bottom: -260px; left: -380px; background: #efe6d6; }
-      .sfondo i:nth-child(3) { width: 260px; height: 260px; bottom: 380px; right: -110px; background: #f3e4d9; }
+      .sfondo i:nth-child(1) { width: 1100px; height: 1100px; top: -620px; right: -420px; background: #eee0d6; }
+      .sfondo i:nth-child(2) { width: 700px; height: 700px; bottom: -260px; left: -380px; background: #ead8ca; }
+      .sfondo i:nth-child(3) { width: 260px; height: 260px; bottom: 380px; right: -110px; background: #efdccf; }
 
       header { position: relative; display: flex; align-items: center; gap: 22px; padding: 40px 0 22px; }
       header img { height: 70px; }
-      header .nome { font-family: "Fraunces", Georgia, serif; font-size: 46px; font-weight: 600; color: var(--verde); line-height: 1; }
+      header .nome { font-family: "Fraunces", Georgia, serif; font-size: 44px; font-weight: 600; color: var(--primario); line-height: 1; letter-spacing: 0.14em; }
       header .sotto { font-size: 22px; opacity: 0.7; margin-top: 6px; }
 
       .telefono {
         position: relative; width: 700px; height: 1452px; border-radius: 62px; padding: 12px;
-        background: linear-gradient(160deg, #2a4a3c, #10241b);
-        box-shadow: 0 50px 90px rgba(22, 58, 43, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.5);
+        background: linear-gradient(160deg, #6e5150, #3b2b2a);
+        box-shadow: 0 50px 90px rgba(94, 67, 66, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.5);
         flex: 0 0 auto;
       }
       .schermo { width: 676px; height: 1428px; border-radius: 50px; overflow: hidden; background: var(--crema); }
@@ -53,18 +53,18 @@
       .didascalia { position: relative; width: 960px; min-height: 230px; padding: 30px 0 0; text-align: center; }
       .passo {
         font-size: 22px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
-        color: var(--terracotta); opacity: 0; transition: opacity 0.35s ease;
+        color: var(--accento); opacity: 0; transition: opacity 0.35s ease;
       }
       .frase {
         margin-top: 14px; font-family: "Fraunces", Georgia, serif; font-size: 50px; font-weight: 600;
-        line-height: 1.2; color: var(--verde-scuro);
+        line-height: 1.2; color: var(--primario-scuro);
         opacity: 0; transform: translateY(14px); transition: opacity 0.45s ease, transform 0.45s ease;
       }
       .passo.dentro, .frase.dentro { opacity: 1; transform: none; }
 
       .tocco {
         position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
-        border: 5px solid rgba(31, 77, 58, 0.9); background: rgba(31, 77, 58, 0.18);
+        border: 5px solid rgba(123, 90, 89, 0.9); background: rgba(123, 90, 89, 0.18);
         pointer-events: none; opacity: 0;
       }
       .tocco.batti { animation: batti 0.75s ease-out; }
@@ -80,12 +80,12 @@
       }
       .finale.dentro { opacity: 1; }
       .finale .marchio { width: 260px; }
-      .finale h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 84px; font-weight: 600; color: var(--verde); }
-      .finale .invito { font-size: 44px; font-weight: 600; color: var(--terracotta); }
-      .insieme { width: 860px; max-width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 48px; margin-top: 30px; box-shadow: 0 0 0 10px #fffdf7, 0 30px 60px rgba(22, 58, 43, 0.18); }
+      .finale h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 84px; font-weight: 600; color: var(--primario); letter-spacing: 0.14em; }
+      .finale .invito { font-size: 44px; font-weight: 600; color: var(--accento); }
+      .insieme { width: 860px; max-width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 48px; margin-top: 30px; box-shadow: 0 0 0 10px #fcf6f1, 0 30px 60px rgba(94, 67, 66, 0.18); }
       .numeri { display: flex; gap: 0; width: 860px; justify-content: space-around; margin-top: 12px; }
       .chi { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-      .chi b { font-family: "Fraunces", Georgia, serif; font-size: 44px; color: var(--verde); }
+      .chi b { font-family: "Fraunces", Georgia, serif; font-size: 44px; color: var(--primario); }
       .chi span { font-size: 32px; opacity: 0.75; }
     </style>
   </head>
@@ -95,7 +95,7 @@
     <header>
       <img id="marchio" alt="" />
       <div>
-        <div class="nome">Pilates G&amp;E</div>
+        <div class="nome">RE FORMER</div>
         <div class="sotto">La nuova app per prenotare le lezioni</div>
       </div>
     </header>
@@ -113,7 +113,7 @@
 
     <div class="finale" id="finale">
       <img class="marchio" id="marchio-finale" alt="" />
-      <h2>Pilates G&amp;E</h2>
+      <h2>RE FORMER</h2>
       <div class="invito">Ti aspettiamo sul reformer</div>
       <img class="insieme" id="insieme" alt="Greta ed Elisa" />
       <div class="numeri">

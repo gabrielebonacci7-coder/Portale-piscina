@@ -1,13 +1,13 @@
 {
-  "name": "Pilates G&E",
-  "short_name": "Pilates G&E",
-  "description": "Prenota la tua lezione di reformer con Greta ed Elisa.",
+  "name": "RE FORMER",
+  "short_name": "RE FORMER",
+  "description": "Prenota la tua lezione di pilates reformer con Greta ed Elisa.",
   "lang": "it",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#FAF7EE",
-  "theme_color": "#FAF7EE",
+  "background_color": "#F5E9DF",
+  "theme_color": "#F5E9DF",
   "icons": [
     { "src": "icone/icona-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icone/icona-512.png", "sizes": "512x512", "type": "image/png" },
