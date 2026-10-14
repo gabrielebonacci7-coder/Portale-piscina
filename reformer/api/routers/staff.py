@@ -33,7 +33,8 @@ def lezioni(
     _: Utente = Depends(solo_staff),
     db: Session = Depends(get_db),
 ) -> list[dict]:
-    return [viste.per_staff(l) for l in r.lezioni_nel_periodo(db, da or orario.oggi(), giorni)]
+    with regole():
+        return [viste.per_staff(l) for l in r.lezioni_nel_periodo(db, da or orario.oggi(), giorni)]
 
 
 @router.get("/lezioni/{lezione_id}")

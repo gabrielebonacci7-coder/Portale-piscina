@@ -25,7 +25,8 @@ def calendario(
     utente: Utente = Depends(utente_corrente),
     db: Session = Depends(get_db),
 ) -> list[dict]:
-    lezioni = r.lezioni_nel_periodo(db, da or orario.oggi(), giorni)
+    with regole():
+        lezioni = r.lezioni_nel_periodo(db, da or orario.oggi(), giorni)
     return [viste.per_cliente(lez, utente) for lez in lezioni]
 
 

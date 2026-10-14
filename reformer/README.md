@@ -28,7 +28,7 @@ loro testo, con i link, compare nel terminale.
 Su **/docs** c'è la documentazione interattiva dell'API.
 
 ```bash
-pytest reformer/tests          # 36 prove: le regole, l'avvio, e un giro completo nel browser
+pytest reformer/tests          # 39 prove: le regole, l'avvio, e un giro completo nel browser
 ```
 
 ## Le regole
@@ -42,7 +42,7 @@ pytest reformer/tests          # 36 prove: le regole, l'avvio, e un giro complet
 | Disdetta | fino a 12 ore prima; la lezione torna nel pacchetto |
 | Lista d'attesa | se una disdice entra la prima in lista, in automatico, e riceve una notifica |
 | Lezioni rimaste | le scrivono Greta ed Elisa dal gestionale (numero esatto o +/−, scadenza facoltativa) |
-| Lezioni finite | si può prenotare lo stesso: il saldo va sotto zero e Greta ed Elisa ricevono una notifica |
+| Lezioni finite | si può prenotare lo stesso, fino a 2 lezioni da saldare (`REFORMER_MAX_LEZIONI_DA_SALDARE`): il saldo va sotto zero e Greta ed Elisa ricevono una notifica |
 | Pagamento | solo in studio; nell'app non ci sono prezzi |
 | Promemoria | il giorno prima, nell'app e per email |
 | Staff | chi si registra con le email di Greta o di Elisa **e la conferma** |

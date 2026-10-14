@@ -43,6 +43,12 @@ def test_ora_legale(client, cliente):
     assert dopo.startswith("2026-10-26T15:30")    # UTC+1
 
 
+def test_calendario_entro_limiti_ragionevoli(client, cliente):
+    assert client.get("/api/lezioni?da=3000-01-01", headers=auth(cliente)).status_code == 400
+    assert client.get("/api/lezioni?da=2020-01-01", headers=auth(cliente)).status_code == 400
+    assert client.get("/api/lezioni?da=2026-12-01&giorni=31", headers=auth(cliente)).status_code == 200
+
+
 def test_la_cliente_non_vede_chi_ce(client, cliente):
     l = lezioni(client, cliente)[0]
     assert "iscritte" not in l and "attesa" not in l
@@ -101,6 +107,14 @@ def test_senza_lezioni_si_prenota_e_lo_staff_lo_sa(client, staff, cliente):
     assert [c["email"] for c in numeri["da_saldare"]] == ["sofia@example.com"]
 
 
+def test_al_massimo_due_lezioni_da_saldare(client, cliente):
+    settimana = [l for l in lezioni(client, cliente, "2026-10-13", 5)]
+    for l in settimana[:2]:
+        assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 200
+    r = client.post(f"/api/lezioni/{settimana[2]['id']}/prenota", headers=auth(cliente))
+    assert r.status_code == 409 and "da saldare" in r.json()["detail"]
+
+
 # ------------------------------------------------------------------ disdire
 def test_disdetta_in_tempo_restituisce_la_lezione(client, staff, cliente):
     carica(client, staff, io(client, cliente)["id"], 3)
@@ -148,6 +162,19 @@ def test_lista_d_attesa_ed_entrata_automatica(client, cliente):
     assert io(client, cliente)["lezioni_rimaste"] == -1
     testi = [n["testo"] for n in client.get("/api/notifiche", headers=auth(cliente)).json()["elenco"]]
     assert any("Si è liberato un posto" in t for t in testi)
+
+
+def test_dalla_lista_salta_chi_ha_troppo_da_saldare(client, staff, cliente):
+    l = domani(client, cliente)
+    tokens = _riempi(client, l["id"])
+    seconda = registra(client, "seconda@example.com", nome="Seconda")["token"]
+    client.post(f"/api/lezioni/{l['id']}/attesa", headers=auth(cliente))
+    client.post(f"/api/lezioni/{l['id']}/attesa", headers=auth(seconda))
+    carica(client, staff, io(client, cliente)["id"], -2)   # Sofia ha già 2 lezioni da saldare
+    carica(client, staff, io(client, seconda)["id"], 5)
+    client.delete(f"/api/lezioni/{l['id']}/prenota", headers=auth(tokens[0]))
+    assert domani(client, seconda)["mia"] is True
+    assert domani(client, cliente)["in_attesa"] == 1
 
 
 def test_attesa_solo_se_piena(client, cliente):

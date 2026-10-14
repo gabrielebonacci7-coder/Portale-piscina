@@ -75,7 +75,21 @@ def assicura_lezioni(db: Session, da: date, giorni: int) -> None:
         db.commit()
 
 
+# Il calendario si può guardare da un anno indietro a tre mesi avanti. Oltre
+# non serve a nessuno, e senza un limite basterebbe chiedere l'anno 3000 per
+# far creare al server migliaia di lezioni vuote.
+GIORNI_INDIETRO_MAX = 366
+GIORNI_AVANTI_MAX = 92
+
+
+def controlla_periodo(da: date, giorni: int) -> None:
+    oggi = orario.oggi()
+    if da < oggi - timedelta(days=GIORNI_INDIETRO_MAX) or da + timedelta(days=giorni) > oggi + timedelta(days=GIORNI_AVANTI_MAX):
+        raise ErroreRegola("Date fuori dal calendario.", 400)
+
+
 def lezioni_nel_periodo(db: Session, da: date, giorni: int) -> list[Lezione]:
+    controlla_periodo(da, giorni)
     assicura_lezioni(db, da, giorni)
     inizio = orario.inizio_utc(da, datetime.min.time())
     fine = orario.inizio_utc(da + timedelta(days=giorni), datetime.min.time())
@@ -199,6 +213,11 @@ def prenota(db: Session, lezione_id: int, utente: Utente) -> Prenotazione:
             raise ErroreRegola("Sei già iscritta a questa lezione.")
         if lezione.liberi <= 0:
             raise ErroreRegola("La lezione è piena: puoi metterti in lista d'attesa.")
+        if utente.lezioni_rimaste - 1 < -settings.max_lezioni_da_saldare:
+            raise ErroreRegola(
+                f"Hai già {-utente.lezioni_rimaste} lezioni da saldare: passa in studio, "
+                "oppure scrivi a Greta o a Elisa, e poi potrai prenotare di nuovo."
+            )
         p = _iscrivi(db, lezione, utente)
         db.commit()
         return p
@@ -237,7 +256,14 @@ def _libera_posto(
     muovi_saldo(db, p.utente, +1, motivo, autore=autore, lezione=lezione)
     if lezione.annullata_il or lezione.inizio <= orario.adesso() or not lezione.attese:
         return None
-    prima = lezione.attese[0]
+    # Entra la prima della lista che può ancora prenotare: chi ha già il
+    # massimo di lezioni da saldare resta in lista e passa la successiva.
+    prima = next(
+        (a for a in lezione.attese if a.utente.lezioni_rimaste - 1 >= -settings.max_lezioni_da_saldare),
+        None,
+    )
+    if prima is None:
+        return None
     entrata = prima.utente
     _iscrivi(db, lezione, entrata, dalla_lista=True)
     notifica(
