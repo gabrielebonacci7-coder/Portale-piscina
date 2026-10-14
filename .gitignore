@@ -28,3 +28,4 @@ pilates/video/uscita/
 
 # RE FORMER: database locale di sviluppo
 reformer.db*
+reformer/deploy/.env

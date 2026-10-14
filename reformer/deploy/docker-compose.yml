@@ -1,0 +1,54 @@
+# Tutto quello che serve per tenere RE FORMER online, in due contenitori.
+#
+#     cd reformer/deploy
+#     docker compose up -d --build    avvia (o aggiorna dopo un git pull)
+#     docker compose logs -f app      guarda cosa succede
+#     docker compose down             ferma (i dati restano nel volume)
+#
+# MAI `docker compose down -v`: il -v cancella il database.
+#
+# Le impostazioni si leggono da `.env` (in questa cartella), che non va su
+# GitHub: parti da `.env.esempio`.
+
+# Il nome fisso del progetto: i volumi si chiamano reformer_dati ecc., qualunque
+# sia il nome della cartella.
+name: reformer
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: reformer/deploy/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      REFORMER_DEBUG: "false"
+      REFORMER_DIETRO_PROXY: "true"
+      REFORMER_DATABASE_URL: sqlite:////dati/reformer.db
+    volumes:
+      - dati:/dati
+    # Nessuna porta aperta verso l'esterno: si passa solo da Caddy, in https.
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # I certificati https: senza questo volume Caddy li richiederebbe a
+      # ogni riavvio, e Let's Encrypt dopo un po' smette di darli.
+      - caddy_dati:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  dati:
+  caddy_dati:
+  caddy_config:

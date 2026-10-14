@@ -35,6 +35,8 @@ def controlla_configurazione() -> None:
     problemi = []
     if settings.chiave_di_sviluppo:
         problemi.append("REFORMER_SECRET_KEY è quella di sviluppo: generane una nuova")
+    elif len(settings.secret_key) < 32:
+        problemi.append("REFORMER_SECRET_KEY è vuota o troppo corta: generala con il comando nel .env.esempio")
     if settings.url_pubblico.startswith("http://127.0.0.1"):
         problemi.append("REFORMER_URL_PUBBLICO è ancora l'indirizzo locale: i link nelle email non funzionerebbero")
     if problemi:
