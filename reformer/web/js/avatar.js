@@ -62,7 +62,14 @@ export function mostraGuida(passi, { nome, vetrina, invito = "Iniziamo", alTermi
     punti.replaceChildren(...passi.map((_, i) => el("i", { classe: i === indice ? "attivo" : "" })));
   }
 
+  // Se si cambia pagina mentre la guida è aperta (per esempio aprendo il
+  // link di conferma dell'email), la guida si chiude: altrimenti resterebbe
+  // sopra l'app e bloccherebbe i tocchi.
+  const ascolto = new AbortController();
+  window.addEventListener("hashchange", () => chiudi(), { signal: ascolto.signal });
+
   function chiudi() {
+    ascolto.abort();
     scena.classList.add("esce");
     setTimeout(() => scena.remove(), 260);
     alTermine?.();

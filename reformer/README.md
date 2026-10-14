@@ -28,7 +28,7 @@ loro testo, con i link, compare nel terminale.
 Su **/docs** c'è la documentazione interattiva dell'API.
 
 ```bash
-pytest reformer/tests          # 35 prove sulle regole
+pytest reformer/tests          # 36 prove: le regole, l'avvio, e un giro completo nel browser
 ```
 
 ## Le regole

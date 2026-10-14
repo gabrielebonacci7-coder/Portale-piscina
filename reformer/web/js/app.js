@@ -13,7 +13,7 @@ import * as studio from "./viste/studio.js";
 
 const radice = document.getElementById("radice");
 
-const stato = { info: null, io: null };
+const stato = { info: null, io: null, daAccogliere: false };
 
 export function vai(href) {
   if (location.hash === href) disegna();
@@ -110,8 +110,10 @@ function paginaRegistrati() {
       el("button", { classe: "bottone largo", type: "submit", testo: "Crea account" }),
     ], async (f) => {
       stato.io = await api.registrati({ ...f, privacy: f.privacy === "on" });
+      // La guida si apre quando la pagina delle lezioni è pronta (vedi
+      // disegna): aprirla adesso vorrebbe dire chiuderla al cambio di pagina.
+      stato.daAccogliere = true;
       vai("#/lezioni");
-      benvenuto();
     }),
   ]);
 }
@@ -323,6 +325,10 @@ export async function disegna() {
   mostra(finale);
   if (stessa) window.scrollTo(0, scorrimento);
   aggiornaCampanella();
+  if (stato.daAccogliere && !staff) {
+    stato.daAccogliere = false;
+    benvenuto();
+  }
 }
 
 function mostra(nodo) {

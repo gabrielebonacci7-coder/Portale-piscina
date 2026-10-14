@@ -483,7 +483,8 @@ export function profilo(ctx) {
           } catch (err) { avviso(err.message); }
         },
       }),
-      zonaCancella,
+      // Gli account dello staff non si cancellano da qui (il server lo rifiuta).
+      io.ruolo === "staff" ? null : zonaCancella,
     ]),
     el("button", { classe: "bottone secondario largo", type: "button", testo: "Esci", onclick: () => ctx.esci() }),
   ]);
