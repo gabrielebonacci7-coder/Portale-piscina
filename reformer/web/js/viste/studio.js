@@ -152,7 +152,12 @@ async function gestisci(id, ctx) {
   const chiudiERidisegna = () => { f.chiudi(); ctx.ridisegna(); };
 
   const titolo = el("input", { value: l.titolo, id: "titolo-lezione", "aria-label": "Titolo della lezione", maxlength: 60 });
-  const salvaTitolo = () => prova(() => api.cambiaTitolo(id, titolo.value), "Titolo aggiornato").then(chiudiERidisegna);
+  // Il nome può valere solo per questa lezione o per tutte le settimane.
+  const ogniSettimana = el("input", { type: "checkbox", id: "titolo-ogni-settimana", checked: true });
+  const salvaTitolo = () => prova(
+    () => api.cambiaTitolo(id, titolo.value, ogniSettimana.checked),
+    ogniSettimana.checked ? `Nome salvato: ogni ${T.GIORNI[inizio.getDay()]} alle ${T.oraDi(inizio)}` : "Nome salvato per questa lezione",
+  ).then(chiudiERidisegna);
 
   // Aggiungere una cliente (chi ha prenotato per telefono): si cerca per nome.
   const zonaAggiungi = el("div", { classe: "aggiungi" });
@@ -193,11 +198,15 @@ async function gestisci(id, ctx) {
 
   const contenuto = el("div", { classe: "dettaglio" }, [
     el("label", { classe: "campo" }, [
-      el("span", { testo: "Titolo che vedono le clienti" }),
+      el("span", { testo: "Nome della lezione (lo vedono le clienti)" }),
       el("div", { classe: "campo-riga" }, [titolo, el("button", { classe: "bottone piccolo", type: "button", testo: "Salva", onclick: salvaTitolo })]),
     ]),
-    el("div", { classe: "suggerimenti" }, ["Reformer", "Principianti", "Postura e schiena", "Total body", "Core e addome"].map((t) =>
-      el("button", { type: "button", classe: "chip", testo: t, onclick: () => { titolo.value = t === "Reformer" ? t : `Reformer · ${t}`; } }))),
+    el("label", { classe: "spunta" }, [
+      ogniSettimana,
+      el("span", { testo: `Tutte le settimane: ogni ${T.GIORNI[inizio.getDay()]} alle ${T.oraDi(inizio)}` }),
+    ]),
+    el("div", { classe: "suggerimenti" }, ["Reformer", "Pilates fitness", "Principianti", "Postura e schiena", "Total body", "Core e addome"].map((t) =>
+      el("button", { type: "button", classe: "chip", testo: t, onclick: () => { titolo.value = t; } }))),
     l.annullata
       ? el("div", { classe: "riquadro avviso-riquadro" }, [
           el("p", { testo: `Lezione annullata${l.motivo_annullamento ? ` (${l.motivo_annullamento})` : ""}.` }),

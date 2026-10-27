@@ -125,7 +125,8 @@ export const segnaLette = () => chiama("/api/notifiche/lette", { metodo: "POST" 
 // --- Staff -------------------------------------------------------------------
 export const staffLezioni = (da, giorni) => chiama(`/api/staff/lezioni${q({ da, giorni })}`);
 export const staffLezione = (id) => chiama(`/api/staff/lezioni/${id}`);
-export const cambiaTitolo = (id, titolo) => chiama(`/api/staff/lezioni/${id}`, { metodo: "PATCH", corpo: { titolo } });
+export const cambiaTitolo = (id, titolo, ogniSettimana = false) =>
+  chiama(`/api/staff/lezioni/${id}`, { metodo: "PATCH", corpo: { titolo, ogni_settimana: ogniSettimana } });
 export const annullaLezione = (id, motivo) =>
   chiama(`/api/staff/lezioni/${id}/annulla`, { metodo: "POST", corpo: { motivo } });
 export const ripristinaLezione = (id) => chiama(`/api/staff/lezioni/${id}/ripristina`, { metodo: "POST" });

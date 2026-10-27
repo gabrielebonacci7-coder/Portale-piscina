@@ -45,6 +45,8 @@ def lezione(lezione_id: int, _: Utente = Depends(solo_staff), db: Session = Depe
 
 class Titolo(BaseModel):
     titolo: str = Field(max_length=60)
+    # Vale per quel giorno e quell'ora tutte le settimane, d'ora in poi.
+    ogni_settimana: bool = False
 
 
 @router.patch("/lezioni/{lezione_id}")
@@ -52,7 +54,7 @@ def cambia_titolo(
     lezione_id: int, dati: Titolo, _: Utente = Depends(solo_staff), db: Session = Depends(get_db)
 ) -> dict:
     with regole():
-        return viste.per_staff(r.cambia_titolo(db, lezione_id, dati.titolo))
+        return viste.per_staff(r.cambia_titolo(db, lezione_id, dati.titolo, dati.ogni_settimana))
 
 
 class Motivo(BaseModel):

@@ -289,6 +289,29 @@ def test_annullare_una_lezione(client, staff, cliente):
     assert domani(client, cliente)["annullata"] is True
 
 
+def test_pilates_fitness_lunedi_e_mercoledi_alle_16_30(client, cliente):
+    settimana = lezioni(client, cliente, "2026-10-12", 6)
+    titoli = {(l["inizio"][:10], l["inizio"][11:16]): l["titolo"] for l in settimana}
+    assert titoli[("2026-10-12", "14:30")] == "Pilates fitness"   # lunedì 16:30 a Roma
+    assert titoli[("2026-10-14", "14:30")] == "Pilates fitness"   # mercoledì 16:30
+    assert titoli[("2026-10-12", "15:30")] == "Reformer"          # lunedì 17:30
+    assert titoli[("2026-10-13", "14:30")] == "Reformer"          # martedì 16:30
+
+
+def test_nome_per_tutte_le_settimane(client, staff, cliente):
+    l = domani(client, cliente)   # martedì 16:30
+    r = client.patch(f"/api/staff/lezioni/{l['id']}", json={"titolo": "Postura", "ogni_settimana": True}, headers=auth(staff))
+    assert r.status_code == 200
+    # Martedì dopo, già nel calendario, e fra un mese, non ancora creato.
+    assert lezioni(client, cliente, "2026-10-20")[0]["titolo"] == "Postura"
+    assert lezioni(client, cliente, "2026-11-10")[0]["titolo"] == "Postura"
+    assert lezioni(client, cliente, "2026-10-20")[1]["titolo"] == "Reformer"   # le 17:30 no
+    # Solo per una lezione: le altre settimane restano.
+    client.patch(f"/api/staff/lezioni/{l['id']}", json={"titolo": "Speciale"}, headers=auth(staff))
+    assert domani(client, cliente)["titolo"] == "Speciale"
+    assert lezioni(client, cliente, "2026-10-20")[0]["titolo"] == "Postura"
+
+
 def test_titolo_e_avvisi(client, staff, cliente):
     l = domani(client, cliente)
     client.patch(f"/api/staff/lezioni/{l['id']}", json={"titolo": "Reformer · Principianti"}, headers=auth(staff))

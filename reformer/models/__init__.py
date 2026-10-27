@@ -206,6 +206,20 @@ class Avviso(Base):
     autore: Mapped[Utente | None] = relationship()
 
 
+class TitoloFisso(Base):
+    """Il nome di una lezione che si ripete ogni settimana (es. ogni lunedì
+    alle 16:30 "Pilates fitness"). Lo scelgono Greta ed Elisa dal gestionale;
+    le lezioni future di quel giorno e ora lo prendono da sole."""
+
+    __tablename__ = "titoli_fissi"
+    __table_args__ = (UniqueConstraint("giorno", "ora", name="uq_titolo_fisso"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    giorno: Mapped[int] = mapped_column(Integer)   # lunedì = 0
+    ora: Mapped[str] = mapped_column(String(5))    # "16:30", ora di Roma
+    titolo: Mapped[str] = mapped_column(String(60))
+
+
 class TokenEmail(Base):
     """Link monouso. Nel database c'è solo l'impronta del codice: chi leggesse
     la tabella non potrebbe usarli."""
@@ -229,5 +243,5 @@ class TokenEmail(Base):
 
 __all__ = [
     "Attesa", "Avviso", "Lezione", "Movimento", "Notifica", "Prenotazione",
-    "Ruolo", "StatoPrenotazione", "TipoToken", "TokenEmail", "Utente",
+    "Ruolo", "StatoPrenotazione", "TipoToken", "TitoloFisso", "TokenEmail", "Utente",
 ]

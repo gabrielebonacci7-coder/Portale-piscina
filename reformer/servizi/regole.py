@@ -28,6 +28,7 @@ from reformer.models import (
     Prenotazione,
     Ruolo,
     StatoPrenotazione,
+    TitoloFisso,
     Utente,
 )
 
@@ -60,12 +61,14 @@ def assicura_lezioni(db: Session, da: date, giorni: int) -> None:
     if not istanti:
         return
     esistenti = set(db.scalars(select(Lezione.inizio).where(Lezione.inizio.in_(istanti))))
+    titoli = titoli_fissi(db)
     nuove = [
         Lezione(
             inizio=i,
             durata_minuti=orario.DURATA_MINUTI,
             istruttrice=orario.ISTRUTTRICE_DEL_GIORNO[orario.locale(i).weekday()],
             posti=settings.posti_per_lezione,
+            titolo=titoli.get(_chiave_settimanale(i), orario.TITOLO_BASE),
         )
         for i in istanti
         if i not in esistenti
@@ -86,6 +89,20 @@ def controlla_periodo(da: date, giorni: int) -> None:
     oggi = orario.oggi()
     if da < oggi - timedelta(days=GIORNI_INDIETRO_MAX) or da + timedelta(days=giorni) > oggi + timedelta(days=GIORNI_AVANTI_MAX):
         raise ErroreRegola("Date fuori dal calendario.", 400)
+
+
+def _chiave_settimanale(istante: datetime) -> tuple[int, str]:
+    t = orario.locale(istante)
+    return t.weekday(), f"{t:%H:%M}"
+
+
+def titoli_fissi(db: Session) -> dict[tuple[int, str], str]:
+    """I nomi delle lezioni che si ripetono: quelli di partenza, con sopra
+    quelli scelti da Greta ed Elisa."""
+    titoli = dict(orario.TITOLI_INIZIALI)
+    for t in db.scalars(select(TitoloFisso)):
+        titoli[(t.giorno, t.ora)] = t.titolo
+    return titoli
 
 
 def lezioni_nel_periodo(db: Session, da: date, giorni: int) -> list[Lezione]:
@@ -393,9 +410,26 @@ def ripristina_lezione(db: Session, lezione_id: int) -> None:
         db.commit()
 
 
-def cambia_titolo(db: Session, lezione_id: int, titolo: str) -> Lezione:
+def cambia_titolo(db: Session, lezione_id: int, titolo: str, ogni_settimana: bool = False) -> Lezione:
+    """Cambia il nome di una lezione, o di quella lezione tutte le settimane.
+
+    Con `ogni_settimana` il nome vale per quel giorno e quell'ora d'ora in
+    poi: le lezioni future già nel calendario si aggiornano, e quelle che
+    nasceranno lo prendono da sole. Le lezioni passate restano com'erano.
+    """
     lezione = trova_lezione(db, lezione_id)
-    lezione.titolo = (titolo or "").strip()[:60] or "Reformer"
+    titolo = (titolo or "").strip()[:60] or orario.TITOLO_BASE
+    lezione.titolo = titolo
+    if ogni_settimana:
+        giorno, ora = _chiave_settimanale(lezione.inizio)
+        fisso = db.scalar(select(TitoloFisso).where(TitoloFisso.giorno == giorno, TitoloFisso.ora == ora))
+        if fisso is None:
+            db.add(TitoloFisso(giorno=giorno, ora=ora, titolo=titolo))
+        else:
+            fisso.titolo = titolo
+        for altra in db.scalars(select(Lezione).where(Lezione.inizio > orario.adesso())):
+            if _chiave_settimanale(altra.inizio) == (giorno, ora):
+                altra.titolo = titolo
     db.commit()
     return lezione
 

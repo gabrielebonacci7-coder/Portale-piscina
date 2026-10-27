@@ -22,6 +22,15 @@ ORARIO: dict[int, list[time]] = {
 }
 DURATA_MINUTI = 60
 
+# Il nome di partenza di alcune lezioni fisse. Greta ed Elisa possono
+# cambiarlo dal gestionale ("tutte le settimane"): quella scelta vince su
+# questa tabella. Le altre lezioni si chiamano "Reformer".
+TITOLI_INIZIALI: dict[tuple[int, str], str] = {
+    (0, "16:30"): "Pilates fitness",   # lunedì
+    (2, "16:30"): "Pilates fitness",   # mercoledì
+}
+TITOLO_BASE = "Reformer"
+
 ISTRUTTRICI = {
     "greta": {"id": "greta", "nome": "Greta", "cognome": "Lorenzetti", "whatsapp": "393791567202"},
     "elisa": {"id": "elisa", "nome": "Elisa", "cognome": "Bonacci", "whatsapp": "393936506230"},
