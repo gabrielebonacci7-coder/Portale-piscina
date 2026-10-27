@@ -175,7 +175,7 @@ const DISCORSO = [
   { vetrina: "attesa", testo: "Lezione piena? Mettiti in lista d'attesa: se si libera un posto entri tu, e ti avvisiamo." },
   { vetrina: "disdetta", testo: "Se non puoi venire, disdici fino a 12 ore prima: la lezione torna nel tuo pacchetto." },
   { vetrina: "pacchetto", testo: "Le lezioni si pagano in studio. Qui vedi quante te ne restano." },
-  { testo: "Per qualsiasi cosa scrivi a Greta o a Elisa su WhatsApp. Ci vediamo sul reformer!" },
+  { testo: "Per qualsiasi dubbio chiedi a Greta o a Elisa in studio. Ci vediamo sul reformer!" },
 ];
 
 export function benvenuto() {
@@ -296,7 +296,7 @@ export async function disegna() {
       lezioni: ["Ciao " + stato.io.nome, "Prenota il tuo reformer", () => cliente.lezioni(ctx)],
       mie: ["Le mie lezioni", null, () => cliente.mie(ctx)],
       pacchetto: ["Il mio pacchetto", null, () => cliente.pacchetto(ctx)],
-      contatti: ["Greta ed Elisa", "Scrivici quando vuoi", () => cliente.contatti(ctx)],
+      contatti: ["Greta ed Elisa", "Chi insegna e quando", () => cliente.contatti(ctx)],
       notifiche: ["Notifiche", null, () => cliente.notifiche(ctx)],
       profilo: ["Il tuo profilo", null, () => cliente.profilo(ctx)],
     };

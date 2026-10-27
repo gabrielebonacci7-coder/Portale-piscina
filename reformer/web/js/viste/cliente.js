@@ -217,8 +217,7 @@ function dettaglio(l, ctx) {
         ctx.ridisegna();
       }));
     } else {
-      righe.push(riga("lucchetto", `Mancano meno di ${ORE_DISDETTA(ctx)} ore: non è più possibile disdire. Per un'emergenza scrivi a ${l.istruttrice.nome}.`));
-      azioni.push(bottoneWhatsApp(l.istruttrice, ctx, "secondario"));
+      righe.push(riga("lucchetto", `Mancano meno di ${ORE_DISDETTA(ctx)} ore: non è più possibile disdire. Per un'emergenza avvisa ${l.istruttrice.nome}.`));
     }
   } else if (!l.passata) {
     if (l.liberi > 0) {
@@ -349,15 +348,6 @@ export async function pacchetto(ctx) {
 }
 
 // ----------------------------------------------------------------- contatti
-export function bottoneWhatsApp(ist, ctx, tipo = "") {
-  const numero = ctx.info?.istruttrici?.find((i) => i.id === ist.id)?.whatsapp;
-  return el("a", {
-    classe: `bottone whatsapp ${tipo}`,
-    href: `https://wa.me/${numero}?text=${encodeURIComponent(`Ciao ${ist.nome}! `)}`,
-    target: "_blank", rel: "noopener",
-  }, [icona("chat", "icona piccola"), `Scrivi a ${ist.nome}`]);
-}
-
 export function contatti(ctx) {
   const giorni = { greta: "Lunedì · mercoledì · venerdì · sabato", elisa: "Martedì · giovedì" };
   const orario = ctx.info?.orario || [];
@@ -368,7 +358,6 @@ export function contatti(ctx) {
         el("div", { classe: "istruttrice-corpo" }, [
           el("h2", { testo: `${ist.nome} ${ist.cognome}` }),
           el("div", { classe: "sotto", testo: giorni[ist.id] }),
-          el("div", { classe: "riga-bottoni" }, [bottoneWhatsApp(ist, ctx)]),
         ]),
       ])),
     el("h2", { classe: "titolo-sezione", testo: "Orario delle lezioni" }),

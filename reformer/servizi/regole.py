@@ -251,7 +251,7 @@ def disdici(db: Session, lezione_id: int, utente: Utente) -> Utente | None:
         if not disdicibile(lezione):
             raise ErroreRegola(
                 f"Mancano meno di {settings.ore_disdetta} ore: la lezione non si può più disdire. "
-                f"Per un'emergenza scrivi a {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}."
+                f"Per un'emergenza avvisa {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}."
             )
         entrata = _libera_posto(db, lezione, p, StatoPrenotazione.DISDETTA, "Disdetta")
         db.commit()

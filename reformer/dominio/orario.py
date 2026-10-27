@@ -37,8 +37,8 @@ TITOLO_BASE = "Reformer"
 ORARIO_EXTRA_SUGGERITO = {0: "18:30", 1: "18:30", 2: "18:30", 3: "18:30", 4: "18:30", 5: "13:30"}
 
 ISTRUTTRICI = {
-    "greta": {"id": "greta", "nome": "Greta", "cognome": "Lorenzetti", "whatsapp": "393791567202"},
-    "elisa": {"id": "elisa", "nome": "Elisa", "cognome": "Bonacci", "whatsapp": "393936506230"},
+    "greta": {"id": "greta", "nome": "Greta", "cognome": "Lorenzetti"},
+    "elisa": {"id": "elisa", "nome": "Elisa", "cognome": "Bonacci"},
 }
 
 # Lunedì, mercoledì, venerdì e sabato Greta; martedì e giovedì Elisa.
