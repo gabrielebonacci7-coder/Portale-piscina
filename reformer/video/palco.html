@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>RE FORMER — video stage</title>
+    <style>
+      /* The stage: a vertical phone, a caption below, the studio's colours
+         around. Only used to shoot the video; the real app lives in the
+         iframe and doesn't know it is being filmed. */
+      @font-face { font-family: "Fraunces"; src: url("/reformer/web/font/Fraunces.woff2") format("woff2"); font-weight: 300 700; }
+      @font-face { font-family: "DM Sans"; src: url("/reformer/web/font/DMSans.woff2") format("woff2"); font-weight: 300 800; }
+
+      :root { --nero: #1c1b19; --crema: #efe8de; --sabbia: #d9cdbb; --bronzo: #9a7349; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; width: 1080px; height: 1920px; overflow: hidden; position: relative;
+        font-family: "DM Sans", system-ui, sans-serif; color: var(--nero); background: var(--crema);
+        display: flex; flex-direction: column; align-items: center;
+      }
+      .sfondo { position: absolute; inset: 0; pointer-events: none; }
+      .sfondo i { position: absolute; border-radius: 50%; }
+      .sfondo i:nth-child(1) { width: 1100px; height: 1100px; top: -620px; right: -420px; background: #e4dccf; }
+      .sfondo i:nth-child(2) { width: 700px; height: 700px; bottom: -260px; left: -380px; background: #e1d6c5; }
+      .sfondo i:nth-child(3) { width: 260px; height: 260px; bottom: 380px; right: -110px; background: #ebdfcf; }
+
+      header { position: relative; display: flex; align-items: center; gap: 22px; padding: 40px 0 22px; }
+      header img { height: 70px; }
+      header .nome { font-family: "Fraunces", Georgia, serif; font-size: 44px; font-weight: 600; letter-spacing: 0.14em; line-height: 1; }
+      header .sotto { font-size: 22px; opacity: 0.65; margin-top: 6px; }
+
+      .telefono {
+        position: relative; width: 700px; height: 1452px; border-radius: 62px; padding: 12px;
+        background: linear-gradient(160deg, #3a3733, #0e0d0c);
+        box-shadow: 0 50px 90px rgba(28, 27, 25, 0.28), 0 0 0 2px rgba(255, 255, 255, 0.5); flex: 0 0 auto;
+      }
+      .schermo { width: 676px; height: 1428px; border-radius: 50px; overflow: hidden; background: var(--crema); }
+      /* The app runs at a real phone size (414×874) and is scaled up, so the
+         type stays real and the video shows the app as it is. */
+      .schermo iframe { width: 414px; height: 874px; border: 0; transform: scale(1.633); transform-origin: top left; }
+
+      .didascalia { position: relative; width: 960px; min-height: 230px; padding: 30px 0 0; text-align: center; }
+      .passo { font-size: 22px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bronzo); opacity: 0; transition: opacity 0.35s ease; }
+      .frase {
+        margin-top: 14px; font-family: "Fraunces", Georgia, serif; font-size: 50px; font-weight: 600; line-height: 1.2;
+        opacity: 0; transform: translateY(14px); transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+      .passo.dentro, .frase.dentro { opacity: 1; transform: none; }
+
+      .tocco {
+        position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
+        border: 5px solid rgba(28, 27, 25, 0.9); background: rgba(28, 27, 25, 0.16); pointer-events: none; opacity: 0;
+      }
+      .tocco.batti { animation: batti 0.75s ease-out; }
+      @keyframes batti { 0% { opacity: 0; transform: scale(0.35); } 18% { opacity: 1; transform: scale(0.75); } 100% { opacity: 0; transform: scale(1.55); } }
+
+      .finale {
+        position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 18px; text-align: center; background: var(--crema); opacity: 0; transition: opacity 0.7s ease; pointer-events: none;
+      }
+      .finale.dentro { opacity: 1; }
+      .finale .marchio { width: 240px; }
+      .finale h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 84px; font-weight: 600; letter-spacing: 0.14em; }
+      .finale .invito { font-size: 40px; font-weight: 600; color: var(--bronzo); }
+      .finale .insieme { width: 860px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 48px; margin-top: 18px; box-shadow: 0 0 0 10px #faf7f2, 0 30px 60px rgba(28, 27, 25, 0.18); }
+      .finale .nomi { font-family: "Fraunces", Georgia, serif; font-size: 40px; font-weight: 600; margin-top: 4px; }
+      .tecnologie { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 900px; margin-top: 14px; }
+      .tecnologie span { padding: 10px 22px; border-radius: 40px; background: #faf7f2; box-shadow: inset 0 0 0 2px #e2d9cb; font-size: 26px; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div class="sfondo"><i></i><i></i><i></i></div>
+    <header>
+      <img src="/reformer/web/immagini/marchio.png" alt="" />
+      <div>
+        <div class="nome">RE FORMER</div>
+        <div class="sotto">Online booking for a pilates reformer studio</div>
+      </div>
+    </header>
+    <div class="telefono"><div class="schermo"><iframe id="app" title="app" src="http://127.0.0.1:8002/"></iframe></div></div>
+    <div class="didascalia"><div class="passo" id="passo"></div><div class="frase" id="frase"></div></div>
+    <div class="tocco" id="tocco"></div>
+
+    <div class="finale" id="finale">
+      <img class="marchio" src="/reformer/web/immagini/marchio.png" alt="" />
+      <h2>RE FORMER</h2>
+      <div class="invito">Designed, built and deployed end to end</div>
+      <img class="insieme" src="/pilates/prototipo/immagini/insieme.webp" alt="" />
+      <div class="tecnologie">
+        <span>Progressive Web App</span><span>Python · FastAPI</span><span>SQLite</span>
+        <span>Docker · Caddy · HTTPS</span><span>Hetzner · Aruba DNS</span><span>Automated tests</span>
+      </div>
+    </div>
+
+    <script>
+      function didascalia(passo, frase) {
+        const p = document.getElementById("passo"), f = document.getElementById("frase");
+        p.classList.remove("dentro"); f.classList.remove("dentro");
+        setTimeout(() => { p.textContent = passo || ""; f.textContent = frase || ""; p.classList.add("dentro"); f.classList.add("dentro"); }, 220);
+      }
+      function tocco(x, y) {
+        const n = document.getElementById("tocco");
+        n.style.left = `${x}px`; n.style.top = `${y}px`;
+        n.classList.remove("batti"); void n.offsetWidth; n.classList.add("batti");
+      }
+      function finale() { document.getElementById("finale").classList.add("dentro"); }
+    </script>
+  </body>
+</html>
