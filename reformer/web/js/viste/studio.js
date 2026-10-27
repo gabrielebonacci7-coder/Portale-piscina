@@ -139,9 +139,30 @@ async function settimana(ctx) {
           l.attesa.length ? el("span", { classe: "etichetta attesa", testo: `+${l.attesa.length}` }) : null,
           icona("freccia", "icona piccola"),
         ])),
+        g >= T.oggi() ? el("button", {
+          type: "button", classe: "riga-studio aggiungi-lezione",
+          onclick: () => aggiungiLezione(k, g, ctx),
+        }, [icona("piu", "icona piccola"), el("span", { testo: "Aggiungi una lezione" })]) : null,
       ]);
     }),
   ]);
+}
+
+/** Aprire una lezione fuori orario (per esempio alle 18:30). */
+function aggiungiLezione(chiave, giorno, ctx) {
+  const ora = el("input", { type: "time", id: "ora-nuova-lezione", value: ctx.info?.orario_extra?.[(giorno.getDay() + 6) % 7] || "18:30", step: 1800 });
+  const titolo = el("input", { id: "titolo-nuova-lezione", placeholder: "Reformer", maxlength: 60 });
+  const crea = el("button", {
+    classe: "bottone largo", type: "button", testo: "Apri la lezione",
+    onclick: () => prova(() => api.nuovaLezione(chiave, ora.value, titolo.value), "Lezione aggiunta: le clienti la vedono già")
+      .then(() => { f.chiudi(); ctx.ridisegna(); }),
+  });
+  const f = foglio(el("div", { classe: "dettaglio" }, [
+    el("label", { classe: "campo" }, [el("span", { testo: "Ora d'inizio (dura un'ora)" }), ora]),
+    el("label", { classe: "campo" }, [el("span", { testo: "Nome (facoltativo)" }), titolo]),
+    el("p", { classe: "nota", testo: "La lezione si prenota come le altre, con 3 posti. Se poi non serve, la annulli dal suo foglio." }),
+    crea,
+  ]), { titolo: "Lezione in più", sottotitolo: T.cap(T.dataLunga(giorno)) });
 }
 
 /** Il foglio per gestire una lezione. */

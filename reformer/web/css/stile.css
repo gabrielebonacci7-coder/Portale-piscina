@@ -492,6 +492,9 @@ input, select, textarea { font: inherit; color: inherit; }
 .riga-studio-titolo { flex: 1; font-size: 14.5px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .riga-studio .icona { color: var(--taupe); }
 .riga-studio.passata { opacity: 0.55; }
+.riga-studio.aggiungi-lezione { color: var(--grigio); font-size: 14px; }
+.riga-studio.aggiungi-lezione .icona { color: var(--grigio); }
+.dettaglio input[type="time"], #titolo-nuova-lezione { width: 100%; min-height: 50px; padding: 12px 14px; border: 1.5px solid var(--linea); border-radius: 14px; background: var(--carta); font-size: 16px; }
 .riga-studio.annullata .riga-studio-titolo { color: var(--rosso); }
 
 .suggerimenti, .opzioni { display: flex; flex-wrap: wrap; gap: 6px; }

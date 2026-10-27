@@ -25,6 +25,7 @@ def info() -> dict:
             for g, ore in orario.ORARIO.items()
         ],
         "regole": viste.regole(),
+        "orario_extra": orario.ORARIO_EXTRA_SUGGERITO,
         "oggi": orario.oggi().isoformat(),
         "fuso": orario.FUSO.key,
     }

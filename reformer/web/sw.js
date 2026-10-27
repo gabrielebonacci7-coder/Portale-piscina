@@ -7,7 +7,7 @@
 // **Dopo ogni modifica ai file di web/ si alza VERSIONE**, altrimenti i
 // telefoni che hanno l'app installata continuano a usare la copia vecchia.
 
-const VERSIONE = "reformer-v2";
+const VERSIONE = "reformer-v3";
 
 const GUSCIO = [
   "/",

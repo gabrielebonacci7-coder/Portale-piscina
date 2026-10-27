@@ -519,9 +519,9 @@ export function vetrina(nome, info) {
             el("span", { classe: "giorno-nome", testo: T.GIORNI_CORTI[g.getDay()] }),
             el("span", { classe: "giorno-num", testo: g.getDate() }),
           ]))),
-        schedaLezione(finta("16:30", "Reformer", "greta", 1)),
-        schedaLezione(finta("17:30", "Reformer", "greta", 2)),
-        schedaLezione(finta("18:30", "Reformer", "greta", 3)),
+        schedaLezione(finta("15:30", "Reformer", "greta", 1)),
+        schedaLezione(finta("16:30", "Pilates fitness", "greta", 2)),
+        schedaLezione(finta("17:30", "Reformer", "greta", 3)),
       ]);
     }
     case "istruttrici":

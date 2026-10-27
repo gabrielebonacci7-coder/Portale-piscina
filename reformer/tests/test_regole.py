@@ -36,11 +36,11 @@ def test_orario_della_settimana(client, cliente):
 
 
 def test_ora_legale(client, cliente):
-    """Il 25 ottobre cambia l'ora: le 16:30 restano le 16:30 a Roma."""
+    """Il 25 ottobre cambia l'ora: le 15:30 restano le 15:30 a Roma."""
     prima = lezioni(client, cliente, "2026-10-23")[0]["inizio"]
     dopo = lezioni(client, cliente, "2026-10-26")[0]["inizio"]
-    assert prima.startswith("2026-10-23T14:30")   # UTC+2
-    assert dopo.startswith("2026-10-26T15:30")    # UTC+1
+    assert prima.startswith("2026-10-23T13:30")   # 15:30 a Roma, UTC+2
+    assert dopo.startswith("2026-10-26T14:30")    # 15:30 a Roma, UTC+1
 
 
 def test_calendario_entro_limiti_ragionevoli(client, cliente):
@@ -92,7 +92,7 @@ def test_non_oltre_un_mese(client, cliente):
 
 def test_non_una_lezione_gia_iniziata(client, cliente, orologio):
     l = lezioni(client, cliente)[0]
-    orologio.avanti(hours=8)  # le 17:00, la lezione delle 16:30 è iniziata
+    orologio.avanti(hours=8)  # le 17:00, la lezione delle 15:30 è iniziata
     assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 409
 
 
@@ -127,7 +127,7 @@ def test_disdetta_in_tempo_restituisce_la_lezione(client, staff, cliente):
 
 
 def test_meno_di_12_ore_non_si_disdice(client, cliente):
-    oggi = lezioni(client, cliente)[0]  # 16:30, fra 7 ore e mezza
+    oggi = lezioni(client, cliente)[0]  # 15:30, fra 6 ore e mezza
     assert oggi["disdicibile"] is False
     client.post(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente))
     r = client.delete(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente))
@@ -136,9 +136,9 @@ def test_meno_di_12_ore_non_si_disdice(client, cliente):
 
 
 def test_il_limite_e_esatto(client, cliente, orologio):
-    l = domani(client, cliente)   # martedì 16:30 = 14:30 UTC
+    l = domani(client, cliente)   # martedì 15:30 = 13:30 UTC
     client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
-    orologio.avanti(hours=19, minutes=30)  # martedì 04:30 Roma: esattamente 12 ore prima
+    orologio.avanti(hours=18, minutes=30)  # martedì 03:30 Roma: esattamente 12 ore prima
     assert client.delete(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 200
 
 
@@ -299,17 +299,32 @@ def test_pilates_fitness_lunedi_e_mercoledi_alle_16_30(client, cliente):
 
 
 def test_nome_per_tutte_le_settimane(client, staff, cliente):
-    l = domani(client, cliente)   # martedì 16:30
+    l = domani(client, cliente)   # martedì 15:30
     r = client.patch(f"/api/staff/lezioni/{l['id']}", json={"titolo": "Postura", "ogni_settimana": True}, headers=auth(staff))
     assert r.status_code == 200
     # Martedì dopo, già nel calendario, e fra un mese, non ancora creato.
     assert lezioni(client, cliente, "2026-10-20")[0]["titolo"] == "Postura"
     assert lezioni(client, cliente, "2026-11-10")[0]["titolo"] == "Postura"
-    assert lezioni(client, cliente, "2026-10-20")[1]["titolo"] == "Reformer"   # le 17:30 no
+    assert lezioni(client, cliente, "2026-10-20")[1]["titolo"] == "Reformer"   # le 16:30 no
     # Solo per una lezione: le altre settimane restano.
     client.patch(f"/api/staff/lezioni/{l['id']}", json={"titolo": "Speciale"}, headers=auth(staff))
     assert domani(client, cliente)["titolo"] == "Speciale"
     assert lezioni(client, cliente, "2026-10-20")[0]["titolo"] == "Postura"
+
+
+def test_lo_staff_apre_una_lezione_alle_18_30(client, staff, cliente):
+    r = client.post("/api/staff/lezioni", json={"giorno": "2026-10-13", "ora": "18:30"}, headers=auth(staff))
+    assert r.status_code == 201, r.text
+    giorno = lezioni(client, cliente, "2026-10-13")
+    assert [l["inizio"][11:16] for l in giorno] == ["13:30", "14:30", "15:30", "16:30"]
+    extra = giorno[-1]
+    assert extra["istruttrice"]["id"] == "elisa" and extra["posti"] == 3
+    assert client.post(f"/api/lezioni/{extra['id']}/prenota", headers=auth(cliente)).status_code == 200
+    # Doppione, domenica, ora passata, cliente: no.
+    assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-13", "ora": "18:30"}, headers=auth(staff)).status_code == 409
+    assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-18", "ora": "18:30"}, headers=auth(staff)).status_code == 400
+    assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-12", "ora": "08:00"}, headers=auth(staff)).status_code == 400
+    assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-14", "ora": "18:30"}, headers=auth(cliente)).status_code == 403
 
 
 def test_titolo_e_avvisi(client, staff, cliente):

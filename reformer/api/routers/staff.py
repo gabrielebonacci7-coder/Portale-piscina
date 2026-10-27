@@ -43,6 +43,18 @@ def lezione(lezione_id: int, _: Utente = Depends(solo_staff), db: Session = Depe
         return viste.per_staff(r.trova_lezione(db, lezione_id))
 
 
+class NuovaLezione(BaseModel):
+    giorno: date
+    ora: str = Field(pattern=r"^\d{1,2}:\d{2}$")
+    titolo: str = Field(default="", max_length=60)
+
+
+@router.post("/lezioni", status_code=201)
+def nuova_lezione(dati: NuovaLezione, _: Utente = Depends(solo_staff), db: Session = Depends(get_db)) -> dict:
+    with regole():
+        return viste.per_staff(r.aggiungi_lezione(db, dati.giorno, dati.ora, dati.titolo))
+
+
 class Titolo(BaseModel):
     titolo: str = Field(max_length=60)
     # Vale per quel giorno e quell'ora tutte le settimane, d'ora in poi.

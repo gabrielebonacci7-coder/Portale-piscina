@@ -400,6 +400,35 @@ def annulla_lezione(db: Session, lezione_id: int, motivo: str, autore: Utente) -
         return len(iscritte)
 
 
+def aggiungi_lezione(db: Session, giorno: date, ora: str, titolo: str = "") -> Lezione:
+    """Greta o Elisa aprono una lezione fuori dall'orario fisso (per esempio
+    alle 18:30). Resta in calendario come le altre: si prenota, si annulla,
+    ha la sua lista d'attesa."""
+    with _scrittura:
+        try:
+            hh, mm = (int(x) for x in ora.split(":"))
+            inizio = orario.inizio_utc(giorno, datetime.min.time().replace(hour=hh, minute=mm))
+        except (ValueError, TypeError):
+            raise ErroreRegola("Ora non valida: scrivila come 18:30.", 400) from None
+        if giorno.weekday() == 6:
+            raise ErroreRegola("La domenica lo studio è chiuso.", 400)
+        if inizio <= orario.adesso():
+            raise ErroreRegola("Quest'ora è già passata.", 400)
+        controlla_periodo(giorno, 1)
+        if db.scalar(select(Lezione.id).where(Lezione.inizio == inizio)):
+            raise ErroreRegola("A quest'ora c'è già una lezione.")
+        lezione = Lezione(
+            inizio=inizio,
+            durata_minuti=orario.DURATA_MINUTI,
+            istruttrice=orario.ISTRUTTRICE_DEL_GIORNO[giorno.weekday()],
+            posti=settings.posti_per_lezione,
+            titolo=(titolo or "").strip()[:60] or titoli_fissi(db).get((giorno.weekday(), ora), orario.TITOLO_BASE),
+        )
+        db.add(lezione)
+        db.commit()
+        return lezione
+
+
 def ripristina_lezione(db: Session, lezione_id: int) -> None:
     """Rimette in calendario una lezione annullata. Chi era iscritta non
     rientra da sola: ha già riavuto la lezione e potrebbe aver preso altro."""
