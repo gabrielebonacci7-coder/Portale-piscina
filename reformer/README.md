@@ -35,15 +35,15 @@ pytest reformer/tests          # 39 prove: le regole, l'avvio, e un giro complet
 
 | | |
 |---|---|
-| Orario | lun–ven 15:30 · 16:30 · 17:30; sabato 11:30 · 12:30; lezioni da un'ora. Greta ed Elisa possono aprire una lezione in più (es. 18:30) dal gestionale |
+| Orario | lun–ven 15:30 · 16:30 · 17:30 · 18:30; sabato 11:30 · 12:30; lezioni da un'ora. Greta ed Elisa possono aprire una lezione in più (es. 19:30) dal gestionale |
 | Nomi delle lezioni | "Reformer"; lunedì e mercoledì alle 16:30 "Pilates fitness". Greta ed Elisa li cambiano dal gestionale, per una lezione o per tutte le settimane |
-| Chi insegna | Greta lunedì, mercoledì, venerdì, sabato · Elisa martedì e giovedì |
+| Chi insegna | Greta lunedì, mercoledì, sabato · Elisa martedì, giovedì, venerdì |
 | Posti | 3 per lezione (i 3 reformer) |
 | Quanto prima | fino a 30 giorni avanti |
 | Disdetta | fino a 12 ore prima; la lezione torna nel pacchetto |
 | Lista d'attesa | se una disdice entra la prima in lista, in automatico, e riceve una notifica |
 | Lezioni rimaste | le scrivono Greta ed Elisa dal gestionale (numero esatto o +/−, scadenza facoltativa) |
-| Lezioni finite | si può prenotare lo stesso, fino a 2 lezioni da saldare (`REFORMER_MAX_LEZIONI_DA_SALDARE`): il saldo va sotto zero e Greta ed Elisa ricevono una notifica |
+| Lezioni finite | a pacchetto finito non si prenota e non si entra in lista d'attesa: si rinnova in studio (`REFORMER_MAX_LEZIONI_DA_SALDARE=0`). Lo staff può comunque iscrivere a mano |
 | Pagamento | solo in studio; nell'app non ci sono prezzi |
 | Promemoria | il giorno prima, nell'app e per email |
 | Staff | chi si registra con le email di Greta o di Elisa **e la conferma** |

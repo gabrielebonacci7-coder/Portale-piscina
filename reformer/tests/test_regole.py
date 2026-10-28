@@ -26,11 +26,12 @@ def test_orario_della_settimana(client, cliente):
     per_giorno = {}
     for l in settimana:
         per_giorno.setdefault(l["inizio"][:10], []).append(l)
-    assert len(per_giorno["2026-10-12"]) == 3          # lunedì
+    assert len(per_giorno["2026-10-12"]) == 4          # lunedì: 15:30, 16:30, 17:30, 18:30
     assert len(per_giorno["2026-10-17"]) == 2          # sabato
     assert "2026-10-18" not in per_giorno              # domenica chiuso
     assert {l["istruttrice"]["id"] for l in per_giorno["2026-10-13"]} == {"elisa"}  # martedì
     assert {l["istruttrice"]["id"] for l in per_giorno["2026-10-14"]} == {"greta"}  # mercoledì
+    assert {l["istruttrice"]["id"] for l in per_giorno["2026-10-16"]} == {"elisa"}  # venerdì
     assert {l["istruttrice"]["id"] for l in per_giorno["2026-10-17"]} == {"greta"}  # sabato
     assert all(l["posti"] == 3 for l in settimana)
 
@@ -96,23 +97,22 @@ def test_non_una_lezione_gia_iniziata(client, cliente, orologio):
     assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 409
 
 
-def test_senza_lezioni_si_prenota_e_lo_staff_lo_sa(client, staff, cliente):
-    l = domani(client, cliente)
-    r = client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
-    assert r.status_code == 200
-    assert r.json()["utente"]["lezioni_rimaste"] == -1
-    avvisi = client.get("/api/notifiche", headers=auth(staff)).json()["elenco"]
-    assert any("senza lezioni" in n["testo"] and "Sofia Marini" in n["testo"] for n in avvisi)
-    numeri = client.get("/api/staff/numeri", headers=auth(staff)).json()
-    assert [c["email"] for c in numeri["da_saldare"]] == ["sofia@example.com"]
-
-
-def test_al_massimo_due_lezioni_da_saldare(client, cliente):
-    settimana = [l for l in lezioni(client, cliente, "2026-10-13", 5)]
-    for l in settimana[:2]:
-        assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 200
-    r = client.post(f"/api/lezioni/{settimana[2]['id']}/prenota", headers=auth(cliente))
-    assert r.status_code == 409 and "da saldare" in r.json()["detail"]
+def test_a_pacchetto_finito_non_si_prenota(client, staff):
+    t = registra(client, "zero@example.com", lezioni=0)["token"]
+    l = domani(client, t)
+    r = client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(t))
+    assert r.status_code == 409 and "finito le lezioni" in r.json()["detail"]
+    # Nemmeno in lista d'attesa.
+    piena = domani(client, t, 1)
+    _riempi(client, piena["id"])
+    assert client.post(f"/api/lezioni/{piena['id']}/attesa", headers=auth(t)).status_code == 409
+    # Rinnovato in studio, si prenota.
+    carica(client, staff, io(client, t)["id"], 5)
+    assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(t)).status_code == 200
+    # L'ultima lezione si usa, poi stop.
+    carica(client, staff, io(client, t)["id"], 1)
+    assert client.post(f"/api/lezioni/{domani(client, t, 2)['id']}/prenota", headers=auth(t)).status_code == 200
+    assert client.post(f"/api/lezioni/{domani(client, t, 3)['id']}/prenota", headers=auth(t)).status_code == 409
 
 
 # ------------------------------------------------------------------ disdire
@@ -159,7 +159,7 @@ def test_lista_d_attesa_ed_entrata_automatica(client, cliente):
     assert client.delete(f"/api/lezioni/{l['id']}/prenota", headers=auth(tokens[0])).status_code == 200
     mia = domani(client, cliente)
     assert mia["mia"] is True and mia["in_attesa"] is None
-    assert io(client, cliente)["lezioni_rimaste"] == -1
+    assert io(client, cliente)["lezioni_rimaste"] == 9
     testi = [n["testo"] for n in client.get("/api/notifiche", headers=auth(cliente)).json()["elenco"]]
     assert any("Si è liberato un posto" in t for t in testi)
 
@@ -170,7 +170,7 @@ def test_dalla_lista_salta_chi_ha_troppo_da_saldare(client, staff, cliente):
     seconda = registra(client, "seconda@example.com", nome="Seconda")["token"]
     client.post(f"/api/lezioni/{l['id']}/attesa", headers=auth(cliente))
     client.post(f"/api/lezioni/{l['id']}/attesa", headers=auth(seconda))
-    carica(client, staff, io(client, cliente)["id"], -2)   # Sofia ha già 2 lezioni da saldare
+    carica(client, staff, io(client, cliente)["id"], 0)    # Sofia ha finito il pacchetto
     carica(client, staff, io(client, seconda)["id"], 5)
     client.delete(f"/api/lezioni/{l['id']}/prenota", headers=auth(tokens[0]))
     assert domani(client, seconda)["mia"] is True
@@ -229,8 +229,8 @@ def test_la_cliente_non_entra_nel_gestionale(client, cliente):
 
 def test_lo_staff_scrive_le_lezioni_rimaste(client, staff, cliente):
     cid = io(client, cliente)["id"]
-    assert carica(client, staff, cid, 10)["lezioni_rimaste"] == 10
-    r = client.post(f"/api/staff/clienti/{cid}/lezioni", json={"aggiungi": -2}, headers=auth(staff))
+    assert carica(client, staff, cid, 20)["lezioni_rimaste"] == 20   # ne aveva 10
+    r = client.post(f"/api/staff/clienti/{cid}/lezioni", json={"aggiungi": -12}, headers=auth(staff))
     assert r.json()["lezioni_rimaste"] == 8
     r = client.post(
         f"/api/staff/clienti/{cid}/lezioni",
@@ -238,7 +238,7 @@ def test_lo_staff_scrive_le_lezioni_rimaste(client, staff, cliente):
     )
     assert r.json()["scadenza"] == "2026-12-31" and r.json()["lezioni_rimaste"] == 8
     scheda = client.get(f"/api/staff/clienti/{cid}", headers=auth(staff)).json()
-    assert [m["variazione"] for m in scheda["movimenti"]] == [-2, 10]
+    assert [m["variazione"] for m in scheda["movimenti"]] == [-12, 10]
     assert scheda["movimenti"][0]["autore"] == "Greta"
     pacchetto = client.get("/api/pacchetto", headers=auth(cliente)).json()
     assert pacchetto["lezioni_rimaste"] == 8 and pacchetto["scadenza"] == "2026-12-31"
@@ -261,7 +261,7 @@ def test_lo_staff_toglie_anche_all_ultimo(client, staff, cliente):
     cid = io(client, cliente)["id"]
     r = client.delete(f"/api/staff/lezioni/{l['id']}/iscritte/{cid}", headers=auth(staff))
     assert r.status_code == 200
-    assert io(client, cliente)["lezioni_rimaste"] == 0
+    assert io(client, cliente)["lezioni_rimaste"] == 10
 
 
 def test_lo_staff_aggiunge_chi_ha_telefonato(client, staff, cliente):
@@ -312,16 +312,16 @@ def test_nome_per_tutte_le_settimane(client, staff, cliente):
     assert lezioni(client, cliente, "2026-10-20")[0]["titolo"] == "Postura"
 
 
-def test_lo_staff_apre_una_lezione_alle_18_30(client, staff, cliente):
-    r = client.post("/api/staff/lezioni", json={"giorno": "2026-10-13", "ora": "18:30"}, headers=auth(staff))
+def test_lo_staff_apre_una_lezione_alle_19_30(client, staff, cliente):
+    r = client.post("/api/staff/lezioni", json={"giorno": "2026-10-13", "ora": "19:30"}, headers=auth(staff))
     assert r.status_code == 201, r.text
     giorno = lezioni(client, cliente, "2026-10-13")
-    assert [l["inizio"][11:16] for l in giorno] == ["13:30", "14:30", "15:30", "16:30"]
+    assert [l["inizio"][11:16] for l in giorno] == ["13:30", "14:30", "15:30", "16:30", "17:30"]
     extra = giorno[-1]
     assert extra["istruttrice"]["id"] == "elisa" and extra["posti"] == 3
     assert client.post(f"/api/lezioni/{extra['id']}/prenota", headers=auth(cliente)).status_code == 200
     # Doppione, domenica, ora passata, cliente: no.
-    assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-13", "ora": "18:30"}, headers=auth(staff)).status_code == 409
+    assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-13", "ora": "19:30"}, headers=auth(staff)).status_code == 409
     assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-18", "ora": "18:30"}, headers=auth(staff)).status_code == 400
     assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-12", "ora": "08:00"}, headers=auth(staff)).status_code == 400
     assert client.post("/api/staff/lezioni", json={"giorno": "2026-10-14", "ora": "18:30"}, headers=auth(cliente)).status_code == 403

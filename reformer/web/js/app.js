@@ -169,8 +169,8 @@ async function paginaConferma(codice) {
 // --------------------------------------------------------------- benvenuto
 const DISCORSO = [
   { testo: "Ciao {nome}! Ecco la nuova app di RE FORMER: da qui prenoti le tue lezioni in due tocchi." },
-  { vetrina: "calendario", testo: "Qui trovi tutte le lezioni: dal lunedì al venerdì 15:30, 16:30 e 17:30, il sabato 11:30 e 12:30." },
-  { vetrina: "istruttrici", testo: "Lunedì, mercoledì, venerdì e sabato c'è Greta. Martedì e giovedì c'è Elisa." },
+  { vetrina: "calendario", testo: "Qui trovi tutte le lezioni: dal lunedì al venerdì 15:30, 16:30, 17:30 e 18:30, il sabato 11:30 e 12:30." },
+  { vetrina: "istruttrici", testo: "Lunedì, mercoledì e sabato c'è Greta. Martedì, giovedì e venerdì c'è Elisa." },
   { vetrina: "posti", testo: "Ogni lezione ha 3 reformer. I pallini ti dicono quanti posti sono ancora liberi." },
   { vetrina: "attesa", testo: "Lezione piena? Mettiti in lista d'attesa: se si libera un posto entri tu, e ti avvisiamo." },
   { vetrina: "disdetta", testo: "Se non puoi venire, disdici fino a 12 ore prima: la lezione torna nel tuo pacchetto." },

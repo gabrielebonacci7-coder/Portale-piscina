@@ -33,7 +33,7 @@ function statoGiorno(lezioni) {
 
 // ------------------------------------------------------------------ lezioni
 export async function lezioni(ctx) {
-  const tutte = (await api.lezioni(T.chiaveGiorno(T.oggi()), 31)).filter((l) => l.prenotabile || l.mia);
+  const tutte = (await api.lezioni(T.chiaveGiorno(T.oggi()), 31)).filter((l) => !l.passata && (l.prenotabile || l.mia));
   const perGiorno = new Map();
   for (const l of tutte) {
     const k = T.chiaveGiorno(T.data(l.inizio));
@@ -219,11 +219,12 @@ function dettaglio(l, ctx) {
     } else {
       righe.push(riga("lucchetto", `Mancano meno di ${ORE_DISDETTA(ctx)} ore: non è più possibile disdire. Per un'emergenza avvisa ${l.istruttrice.nome}.`));
     }
+  } else if (!l.passata && rimaste <= 0 && !l.in_attesa) {
+    // A pacchetto finito non si prenota: si rinnova in studio.
+    righe.push(riga("pacchetto", "Hai finito le lezioni del pacchetto: rinnovalo in studio con Greta o Elisa e poi potrai prenotare."));
   } else if (!l.passata) {
     if (l.liberi > 0) {
-      righe.push(riga("pacchetto", rimaste > 0
-        ? `Userai 1 delle tue ${rimaste} lezioni.`
-        : "Non hai lezioni nel pacchetto: puoi prenotare lo stesso e saldare in studio."));
+      righe.push(riga("pacchetto", `Userai 1 delle tue ${rimaste} lezioni.`));
       righe.push(l.disdicibile
         ? riga("orologio", `Disdetta gratuita fino a ${T.quando(limite)}.`)
         : riga("lucchetto", `Mancano meno di ${ORE_DISDETTA(ctx)} ore: una volta prenotata, questa lezione non si potrà disdire.`));
@@ -294,7 +295,7 @@ function conferma(l, ctx) {
 
 // ------------------------------------------------------------------- le mie
 export async function mie(ctx) {
-  const { prossime, attesa, fatte } = await api.mie();
+  const { prossime, attesa } = await api.mie();
   const sezione = (titolo, lista, vuoto) => el("section", { classe: "sezione" }, [
     el("h2", { classe: "titolo-sezione", testo: titolo }),
     lista.length
@@ -305,7 +306,6 @@ export async function mie(ctx) {
     sezione("In programma", prossime, "Nessuna lezione prenotata. Scegline una da Lezioni!"),
     attesa.length ? sezione("In lista d'attesa", attesa, "") : null,
     el("p", { classe: "nota", testo: `Si può disdire fino a ${ORE_DISDETTA(ctx)} ore prima dell'inizio: la lezione torna nel pacchetto.` }),
-    sezione("Già fatte", fatte.slice(0, 8), "Ancora nessuna: la prima è la più bella."),
   ]);
 }
 
@@ -326,6 +326,9 @@ export async function pacchetto(ctx) {
       ]),
       el("div", { classe: "tessera-nome", testo: `${ctx.io.nome} ${ctx.io.cognome}` }),
     ]),
+    p.lezioni_rimaste === 0
+      ? el("div", { classe: "riquadro avviso-riquadro", testo: "Pacchetto finito: rinnovalo in studio con Greta o Elisa per prenotare di nuovo." })
+      : null,
     p.lezioni_rimaste < 0
       ? el("div", { classe: "riquadro avviso-riquadro", testo: `Hai ${-p.lezioni_rimaste} ${p.lezioni_rimaste === -1 ? "lezione" : "lezioni"} da saldare in studio.` })
       : null,
@@ -349,7 +352,7 @@ export async function pacchetto(ctx) {
 
 // ----------------------------------------------------------------- contatti
 export function contatti(ctx) {
-  const giorni = { greta: "Lunedì · mercoledì · venerdì · sabato", elisa: "Martedì · giovedì" };
+  const giorni = { greta: "Lunedì · mercoledì · sabato", elisa: "Martedì · giovedì · venerdì" };
   const orario = ctx.info?.orario || [];
   return el("div", { classe: "pagina" }, [
     ...(ctx.info?.istruttrici || []).map((ist) =>

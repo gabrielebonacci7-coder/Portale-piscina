@@ -82,7 +82,7 @@ def test_dalla_registrazione_al_gestionale(server, posta_inviata):
         pg.click("a[href='#/profilo']")
         pg.click("text=Esci")
 
-        # --- Una cliente si registra e prenota la prima lezione libera.
+        # --- Una cliente si registra: senza pacchetto non può ancora prenotare.
         pg.click("text=Crea il tuo account")
         for campo, valore in [("nome", "Sofia"), ("cognome", "Marini"), ("telefono", "3331234567"),
                               ("email", "sofia@example.com"), ("password", "pilates2026")]:
@@ -91,40 +91,47 @@ def test_dalla_registrazione_al_gestionale(server, posta_inviata):
         pg.click("button[type=submit]")
         pg.click(".benvenuto .salta")
         pg.wait_for_selector(".striscia .giorno")
-        giorni = pg.locator(".striscia .giorno")
-        for i in range(giorni.count()):
-            giorni.nth(i).click()
-            pg.wait_for_timeout(150)
-            if pg.locator(".lezione.libera").count():
-                break
-        pg.locator(".lezione.libera").first.click()
-        pg.click(".foglio .bottone.prenota")
-        pg.wait_for_selector("text=Prenotata!")
-        pg.click(".conferma .bottone")
-        pg.click(".tab a[href='#/mie']")
-        pg.wait_for_selector(".lezione.mia")
+
+        def apri_lezione_libera():
+            giorni = pg.locator(".striscia .giorno")
+            for i in range(giorni.count()):
+                giorni.nth(i).click()
+                pg.wait_for_timeout(150)
+                if pg.locator(".lezione.libera").count():
+                    break
+            pg.locator(".lezione.libera").first.click()
+
+        apri_lezione_libera()
+        pg.wait_for_selector("text=Hai finito le lezioni del pacchetto")
+        assert pg.locator(".foglio .bottone.prenota").count() == 0
+        pg.click(".foglio .tondo")
         pg.click("a[href='#/profilo']")
         pg.click("text=Esci")
 
-        # --- Greta le carica 10 lezioni (aveva prenotato a saldo zero: -1 → 9).
+        # --- Greta le carica 10 lezioni dal gestionale.
         pg.fill("#campo-email", GRETA)
         pg.fill("#campo-password", "greta2026!")
         pg.click("button[type=submit]")
-        pg.wait_for_selector("text=Da saldare in studio")
+        pg.wait_for_selector("text=Gestionale")
         pg.click(".tab a[href='#/studio/clienti']")
         pg.click("text=Sofia Marini")
         pg.wait_for_selector("#lezioni-rimaste")
-        assert pg.input_value("#lezioni-rimaste") == "-1"
+        assert pg.input_value("#lezioni-rimaste") == "0"
         pg.click("text=+10")
         pg.click(".riquadro.carica .bottone.largo")
-        pg.wait_for_function("document.querySelector('#lezioni-rimaste')?.value === '9'")
+        pg.wait_for_function("document.querySelector('#lezioni-rimaste')?.value === '10'")
         pg.click("a[href='#/profilo']")
         pg.click("text=Esci")
 
-        # --- La cliente vede le sue 9 lezioni.
+        # --- La cliente prenota e vede le sue 9 lezioni.
         pg.fill("#campo-email", "sofia@example.com")
         pg.fill("#campo-password", "pilates2026")
         pg.click("button[type=submit]")
+        pg.wait_for_selector(".striscia .giorno")
+        apri_lezione_libera()
+        pg.click(".foglio .bottone.prenota")
+        pg.wait_for_selector("text=Prenotata!")
+        pg.click(".conferma .bottone")
         pg.click(".tab a[href='#/pacchetto']")
         pg.wait_for_selector(".tessera-numero")
         assert pg.inner_text(".tessera-numero") == "9"

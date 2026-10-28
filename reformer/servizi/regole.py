@@ -60,7 +60,16 @@ def assicura_lezioni(db: Session, da: date, giorni: int) -> None:
     istanti = [i for g in orario.giorni(da, giorni) for i in orario.orari_del_giorno(g)]
     if not istanti:
         return
-    esistenti = set(db.scalars(select(Lezione.inizio).where(Lezione.inizio.in_(istanti))))
+    gia = list(db.scalars(select(Lezione).where(Lezione.inizio.in_(istanti))))
+    esistenti = {l.inizio for l in gia}
+    # Se cambia chi insegna un giorno, le lezioni future già nel calendario si
+    # riallineano da sole (quelle passate restano com'erano).
+    for l in gia:
+        giusta = orario.ISTRUTTRICE_DEL_GIORNO[orario.locale(l.inizio).weekday()]
+        if l.istruttrice != giusta and l.inizio > orario.adesso():
+            l.istruttrice = giusta
+    if db.dirty:
+        db.commit()
     titoli = titoli_fissi(db)
     nuove = [
         Lezione(
@@ -216,6 +225,15 @@ def _iscrivi(
     return p
 
 
+def controlla_pacchetto(utente: Utente) -> None:
+    """A pacchetto finito non si prenota (e non si entra in lista d'attesa)."""
+    if utente.lezioni_rimaste - 1 < -settings.max_lezioni_da_saldare:
+        raise ErroreRegola(
+            "Hai finito le lezioni del pacchetto: rinnovalo in studio con Greta o Elisa "
+            "e poi potrai prenotare di nuovo."
+        )
+
+
 def prenota(db: Session, lezione_id: int, utente: Utente) -> Prenotazione:
     with _scrittura:
         lezione = trova_lezione(db, lezione_id)
@@ -230,11 +248,7 @@ def prenota(db: Session, lezione_id: int, utente: Utente) -> Prenotazione:
             raise ErroreRegola("Sei già iscritta a questa lezione.")
         if lezione.liberi <= 0:
             raise ErroreRegola("La lezione è piena: puoi metterti in lista d'attesa.")
-        if utente.lezioni_rimaste - 1 < -settings.max_lezioni_da_saldare:
-            raise ErroreRegola(
-                f"Hai già {-utente.lezioni_rimaste} lezioni da saldare: passa in studio, "
-                "oppure scrivi a Greta o a Elisa, e poi potrai prenotare di nuovo."
-            )
+        controlla_pacchetto(utente)
         p = _iscrivi(db, lezione, utente)
         db.commit()
         return p
@@ -308,6 +322,7 @@ def entra_in_attesa(db: Session, lezione_id: int, utente: Utente) -> int:
             raise ErroreRegola("Sei già iscritta a questa lezione.")
         if lezione.liberi > 0:
             raise ErroreRegola("C'è ancora posto: puoi prenotare direttamente.")
+        controlla_pacchetto(utente)
         ids = [a.utente_id for a in lezione.attese]
         if utente.id in ids:
             return ids.index(utente.id) + 1

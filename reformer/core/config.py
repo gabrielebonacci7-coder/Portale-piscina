@@ -55,10 +55,10 @@ class Settings(BaseSettings):
     posti_per_lezione: int = 3
     ore_disdetta: int = 12
     giorni_prenotabili: int = 30
-    # Chi ha finito le lezioni può prenotare lo stesso e saldare in studio,
-    # ma fino a un certo punto: senza tetto, chiunque si registri potrebbe
-    # occupare tutti i posti del mese senza aver pagato niente.
-    max_lezioni_da_saldare: int = 2
+    # Quante lezioni si possono prenotare senza averle nel pacchetto. Lo studio
+    # ha scelto 0: a pacchetto finito non si prenota, si rinnova in studio.
+    # (Greta ed Elisa possono comunque iscrivere a mano chi vogliono.)
+    max_lezioni_da_saldare: int = 0
     fuso_orario: str = "Europe/Rome"
 
     # Promemoria: si manda quando alla lezione mancano meno di queste ore.

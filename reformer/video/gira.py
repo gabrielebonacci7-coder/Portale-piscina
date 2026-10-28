@@ -53,6 +53,9 @@ def ambiente() -> dict:
         "REFORMER_BCRYPT_ROUNDS": "4",
         "REFORMER_PROMEMORIA_ATTIVI": "false",
         "REFORMER_EMAIL_SMTP_HOST": "",
+        # Nel video la cliente appena iscritta prenota prima che lo studio le
+        # carichi il pacchetto: solo qui si concedono 2 lezioni a credito.
+        "REFORMER_MAX_LEZIONI_DA_SALDARE": "2",
     }
 
 

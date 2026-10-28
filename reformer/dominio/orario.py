@@ -13,11 +13,11 @@ FUSO = ZoneInfo(settings.fuso_orario)
 
 # Giorno della settimana (lunedì = 0, come date.weekday()) → orari d'inizio.
 ORARIO: dict[int, list[time]] = {
-    0: [time(15, 30), time(16, 30), time(17, 30)],
-    1: [time(15, 30), time(16, 30), time(17, 30)],
-    2: [time(15, 30), time(16, 30), time(17, 30)],
-    3: [time(15, 30), time(16, 30), time(17, 30)],
-    4: [time(15, 30), time(16, 30), time(17, 30)],
+    0: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
+    1: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
+    2: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
+    3: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
+    4: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
     5: [time(11, 30), time(12, 30)],
 }
 DURATA_MINUTI = 60
@@ -32,17 +32,17 @@ TITOLI_INIZIALI: dict[tuple[int, str], str] = {
 TITOLO_BASE = "Reformer"
 
 # Oltre all'orario fisso, Greta ed Elisa possono aprire una lezione in più dal
-# gestionale (per esempio alle 18:30): ORARIO_EXTRA_SUGGERITO è l'ora che il
+# gestionale (per esempio alle 19:30): ORARIO_EXTRA_SUGGERITO è l'ora che il
 # gestionale propone, giorno per giorno.
-ORARIO_EXTRA_SUGGERITO = {0: "18:30", 1: "18:30", 2: "18:30", 3: "18:30", 4: "18:30", 5: "13:30"}
+ORARIO_EXTRA_SUGGERITO = {0: "19:30", 1: "19:30", 2: "19:30", 3: "19:30", 4: "19:30", 5: "13:30"}
 
 ISTRUTTRICI = {
     "greta": {"id": "greta", "nome": "Greta", "cognome": "Lorenzetti"},
     "elisa": {"id": "elisa", "nome": "Elisa", "cognome": "Bonacci"},
 }
 
-# Lunedì, mercoledì, venerdì e sabato Greta; martedì e giovedì Elisa.
-ISTRUTTRICE_DEL_GIORNO = {0: "greta", 1: "elisa", 2: "greta", 3: "elisa", 4: "greta", 5: "greta"}
+# Lunedì, mercoledì e sabato Greta; martedì, giovedì e venerdì Elisa.
+ISTRUTTRICE_DEL_GIORNO = {0: "greta", 1: "elisa", 2: "greta", 3: "elisa", 4: "elisa", 5: "greta"}
 
 
 def adesso() -> datetime:

@@ -71,12 +71,22 @@ def client():
         yield c
 
 
-def registra(client, email, nome="Sofia", cognome="Marini", password="pilates2026"):
+def registra(client, email, nome="Sofia", cognome="Marini", password="pilates2026", lezioni=10):
+    """Registra una cliente e le carica `lezioni` nel pacchetto (come farebbe
+    lo studio dopo il pagamento): senza lezioni non si prenota."""
     r = client.post("/api/auth/registrati", json={
         "nome": nome, "cognome": cognome, "telefono": "333 1234567",
         "email": email, "password": password, "privacy": True,
     })
     assert r.status_code == 201, r.text
+    if lezioni:
+        from reformer.db.session import SessionLocal
+        from reformer.models import Utente
+
+        with SessionLocal() as db:
+            u = db.get(Utente, r.json()["utente"]["id"])
+            u.lezioni_rimaste = lezioni
+            db.commit()
     return r.json()
 
 
