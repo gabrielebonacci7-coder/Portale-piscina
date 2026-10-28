@@ -24,12 +24,12 @@ DURATA_MINUTI = 60
 
 # Il nome di partenza di alcune lezioni fisse. Greta ed Elisa possono
 # cambiarlo dal gestionale ("tutte le settimane"): quella scelta vince su
-# questa tabella. Le altre lezioni si chiamano "Reformer".
+# questa tabella. Le altre lezioni si chiamano "Pilates".
 TITOLI_INIZIALI: dict[tuple[int, str], str] = {
     (0, "16:30"): "Pilates fitness",   # lunedì
     (2, "16:30"): "Pilates fitness",   # mercoledì
 }
-TITOLO_BASE = "Reformer"
+TITOLO_BASE = "Pilates"
 
 # Oltre all'orario fisso, Greta ed Elisa possono aprire una lezione in più dal
 # gestionale (per esempio alle 19:30): ORARIO_EXTRA_SUGGERITO è l'ora che il

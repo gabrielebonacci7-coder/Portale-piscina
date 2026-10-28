@@ -151,7 +151,7 @@ async function settimana(ctx) {
 /** Aprire una lezione fuori orario (per esempio alle 18:30). */
 function aggiungiLezione(chiave, giorno, ctx) {
   const ora = el("input", { type: "time", id: "ora-nuova-lezione", value: ctx.info?.orario_extra?.[(giorno.getDay() + 6) % 7] || "18:30", step: 1800 });
-  const titolo = el("input", { id: "titolo-nuova-lezione", placeholder: "Reformer", maxlength: 60 });
+  const titolo = el("input", { id: "titolo-nuova-lezione", placeholder: "Pilates", maxlength: 60 });
   const crea = el("button", {
     classe: "bottone largo", type: "button", testo: "Apri la lezione",
     onclick: () => prova(() => api.nuovaLezione(chiave, ora.value, titolo.value), "Lezione aggiunta: le clienti la vedono già")
@@ -226,7 +226,7 @@ async function gestisci(id, ctx) {
       ogniSettimana,
       el("span", { testo: `Tutte le settimane: ogni ${T.GIORNI[inizio.getDay()]} alle ${T.oraDi(inizio)}` }),
     ]),
-    el("div", { classe: "suggerimenti" }, ["Reformer", "Pilates fitness", "Principianti", "Postura e schiena", "Total body", "Core e addome"].map((t) =>
+    el("div", { classe: "suggerimenti" }, ["Pilates", "Pilates fitness", "Principianti", "Postura e schiena", "Total body", "Core e addome"].map((t) =>
       el("button", { type: "button", classe: "chip", testo: t, onclick: () => { titolo.value = t; } }))),
     l.annullata
       ? el("div", { classe: "riquadro avviso-riquadro" }, [

@@ -511,9 +511,9 @@ export function vetrina(nome, info) {
             el("span", { classe: "giorno-nome", testo: T.GIORNI_CORTI[g.getDay()] }),
             el("span", { classe: "giorno-num", testo: g.getDate() }),
           ]))),
-        schedaLezione(finta("15:30", "Reformer", "greta", 1)),
+        schedaLezione(finta("15:30", "Pilates", "greta", 1)),
         schedaLezione(finta("16:30", "Pilates fitness", "greta", 2)),
-        schedaLezione(finta("17:30", "Reformer", "greta", 3)),
+        schedaLezione(finta("17:30", "Pilates", "greta", 3)),
       ]);
     }
     case "istruttrici":
@@ -525,18 +525,18 @@ export function vetrina(nome, info) {
         ])));
     case "posti":
       return el("div", { classe: "vetrina-colonna" }, [
-        schedaLezione(finta("16:30", "Reformer", "elisa", 0)),
-        schedaLezione(finta("17:30", "Reformer", "elisa", 2)),
-        schedaLezione(finta("18:30", "Reformer", "elisa", 3)),
+        schedaLezione(finta("16:30", "Pilates", "elisa", 0)),
+        schedaLezione(finta("17:30", "Pilates", "elisa", 2)),
+        schedaLezione(finta("18:30", "Pilates", "elisa", 3)),
       ]);
     case "attesa":
       return el("div", { classe: "vetrina-colonna" }, [
-        schedaLezione(finta("18:30", "Reformer", "greta", 3, { in_attesa: 1 })),
+        schedaLezione(finta("18:30", "Pilates", "greta", 3, { in_attesa: 1 })),
         el("div", { classe: "toast finto" }, [icona("campana", "icona piccola"), el("span", { testo: "Si è liberato un posto: sei dentro!" })]),
       ]);
     case "disdetta":
       return el("div", { classe: "vetrina-colonna" }, [
-        schedaLezione(finta("17:30", "Reformer", "elisa", 2, { mia: true })),
+        schedaLezione(finta("17:30", "Pilates", "elisa", 2, { mia: true })),
         riga("orologio", "Puoi disdire fino a 12 ore prima."),
         el("div", { classe: "bottone secondario largo", testo: "Disdici la prenotazione" }),
       ]);

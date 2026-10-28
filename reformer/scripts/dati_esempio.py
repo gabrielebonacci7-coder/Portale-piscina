@@ -73,8 +73,8 @@ def main() -> int:
                                     presente=None if futura else caso.random() > 0.08))
                 regole.muovi_saldo(db, c, -1, "Prenotazione", lezione=lez)
             if caso.random() < 0.3:
-                lez.titolo = caso.choice(["Reformer · Principianti", "Reformer · Postura e schiena",
-                                          "Reformer · Total body", "Reformer · Core e addome"])
+                lez.titolo = caso.choice(["Pilates · Principianti", "Pilates · Postura e schiena",
+                                          "Pilates · Total body", "Pilates · Core e addome"])
             db.commit()
 
         # Qualcuna in lista d'attesa sulle lezioni piene di questa settimana.

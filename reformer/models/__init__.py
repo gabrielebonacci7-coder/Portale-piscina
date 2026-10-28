@@ -100,7 +100,7 @@ class Lezione(TimestampMixin, Base):
     inizio: Mapped[datetime] = mapped_column(UTCDateTime, unique=True, index=True)
     durata_minuti: Mapped[int] = mapped_column(Integer, default=60)
     istruttrice: Mapped[str] = mapped_column(String(20))  # "greta" | "elisa"
-    titolo: Mapped[str] = mapped_column(String(60), default="Reformer")
+    titolo: Mapped[str] = mapped_column(String(60), default="Pilates")
     posti: Mapped[int] = mapped_column(Integer, default=3)
     annullata_il: Mapped[datetime | None] = mapped_column(UTCDateTime)
     motivo_annullamento: Mapped[str | None] = mapped_column(String(200))
