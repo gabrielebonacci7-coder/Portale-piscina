@@ -211,8 +211,14 @@ async function aggiornaCampanella() {
   const c = document.querySelector(".campanella");
   if (!c) return;
   if (b) b.remove();
+  c.classList.toggle("suona", nonLette > 0);
   if (nonLette) c.append(el("b", { testo: nonLette > 9 ? "9+" : nonLette }));
 }
+
+// La campanella si riaggiorna da sola: chi tiene l'app aperta vede arrivare
+// le nuove iscritte senza dover ricaricare.
+setInterval(() => { if (!document.hidden) aggiornaCampanella(); }, 45000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) aggiornaCampanella(); });
 
 function cornice(contenuto, { titolo, sottotitolo, tab }) {
   const percorso = location.hash.split("?")[0];
@@ -223,7 +229,7 @@ function cornice(contenuto, { titolo, sottotitolo, tab }) {
         el("div", { classe: "testata-titolo", testo: titolo }),
         sottotitolo ? el("div", { classe: "testata-sotto", testo: sottotitolo }) : null,
       ]),
-      el("a", { classe: "tondo campanella", href: "#/notifiche", "aria-label": "Notifiche" }, [
+      el("a", { classe: `tondo campanella ${nonLette ? "suona" : ""}`, href: "#/notifiche", "aria-label": "Notifiche" }, [
         icona("campana"),
         nonLette ? el("b", { testo: nonLette > 9 ? "9+" : nonLette }) : null,
       ]),

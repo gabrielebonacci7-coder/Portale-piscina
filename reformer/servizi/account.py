@@ -19,7 +19,7 @@ from reformer.core import email as posta
 from reformer.core.config import settings
 from reformer.core.security import hash_password, verifica_password
 from reformer.models import Ruolo, TipoToken, TokenEmail, Utente
-from reformer.servizi.regole import ErroreRegola, notifica
+from reformer.servizi.regole import ErroreRegola, notifica, notifica_staff
 
 log = logging.getLogger("reformer.account")
 
@@ -124,6 +124,11 @@ def registra(
         db, utente.id,
         "Benvenuta! Puoi già prenotare. Le lezioni si pagano in studio: Greta o Elisa "
         "le caricano sul tuo account e le vedi in «Pacchetto».",
+    )
+    notifica_staff(
+        db,
+        f"Nuova cliente: {utente.nome_completo} ({utente.telefono}). "
+        "Quando ha pagato, caricale le lezioni da Clienti.",
     )
     db.commit()
     invia_verifica(db, utente)

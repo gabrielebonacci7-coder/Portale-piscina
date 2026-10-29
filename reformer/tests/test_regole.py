@@ -402,3 +402,18 @@ def test_promemoria_una_volta(client, cliente, posta_inviata, orologio):
         assert manda_promemoria(db) == 0
         assert db.query(Notifica).filter(Notifica.testo.like("Promemoria%")).count() == 1
     assert any("Promemoria" in o for _, o, _ in posta_inviata)
+
+
+def test_a_nuova_iscritta_avvisa_lo_staff(client):
+    from reformer.tests.conftest import GRETA
+
+    staff = registra(client, GRETA, nome="Greta", cognome="Lorenzetti", lezioni=0)
+    from reformer.db.session import SessionLocal
+    from reformer.models import Ruolo, Utente
+
+    with SessionLocal() as db:
+        db.get(Utente, staff["utente"]["id"]).ruolo = Ruolo.STAFF
+        db.commit()
+    registra(client, "nuova@example.com", nome="Nuova", cognome="Cliente", lezioni=0)
+    r = client.get("/api/notifiche", headers=auth(staff["token"]))
+    assert any("Nuova cliente: Nuova Cliente" in n["testo"] for n in r.json()["elenco"])
