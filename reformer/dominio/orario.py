@@ -37,8 +37,8 @@ TITOLO_BASE = "Pilates"
 ORARIO_EXTRA_SUGGERITO = {0: "19:30", 1: "19:30", 2: "19:30", 3: "19:30", 4: "19:30", 5: "13:30"}
 
 ISTRUTTRICI = {
-    "greta": {"id": "greta", "nome": "Greta", "cognome": "Lorenzetti"},
     "elisa": {"id": "elisa", "nome": "Elisa", "cognome": "Bonacci"},
+    "greta": {"id": "greta", "nome": "Greta", "cognome": "Lorenzetti"},
 }
 
 # Lunedì, mercoledì e sabato Greta; martedì, giovedì e venerdì Elisa.

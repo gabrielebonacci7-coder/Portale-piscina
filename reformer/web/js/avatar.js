@@ -1,4 +1,4 @@
-// Greta ed Elisa (i visi) e la guida di benvenuto.
+// Elisa e Greta (i visi) e la guida di benvenuto.
 //
 // I ritratti vengono da un'unica illustrazione delle due insieme
 // (pilates/risorse/avatar-originale.png): il viso di ciascuna è ritagliato
