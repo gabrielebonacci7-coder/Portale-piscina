@@ -1,50 +1,76 @@
 <!doctype html><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,900,100,1&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,900,100,1&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
 <style>
-/* Locandina 1080x1440: titolo enorme in serif "molle" arancio zucca, info come un orario da bacheca */
-:root{--night:#140b1f;--plum:#2a1640;--pump:#ff7a1a;--slime:#b8f03a;--bone:#f3ead9;--dim:#b9a9cc;--line:#ffffff22;
+/* Locandina 1080x1440: la vasca vista dall'alto come grafica principale, informazioni come adesivi, regole come pittogrammi */
+:root{--night:#140b1f;--pump:#ff7a1a;--slime:#b8f03a;--pool:#1fd18a;--bone:#f3ead9;--dim:#b9a9cc;--plum:#2a1640;
 --display:"Fraunces",Georgia,serif;--body:"Bricolage Grotesque",system-ui,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;width:1080px;height:1440px;overflow:hidden;background:var(--night);color:var(--bone);font-family:var(--body)}
-.bg{position:absolute;left:0;right:0;bottom:0;height:240px;background:url(bg.jpg) center bottom/cover;filter:saturate(1.15)}
-.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(var(--night) 0%,#140b1f99 45%,#140b1f00)}
-.glow{position:absolute;left:-200px;top:-260px;width:900px;height:900px;border-radius:50%;background:radial-gradient(#ff7a1a2e,transparent 65%)}
-.wrap{position:relative;padding:70px 76px 0;height:100%;display:flex;flex-direction:column}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:30px}
-.where{font:600 26px/1.3 var(--body);color:var(--dim);margin:0}
-.where b{color:var(--bone);font-weight:800;display:block;font-size:30px}
-.logo{width:150px;height:150px;border-radius:24px;object-fit:cover;flex:none;box-shadow:0 18px 40px -12px #000c}
-h1{margin:34px 0 0;font:900 205px/.8 var(--display);font-style:italic;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144;color:var(--pump);letter-spacing:-.035em}
-h1 span{display:block;color:var(--slime);font-size:150px;letter-spacing:-.03em;margin-top:18px;padding-left:120px}
-.time{display:grid;gap:10px;white-space:nowrap;margin:46px 0 40px;font:800 64px/1 var(--body);letter-spacing:-.02em}
-.time small{font:600 27px var(--body);color:var(--dim);letter-spacing:0}
-dl{margin:0;display:grid;grid-template-columns:200px 1fr;column-gap:30px;font-size:27px;line-height:1.35}
-dt,dd{padding:17px 0;border-top:1px solid var(--line);margin:0}
-dt{font-weight:800;color:var(--pump);text-transform:uppercase;font-size:19px;letter-spacing:.12em;padding-top:24px}
-dd b{font-weight:800}
-.price{font:900 italic 56px/1 var(--display);color:var(--slime);font-variation-settings:"SOFT" 100,"opsz" 144;margin-right:10px}
-footer{margin-top:auto;padding-bottom:290px;display:flex;justify-content:space-between;align-items:flex-end}
-.call{font:600 24px var(--body);color:var(--bone)}
-.call b{display:block;font:800 52px/1.1 var(--body);letter-spacing:-.01em;color:var(--bone)}
-.tag{font:900 italic 34px var(--display);color:var(--pump);transform:rotate(-6deg);font-variation-settings:"SOFT" 100,"WONK" 1}
+.glow{position:absolute;left:-220px;top:-280px;width:950px;height:950px;border-radius:50%;background:radial-gradient(#ff7a1a33,transparent 65%)}
+
+/* La vasca */
+.pool{position:absolute;left:50%;top:640px;width:900px;height:900px;margin-left:-450px;transform:perspective(1200px) rotateX(52deg);transform-origin:top center;
+  background:radial-gradient(60% 50% at 50% 40%,#5dffb9,var(--pool) 55%,#0b7a52);border:18px solid #3a2556;border-radius:18px;
+  box-shadow:0 0 120px 20px #1fd18a55;-webkit-mask-image:linear-gradient(#000 60%,transparent 92%);mask-image:linear-gradient(#000 60%,transparent 92%)}
+.pool i{position:absolute;top:0;bottom:0;width:6px;background:repeating-linear-gradient(#fff 0 22px,#ff7a1a 22px 44px);opacity:.8}
+.pool i:nth-child(1){left:25%}.pool i:nth-child(2){left:50%}.pool i:nth-child(3){left:75%}
+.pumpkins{position:absolute;left:0;right:0;bottom:0;height:300px;opacity:.55;background:url(bg.jpg) center bottom/cover}
+.pumpkins::after{content:"";position:absolute;inset:0;background:linear-gradient(var(--night),#140b1f66 50%,#140b1f00)}
+
+.wrap{position:relative;padding:64px 70px;height:100%}
+header{display:flex;justify-content:space-between;align-items:flex-start}
+.where{font:700 26px/1.3 var(--body);margin:0}
+.where span{display:block;color:var(--dim);font-weight:500;font-size:24px}
+.logo{width:128px;height:128px;border-radius:22px;object-fit:cover;box-shadow:0 18px 40px -12px #000c}
+h1{margin:20px 0 0;font:900 210px/.8 var(--display);font-style:italic;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144;color:var(--pump);letter-spacing:-.035em}
+h1 span{display:block;color:var(--slime);font-size:140px;margin-top:14px;padding-left:150px}
+
+/* Adesivi */
+.st{position:absolute;padding:18px 26px 20px;border-radius:20px;font-weight:800;box-shadow:0 20px 40px -14px #000d;line-height:1}
+.st small{display:block;font:700 19px var(--body);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;opacity:.75}
+.s1{left:70px;top:590px;background:var(--bone);color:var(--night);font-size:66px;transform:rotate(-4deg)}
+.s2{right:70px;top:570px;background:var(--pump);color:var(--night);transform:rotate(5deg);text-align:center}
+.s2 b{font:900 italic 96px/0.9 var(--display);font-variation-settings:"SOFT" 100,"opsz" 144}
+.s3{left:330px;top:790px;background:var(--slime);color:var(--night);font-size:56px;transform:rotate(-2deg)}
+.s4{right:60px;top:820px;background:var(--plum);color:var(--bone);font-size:24px;line-height:1.25;max-width:270px;transform:rotate(4deg);border:2px solid #ffffff22}
+.s4 b{color:var(--slime)}
+
+/* Regole a pittogrammi */
+.rules{position:absolute;left:70px;right:70px;top:1010px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.rule{background:#140b1fd9;border:2px solid #ffffff1f;border-radius:20px;padding:20px 14px;text-align:center;font:700 21px/1.2 var(--body);backdrop-filter:blur(6px)}
+.rule svg{width:66px;height:66px;display:block;margin:0 auto 12px;stroke:var(--bone);fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.rule .no{stroke:var(--pump);stroke-width:5}
+
+.info{text-shadow:0 2px 12px #000;position:absolute;left:70px;right:70px;top:1225px;display:flex;justify-content:space-between;align-items:flex-end}
+.bar{font:500 21px/1.4 var(--body);color:var(--bone);max-width:520px}
+.bar b{color:var(--pump);font-weight:800}
+.call{text-align:right;font:700 20px var(--body);color:var(--dim)}
+.call b{display:block;font:800 46px/1.1 var(--body);color:var(--bone)}
 </style>
-<div class="glow"></div><div class="bg"></div>
+<div class="glow"></div>
+<div class="pool"><i></i><i></i><i></i></div>
+<div class="pumpkins"></div>
 <div class="wrap">
   <header>
-    <p class="where"><b>Accademia del Nuoto</b>Via Pietro Nenni 16, Marino</p>
+    <p class="where">Accademia del Nuoto<span>Via Pietro Nenni 16, Marino</span></p>
     <img class="logo" src="logo.png" alt="">
   </header>
   <h1>Halloween<span>in piscina</span></h1>
-  <div class="time">23:00 → 4:30 <small>after party fino alle 7:00 da Tommaso Manni</small></div>
-  <dl>
-    <dt>Dress code</dt><dd><b>Tutti mascherati.</b> Senza costume non si entra.</dd>
-    <dt>Open bar</dt><dd>Red Bull, Tonica, Schweppes, Cola<br>Vodka, Gin, Jägermeister, Tequila</dd>
-    <dt>Costo</dt><dd><span class="price">15€</span> a testa · se costa di più, la differenza la paga Fralbi</dd>
-    <dt>Promo gare</dt><dd>Gareggi domattina presto? <b>Un drink è offerto</b>, così non senti il lattato.</dd>
-    <dt>Regole</dt><dd>Non si toccano i computer. A fine serata si aiuta a pulire.</dd>
-  </dl>
-  <footer>
-    <div class="call">Info e prenotazioni<b>+39 351 866 2862</b></div>
-    <div class="tag">31 ottobre</div>
-  </footer>
+</div>
+
+<div class="st s1"><small>Festa</small>23:00 → 4:30</div>
+<div class="st s2"><small>A testa</small><b>15€</b></div>
+<div class="st s3"><small>In acqua solo</small>23:30 → 2:00</div>
+<div class="st s4">Gara domattina? <b>Drink offerto</b> contro il lattato</div>
+
+<div class="rules">
+  <div class="rule"><svg viewBox="0 0 64 64"><path d="M20 22c0-8 5-12 12-12s12 4 12 12v8c0 10-6 18-12 18s-12-8-12-18z"/><path d="M25 26h5M34 26h5"/><path d="M26 38q6 4 12 0"/></svg>Tutti mascherati</div>
+  <div class="rule"><svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="28" rx="3"/><path d="M24 50h16M32 42v8"/><path class="no" d="M8 56 56 8"/></svg>Vietato toccare i computer</div>
+  <div class="rule"><svg viewBox="0 0 64 64"><path d="M6 42q6-6 13 0t13 0 13 0 13 0"/><path d="M6 52q6-6 13 0t13 0 13 0 13 0"/><path d="M32 8c-5 8-8 12-8 17a8 8 0 0 0 16 0c0-5-3-9-8-17z"/><path class="no" d="M8 58 56 6"/></svg>Non si vomita in acqua</div>
+  <div class="rule"><svg viewBox="0 0 64 64"><path d="M44 8 30 34"/><path d="M22 32l14 8-6 16c-6 0-14-4-18-10z"/><path d="M18 44l8 4M16 50l6 3"/></svg>A fine serata si pulisce</div>
+</div>
+
+<div class="info">
+  <div class="bar"><b>Open bar</b> Red Bull · Tonica · Schweppes · Cola · Vodka · Gin · Jäger · Tequila<br><b>After party</b> 4:30 → 7:00 da Tommaso Manni · se costa di più, paga Fralbi</div>
+  <div class="call">Info<b>351 866 2862</b></div>
 </div>
