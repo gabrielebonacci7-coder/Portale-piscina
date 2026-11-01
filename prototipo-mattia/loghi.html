@@ -1,88 +1,142 @@
 <!doctype html><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;700&family=Cormorant+Garamond:wght@500;600&family=Bodoni+Moda:opsz,wght@6..96,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 :root{--paper:#efebe4;--card:#f8f6f2;--ink:#1d1b19;--brown:#8b5a34;--muted:#857a6f}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hanken Grotesk",sans-serif}
-.sheet{width:1700px;padding:64px;display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
-h1{grid-column:1/-1;margin:0 0 4px;font:500 30px "Hanken Grotesk";letter-spacing:-.01em}
-.sub{grid-column:1/-1;margin:0 0 20px;color:var(--muted);font-size:17px}
-.cell{background:var(--card);height:420px;position:relative;display:grid;place-items:center;padding:40px 20px 70px}
+.sheet{width:1700px;padding:56px 64px 64px;display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+h1{grid-column:1/-1;margin:0;font:500 30px "Hanken Grotesk";letter-spacing:-.01em}
+.sub{grid-column:1/-1;margin:-8px 0 12px;color:var(--muted);font-size:17px}
+.cell{background:var(--card);height:400px;position:relative;display:grid;place-items:center;padding:30px 20px 74px}
 .n{position:absolute;left:18px;top:14px;font:500 13px "JetBrains Mono";color:var(--muted)}
-.t{position:absolute;left:18px;right:18px;bottom:14px;font:500 14px/1.35 "Hanken Grotesk"}
+.t{position:absolute;left:18px;right:18px;bottom:16px;font:500 15px/1.35 "Hanken Grotesk"}
 .t span{display:block;color:var(--muted);font-weight:400;font-size:13px}
-svg{overflow:visible}
+svg{width:170px;height:170px;overflow:visible}
+.ln{fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linejoin:miter}
+.th{fill:none;stroke:var(--brown);stroke-width:1.3}
+.da{stroke-dasharray:4 4}
+.dd{stroke-dasharray:12 4 2 4}
+.b{stroke:var(--brown)}
+.fi{fill:var(--ink);stroke:none}.fb{fill:var(--brown);stroke:none}
 </style>
-<div class="sheet">
-<h1>Mattia Moretti — 10 tipologie di logo</h1>
-<p class="sub">Ognuna è un genere diverso di logo da studio di architettura. Sotto, a cosa si ispira.</p>
 
-<!-- 1 Wordmark puro -->
-<div class="cell"><span class="n">01</span>
-<svg width="270" height="80" viewBox="0 0 270 80"><text x="0" y="34" font-family="Hanken Grotesk" font-weight="300" font-size="30" letter-spacing="1">Mattia Moretti</text><line x1="0" y1="52" x2="28" y2="52" stroke="#8b5a34" stroke-width="2"/><text x="0" y="74" font-family="Hanken Grotesk" font-weight="500" font-size="11" letter-spacing="4.5">ARCHITETTO</text></svg>
-<div class="t">Solo il nome<span>Come Chipperfield o Herzog &amp; de Meuron: niente simbolo, solo tipografia</span></div></div>
+<div class="sheet" id="p1">
+<h1>Loghi 1–10 · Disegno e proiezione</h1>
+<p class="sub">Simboli presi dagli strumenti e dai metodi del disegno di architettura.</p>
 
-<!-- 2 Epigrafe romana -->
-<div class="cell"><span class="n">02</span>
-<svg width="240" height="120" viewBox="0 0 240 120"><text x="120" y="70" text-anchor="middle" font-family="Cormorant Garamond" font-weight="500" font-size="72" letter-spacing="10">M·M</text><line x1="40" y1="88" x2="200" y2="88" stroke="#1d1b19" stroke-width="1"/><text x="120" y="108" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="13" letter-spacing="6">ARCHITETTO · RESTAURO</text></svg>
-<div class="t">Epigrafe romana<span>Le iniziali come un'iscrizione incisa su pietra: il mondo del restauro</span></div></div>
+<div class="cell"><span class="n">01</span><svg viewBox="0 0 170 170">
+<path class="ln" d="M20 85V48L46 26L72 48V85Z"/><path class="ln" d="M100 26H150V85H100ZM100 48H150"/><path class="ln" d="M20 112H72V160H20ZM46 112V160"/>
+<path class="th da" d="M20 85V112M46 85V112M72 85V112M72 26H100M72 48H100M72 85H100M100 85L150 160M72 112H86M72 160H86"/></svg>
+<div class="t">Proiezioni ortogonali<span>La stessa casa vista di fronte, di lato e dall'alto, legata dalle linee di proiezione</span></div></div>
 
-<!-- 3 Monogramma modulare -->
-<div class="cell"><span class="n">03</span>
-<svg width="150" height="150" viewBox="0 0 150 150" fill="#1d1b19">
-<rect x="0" y="0" width="22" height="150"/><rect x="22" y="0" width="22" height="22"/><rect x="44" y="22" width="22" height="22"/><rect x="66" y="0" width="22" height="22"/><rect x="88" y="0" width="22" height="150"/>
-<rect x="66" y="64" width="22" height="86" fill="#8b5a34"/><rect x="128" y="0" width="22" height="150" fill="#8b5a34"/><rect x="110" y="22" width="18" height="22" fill="#8b5a34"/></svg>
-<div class="t">Monogramma modulare<span>MM costruite su una griglia di blocchi, come un sistema costruttivo</span></div></div>
+<div class="cell"><span class="n">02</span><svg viewBox="0 0 170 170" id="iso"></svg>
+<div class="t">Assonometria<span>Il volume della casa in isometria, gli spigoli nascosti tratteggiati</span></div></div>
 
-<!-- 4 Timbro -->
-<div class="cell"><span class="n">04</span>
-<svg width="190" height="190" viewBox="0 0 190 190"><defs><path id="c4" d="M95 95m-72 0a72 72 0 1 1 144 0a72 72 0 1 1-144 0"/></defs>
-<circle cx="95" cy="95" r="90" fill="none" stroke="#1d1b19" stroke-width="2"/><circle cx="95" cy="95" r="54" fill="none" stroke="#1d1b19" stroke-width="1"/>
-<text font-family="Hanken Grotesk" font-weight="500" font-size="12.5" letter-spacing="4.2"><textPath href="#c4">MATTIA MORETTI · ARCHITETTO · MARINO · RM ·</textPath></text>
-<path d="M68 112V82L82 70L95 82L108 70L122 82V112" fill="none" stroke="#8b5a34" stroke-width="3"/></svg>
-<div class="t">Timbro professionale<span>Come il timbro dell'Ordine che l'architetto mette sulle tavole</span></div></div>
+<div class="cell"><span class="n">03</span><svg viewBox="0 0 170 170">
+<line class="th" x1="0" y1="78" x2="170" y2="78"/>
+<path class="ln" d="M20 160V70L85 18L150 70V160"/><path class="ln" d="M62 112V76L85 58L108 76V112Z" stroke-width="2"/>
+<path class="th" d="M20 160L62 112M150 160L108 112M20 70L62 76M150 70L108 76M85 18L85 58"/><circle class="fb" cx="85" cy="90" r="3.5"/></svg>
+<div class="t">Prospettiva centrale<span>Le linee della casa corrono verso un unico punto di fuga</span></div></div>
 
-<!-- 5 Spazio negativo -->
-<div class="cell"><span class="n">05</span>
-<svg width="140" height="140" viewBox="0 0 140 140"><path fill="#1d1b19" fill-rule="evenodd" d="M0 0H140V140H0Z M40 140V78L70 54L100 78V140Z"/></svg>
-<div class="t">Spazio negativo<span>Un quadrato pieno da cui è "scavata" una casa, come un'apertura nel muro</span></div></div>
+<div class="cell"><span class="n">04</span><svg viewBox="0 0 170 170">
+<circle class="ln" cx="85" cy="24" r="8"/><line class="ln" x1="85" y1="6" x2="85" y2="16"/>
+<path class="ln" d="M80 31L32 140M90 31L138 140"/><path class="ln b" d="M24 148A62 62 0 0 0 146 148" stroke-width="2.2"/></svg>
+<div class="t">Compasso<span>Le gambe del compasso sono il tetto, l'arco tracciato è la terra</span></div></div>
 
-<!-- 6 Linea continua -->
-<div class="cell"><span class="n">06</span>
-<svg width="240" height="110" viewBox="0 0 240 110" fill="none" stroke="#1d1b19" stroke-width="2.4" stroke-linejoin="round"><path d="M0 96H48V44L84 16L120 44V96H136V60L160 40L184 60V96H232"/><circle cx="232" cy="96" r="3.6" fill="#8b5a34" stroke="none"/></svg>
-<div class="t">Linea continua<span>Un solo tratto: la linea di terra disegna due case e finisce nel punto della matita</span></div></div>
+<div class="cell"><span class="n">05</span><svg viewBox="0 0 170 170"><path class="fi" fill-rule="evenodd" d="M18 18V152H152Z M40 140V110L58 94L76 110V140Z"/></svg>
+<div class="t">Squadra<span>La squadra da disegno, con il foro a forma di casa</span></div></div>
 
-<!-- 7 Sezione piena -->
-<div class="cell"><span class="n">07</span>
-<svg width="160" height="150" viewBox="0 0 160 150"><defs><pattern id="h7" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#1d1b19" stroke-width="1.6"/></pattern></defs>
-<path fill="#1d1b19" d="M0 150V0H160V150H124V70A44 44 0 0 0 36 70V150Z"/><rect x="0" y="140" width="160" height="10" fill="url(#h7)"/><rect x="-10" y="150" width="180" height="2" fill="#8b5a34"/></svg>
-<div class="t">Sezione<span>Un arco tagliato in sezione, con il muro pieno come nei disegni di rilievo</span></div></div>
+<div class="cell"><span class="n">06</span><svg viewBox="0 0 170 170">
+<path class="fb" d="M70 28L22 120L84 146L118 50Z" opacity=".95"/><path class="fi" d="M70 28L118 50L152 134L84 146Z"/></svg>
+<div class="t">Foglio piegato<span>Un foglio da disegno piegato a capanna: il progetto che prende volume</span></div></div>
 
-<!-- 8 Cartiglio -->
-<div class="cell"><span class="n">08</span>
-<svg width="260" height="110" viewBox="0 0 260 110" font-family="JetBrains Mono"><rect x="1" y="1" width="258" height="108" fill="none" stroke="#1d1b19" stroke-width="2"/><line x1="70" y1="1" x2="70" y2="109" stroke="#1d1b19"/><line x1="70" y1="62" x2="259" y2="62" stroke="#1d1b19"/><line x1="170" y1="62" x2="170" y2="109" stroke="#1d1b19"/>
-<text x="35" y="66" text-anchor="middle" font-family="Hanken Grotesk" font-weight="700" font-size="34">MM</text>
-<text x="84" y="30" font-family="Hanken Grotesk" font-weight="500" font-size="17">Mattia Moretti</text><text x="84" y="49" font-size="10" fill="#857a6f" letter-spacing="1">ARCHITETTO</text>
-<text x="84" y="80" font-size="8" fill="#857a6f">STUDIO</text><text x="84" y="98" font-size="11">Marino RM</text><text x="184" y="80" font-size="8" fill="#857a6f">SCALA</text><text x="184" y="98" font-size="11" fill="#8b5a34">1:50</text></svg>
-<div class="t">Cartiglio<span>Il riquadro che sta in basso a destra su ogni tavola di progetto</span></div></div>
+<div class="cell"><span class="n">07</span><svg viewBox="0 0 170 170">
+<path class="ln" d="M40 150V78L85 42L130 78V150"/><line class="th dd" x1="85" y1="22" x2="85" y2="162"/>
+<path class="th" d="M40 30V20M130 30V20M40 25H130M36 29L44 21M126 29L134 21M150 42H160M150 150H160M155 42V150M151 46L159 38M151 154L159 146"/></svg>
+<div class="t">Quote e asse<span>Il prospetto con le sue misure e l'asse di simmetria</span></div></div>
 
-<!-- 9 Casa-monogramma -->
-<div class="cell"><span class="n">09</span>
-<svg width="140" height="150" viewBox="0 0 140 150" fill="none" stroke="#1d1b19" stroke-width="3" stroke-linejoin="miter"><path d="M10 145V58L70 8L130 58V145Z"/><path d="M38 145V82L70 112L102 82V145" stroke="#8b5a34"/></svg>
-<div class="t">Casa con la M<span>La sagoma della casa contiene la M: iniziale accennata, non protagonista</span></div></div>
+<div class="cell"><span class="n">08</span><svg viewBox="0 0 170 170">
+<rect class="ln" x="45" y="80" width="80" height="80"/><path class="ln b" d="M85 24L141 80L85 136L29 80Z" stroke-width="2"/>
+<path class="th da" d="M45 80A40 40 0 0 1 85 40"/></svg>
+<div class="t">Rotazione<span>Un quadrato ruotato di 45° diventa il tetto del quadrato sotto</span></div></div>
 
-<!-- 10 Arco a conci -->
-<div class="cell"><span class="n">10</span>
-<svg width="170" height="130" viewBox="0 0 170 130" fill="#1d1b19" id="arc"></svg>
-<div class="t">Arco a conci<span>L'arco costruito pietra su pietra, con la chiave di volta in evidenza</span></div></div>
+<div class="cell"><span class="n">09</span><svg viewBox="0 0 170 170">
+<path class="th" d="M30 30V150M70 30V150M110 30V150M150 30V150M20 50H160M20 100H160M20 150H160" stroke="#b9ab9c"/>
+<path class="ln" d="M30 150V100L70 60L110 100V150" stroke-width="3.4"/>
+<g font-family="JetBrains Mono" font-size="9" text-anchor="middle" fill="#857a6f"><circle cx="30" cy="16" r="8" class="th"/><text x="30" y="19">1</text><circle cx="70" cy="16" r="8" class="th"/><text x="70" y="19">2</text><circle cx="110" cy="16" r="8" class="th"/><text x="110" y="19">3</text></g></svg>
+<div class="t">Griglia strutturale<span>Gli assi del progetto, con la casa tracciata sopra</span></div></div>
+
+<div class="cell"><span class="n">10</span><svg viewBox="0 0 170 170">
+<path class="fi" d="M66 150V96L96 72L126 96V150Z" opacity=".85"/><path class="ln" d="M36 150V96L66 72L96 96V150Z" fill="#f8f6f2"/><path class="th da" d="M66 72L96 42M96 96L126 66M36 96L66 66"/><line class="ln" x1="10" y1="150" x2="160" y2="150"/></svg>
+<div class="t">Ombra<span>La casa e la sua ombra proiettata a 45°, come negli esercizi di sciagrafia</span></div></div>
 </div>
+
+<div class="sheet" id="p2">
+<h1>Loghi 11–20 · Segno e costruzione</h1>
+<p class="sub">Simboli fatti di un tratto, di un pieno o di una tecnica di disegno.</p>
+
+<div class="cell"><span class="n">11</span><svg viewBox="0 0 240 110" style="width:220px"><path class="ln" stroke-width="2.4" d="M0 96H48V44L84 16L120 44V96H136V60L160 40L184 60V96H232"/><circle class="fb" cx="232" cy="96" r="3.6"/></svg>
+<div class="t">Linea continua<span>Un solo tratto disegna due case e finisce nel punto della matita</span></div></div>
+
+<div class="cell"><span class="n">12</span><svg viewBox="0 0 170 170"><path class="ln" stroke-width="3" d="M24 160V70L85 18L146 70V160Z"/><path class="ln b" stroke-width="3" d="M52 160V96L85 128L118 96V160"/></svg>
+<div class="t">Casa con la M<span>La sagoma della casa contiene la M, iniziale accennata</span></div></div>
+
+<div class="cell"><span class="n">13</span><svg viewBox="0 0 170 170"><path class="fi" fill-rule="evenodd" d="M15 15H155V155H15Z M55 155V95L85 70L115 95V155Z"/></svg>
+<div class="t">Spazio negativo<span>Una casa scavata in un quadrato pieno, come un'apertura nel muro</span></div></div>
+
+<div class="cell"><span class="n">14</span><svg viewBox="0 0 170 170" class="fi"><rect class="fi" x="12" y="12" width="24" height="146"/><rect class="fi" x="36" y="12" width="24" height="24"/><rect class="fi" x="60" y="36" width="24" height="24"/><rect class="fi" x="84" y="12" width="24" height="24"/><rect class="fi" x="108" y="12" width="24" height="146"/><rect class="fb" x="84" y="84" width="24" height="74"/><rect class="fb" x="134" y="12" width="24" height="146"/></svg>
+<div class="t">Monogramma a blocchi<span>Le iniziali costruite su una griglia di moduli</span></div></div>
+
+<div class="cell"><span class="n">15</span><svg viewBox="0 0 170 170"><defs><pattern id="h7" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#1d1b19" stroke-width="1.6"/></pattern></defs>
+<path class="fi" d="M5 160V10H165V160H129V80A44 44 0 0 0 41 80V160Z"/><rect x="5" y="150" width="160" height="10" fill="url(#h7)"/><rect class="fb" x="-5" y="160" width="180" height="2.5"/></svg>
+<div class="t">Sezione<span>Un arco tagliato in sezione, il muro pieno come nei rilievi</span></div></div>
+
+<div class="cell"><span class="n">16</span><svg viewBox="0 0 170 170" id="arc"></svg>
+<div class="t">Arco a conci<span>L'arco costruito pietra su pietra, la chiave di volta in evidenza</span></div></div>
+
+<div class="cell"><span class="n">17</span><svg viewBox="0 0 170 170"><defs><path id="c4" d="M85 85m-66 0a66 66 0 1 1 132 0a66 66 0 1 1-132 0"/></defs>
+<circle class="ln" cx="85" cy="85" r="82" stroke-width="2"/><circle class="ln" cx="85" cy="85" r="48" stroke-width="1"/>
+<text font-family="Hanken Grotesk" font-weight="500" font-size="11.5" letter-spacing="3.6"><textPath href="#c4">RILIEVO · PROGETTO · RESTAURO · CANTIERE ·</textPath></text>
+<path class="ln b" d="M60 100V74L73 63L85 74L97 63L110 74V100" stroke-width="2.6"/></svg>
+<div class="t">Timbro<span>Come il timbro sulle tavole, ma con le fasi del lavoro al posto del nome</span></div></div>
+
+<div class="cell"><span class="n">18</span><svg viewBox="0 0 220 120" style="width:220px">
+<circle class="fi" cx="12" cy="96" r="5"/><line class="ln" x1="40" y1="96" x2="84" y2="96"/><rect class="ln" x="104" y="56" width="40" height="40"/><path class="ln b" d="M164 96V56L186 36L208 56V96Z"/></svg>
+<div class="t">Punto, linea, superficie<span>Dal punto alla casa in quattro passi: il percorso del progetto</span></div></div>
+
+<div class="cell"><span class="n">19</span><svg viewBox="0 0 170 170">
+<rect class="ln" x="10" y="36" width="150" height="93" stroke-width="2"/><path class="th" d="M10 129L160 36M10 36L160 129M103 36V129M103 36A93 93 0 0 0 10 129"/>
+<path class="ln" stroke-width="2.8" d="M30 129V86L56 64L82 86V129"/></svg>
+<div class="t">Tracciato regolatore<span>Rettangolo aureo, diagonali e arco: le proporzioni che governano la casa</span></div></div>
+
+<div class="cell"><span class="n">20</span><svg viewBox="0 0 170 170" id="hatch"></svg>
+<div class="t">Tratteggio<span>La casa disegnata solo con il chiaroscuro, senza contorni</span></div></div>
+</div>
+
 <script>
-// Arco a conci: 9 blocchi lungo un semicerchio, quello centrale (chiave di volta) in marrone
-const s=document.getElementById('arc'),cx=85,cy=120,r1=52,r2=82,n=9,gap=.035;
-for(let i=0;i<n;i++){const a0=Math.PI-i*Math.PI/n-gap/2,a1=Math.PI-(i+1)*Math.PI/n+gap/2;
-const p=(r,a)=>`${cx+r*Math.cos(a)} ${cy-r*Math.sin(a)}`;
-const e=document.createElementNS('http://www.w3.org/2000/svg','path');
-e.setAttribute('d',`M${p(r1,a0)}L${p(r2,a0)}A${r2} ${r2} 0 0 1 ${p(r2,a1)}L${p(r1,a1)}A${r1} ${r1} 0 0 0 ${p(r1,a0)}Z`);
-if(i===4)e.setAttribute('fill','#8b5a34');s.appendChild(e);}
-const b=document.createElementNS('http://www.w3.org/2000/svg','rect');b.setAttribute('x',0);b.setAttribute('y',122);b.setAttribute('width',170);b.setAttribute('height',3);s.appendChild(b);
+const NS='http://www.w3.org/2000/svg',el=(s,t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);s.appendChild(e);return e};
+// Assonometria isometrica
+{const s=document.getElementById('iso'),k=Math.cos(Math.PI/6);
+const P=(x,y,z)=>[85+(x-y)*k*34,128+(x+y)*.5*34-z*34];
+const pt=(...a)=>P(...a).join(' ');
+const A=[0,0,0],v=(x,y,z)=>pt(x,y,z);
+// casa 2x1.4 base, muri 1.2, colmo 2
+const L=(a,b,cls)=>el(s,'path',{d:`M${v(...a)}L${v(...b)}`,class:cls||'ln'});
+const w=1.5,d=1.1,h=1.1,r=1.9;
+[[[0,0,0],[w,0,0]],[[w,0,0],[w,d,0]],[[0,0,0],[0,d,0]],[[0,0,0],[0,0,h]],[[w,0,0],[w,0,h]],[[w,d,0],[w,d,h]],[[0,0,h],[w,0,h]],[[w,0,h],[w,d,h]],
+ [[0,0,h],[0,d/2,r]],[[0,d/2,r],[0,d,h]],[[w,d/2,r],[w,d,h]],[[0,d/2,r],[w,d/2,r]],[[w,0,h],[w,d/2,r]]].forEach(([a,b])=>L(a,b));
+L([0,d,0],[w,d,0],'th da');L([0,d,0],[0,d,h],'th da');L([0,d,h],[w,d,h],'ln');}
+// Arco a conci
+{const s=document.getElementById('arc'),cx=85,cy=130,r1=50,r2=80,n=9,g=.035;
+for(let i=0;i<n;i++){const a0=Math.PI-i*Math.PI/n-g/2,a1=Math.PI-(i+1)*Math.PI/n+g/2,p=(r,a)=>`${cx+r*Math.cos(a)} ${cy-r*Math.sin(a)}`;
+el(s,'path',{d:`M${p(r1,a0)}L${p(r2,a0)}A${r2} ${r2} 0 0 1 ${p(r2,a1)}L${p(r1,a1)}A${r1} ${r1} 0 0 0 ${p(r1,a0)}Z`,class:i==4?'fb':'fi'});}
+el(s,'rect',{x:0,y:132,width:170,height:3,class:'fi'});}
+// Tratteggio: falda in ombra fitta, facciata media, falda in luce rada
+{const s=document.getElementById('hatch'),clip=(id,d)=>{const c=el(s,'clipPath',{id});el(c,'path',{d});};
+clip('f','M30 160V86L85 42L140 86V160Z');
+const g=el(s,'g',{'clip-path':'url(#f)'});
+for(let i=-200;i<200;i+=6)el(g,'line',{x1:i,y1:0,x2:i+170,y2:170,stroke:'#1d1b19','stroke-width':1.2});
+const c2=el(s,'clipPath',{id:'r'});el(c2,'path',{d:'M85 42L140 86V100L85 56Z'});
+const g2=el(s,'g',{'clip-path':'url(#r)'});for(let i=-200;i<200;i+=3)el(g2,'line',{x1:i,y1:170,x2:i+170,y2:0,stroke:'#8b5a34','stroke-width':1.4});
+el(s,'rect',{x:70,y:118,width:30,height:42,fill:'#1d1b19'});}
 </script>

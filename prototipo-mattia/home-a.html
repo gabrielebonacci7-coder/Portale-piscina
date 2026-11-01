@@ -1,19 +1,19 @@
 <!doctype html><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=Bodoni+Moda:opsz,wght@6..96,500&family=JetBrains+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=Archivo:wdth,wght@125,900&family=Bodoni+Moda:opsz,wght@96,900&family=JetBrains+Mono:wght@400&display=swap">
 <style>
-/* Home 1440x900: cemento grigio-tortora; un oggetto trasparente (squadra o A) apre una finestra sul tavolo da disegno */
-:root{--light:#ece6dc;--muted:#bdb2a4;--brown:#c08d5f}
+/* Home 1440x900: cemento grigio-tortora; una grande A trasparente mostra le proiezioni di un progetto sul tavolo */
+:root{--light:#ece6dc;--muted:#bdb2a4}
 *{box-sizing:border-box}
 html,body{margin:0;width:1440px;height:900px;overflow:hidden;background:#55504a;color:var(--light);font-family:"Hanken Grotesk",sans-serif}
 canvas,#scene{position:absolute;inset:0}
 nav{position:absolute;left:64px;right:64px;top:44px;display:flex;justify-content:space-between;align-items:center;z-index:2}
-.brand{display:flex;align-items:center;gap:16px;font:400 18px "Hanken Grotesk";letter-spacing:.02em}
+.brand{display:flex;align-items:center;gap:16px;font:400 18px "Hanken Grotesk"}
 .brand svg{width:64px;height:30px;fill:none;stroke:var(--light);stroke-width:2.4;stroke-linejoin:round}
 .links{display:flex;gap:40px;font:400 15px "Hanken Grotesk";color:var(--muted)}
-.copy{position:absolute;right:64px;top:210px;width:400px;z-index:2}
-.copy h1{margin:0;font:300 58px/1.02 "Hanken Grotesk";letter-spacing:-.025em;text-wrap:balance}
+.copy{position:absolute;right:64px;top:230px;width:380px;z-index:2}
+.copy h1{margin:0;font:300 54px/1.04 "Hanken Grotesk";letter-spacing:-.025em}
 .copy p{margin:22px 0 0;font-size:18px;line-height:1.5;color:var(--muted)}
-.foot{position:absolute;right:64px;bottom:56px;width:400px;display:flex;justify-content:space-between;font:400 13px "JetBrains Mono";color:var(--muted);z-index:2}
+.tag{position:absolute;right:64px;width:380px;bottom:56px;font:400 13px "JetBrains Mono";color:var(--muted);z-index:2}
 </style>
 <canvas id="c" width="1440" height="900"></canvas>
 <svg id="scene" viewBox="0 0 1440 900"></svg>
@@ -22,11 +22,11 @@ nav{position:absolute;left:64px;right:64px;top:44px;display:flex;justify-content
   <div class="links"><span>Progetti</span><span>Ambiti</span><span>Formazione</span><span>Contatti</span></div>
 </nav>
 <div class="copy"><h1>Restauro e progetto di case storiche</h1><p>Dal rilievo al cantiere, con le pratiche incluse. Studio a Marino.</p></div>
-<div class="foot"><span>41°45′N 12°39′E</span><span>scorri ↓</span></div>
+<div class="tag" id="tag"></div>
 
 <script>
-const V=new URLSearchParams(location.search).get('v')||'squadra';
-// --- cemento ---
+const V=new URLSearchParams(location.search).get('v')||'1';
+// cemento
 const c=document.getElementById('c'),x=c.getContext('2d'),W=1440,H=900;
 x.fillStyle='#55504a';x.fillRect(0,0,W,H);
 for(let i=0;i<320;i++){const r=30+Math.random()*240,px=Math.random()*W,py=Math.random()*H,g=x.createRadialGradient(px,py,0,px,py,r),t=Math.random()<.55;
@@ -34,48 +34,66 @@ g.addColorStop(0,t?'rgba(150,138,124,.14)':'rgba(36,33,30,.13)');g.addColorStop(
 const d=x.getImageData(0,0,W,H),p=d.data;for(let i=0;i<p.length;i+=4){const n=(Math.random()-.5)*22;p[i]+=n;p[i+1]+=n;p[i+2]+=n;}x.putImageData(d,0,0);
 for(let i=0;i<1400;i++){x.fillStyle=Math.random()<.6?'rgba(28,26,24,.4)':'rgba(205,195,182,.16)';x.beginPath();x.arc(Math.random()*W,Math.random()*H,Math.random()*1.8+.3,0,7);x.fill();}
 
-// --- tavolo da disegno (SVG) ---
-const L='#4a443e', P='#ebe5d9';
-let g=`<rect width="1440" height="900" fill="#d9d1c3"/>
-<g transform="rotate(-4 700 480)"><rect x="40" y="60" width="1140" height="820" fill="${P}"/>`;
-for(let i=0;i<48;i++)g+=`<line x1="${40+i*24}" y1="60" x2="${40+i*24}" y2="880" stroke="#ddd5c6" stroke-width=".8"/>`;
-for(let i=0;i<35;i++)g+=`<line x1="40" y1="${60+i*24}" x2="1180" y2="${60+i*24}" stroke="#ddd5c6" stroke-width=".8"/>`;
-// pianta: muri pieni con retino, volte a crociera tratteggiate, porte, quote
-g+=`<defs><pattern id="ht" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line y2="6" stroke="${L}" stroke-width="1.2"/></pattern></defs>
-<path fill="url(#ht)" stroke="${L}" stroke-width="2" fill-rule="evenodd" d="M240 220H900V700H240Z M268 248H872V672H268Z"/>
-<rect x="268" y="440" width="604" height="16" fill="url(#ht)" stroke="${L}" stroke-width="1.6"/>
-<rect x="560" y="248" width="16" height="424" fill="url(#ht)" stroke="${L}" stroke-width="1.6"/>
-<rect x="400" y="436" width="70" height="24" fill="${P}"/><rect x="556" y="540" width="24" height="70" fill="${P}"/><rect x="680" y="696" width="90" height="8" fill="${P}"/>
-<path d="M400 456A70 70 0 0 1 470 386" fill="none" stroke="${L}" stroke-width="1"/><line x1="470" y1="456" x2="470" y2="386" stroke="${L}"/>
-<g stroke="${L}" stroke-width="1" stroke-dasharray="7 6"><line x1="268" y1="248" x2="560" y2="440"/><line x1="560" y1="248" x2="268" y2="440"/><line x1="576" y1="248" x2="872" y2="440"/><line x1="872" y1="248" x2="576" y2="440"/><line x1="268" y1="456" x2="560" y2="672"/><line x1="560" y1="456" x2="268" y2="672"/><line x1="576" y1="456" x2="872" y2="672"/><line x1="872" y1="456" x2="576" y2="672"/></g>
-<g stroke="${L}" stroke-width="1"><line x1="240" y1="170" x2="900" y2="170"/><line x1="240" y1="160" x2="240" y2="200"/><line x1="560" y1="160" x2="560" y2="200"/><line x1="900" y1="160" x2="900" y2="200"/>
-<line x1="234" y1="176" x2="246" y2="164"/><line x1="554" y1="176" x2="566" y2="164"/><line x1="894" y1="176" x2="906" y2="164"/>
-<line x1="950" y1="220" x2="950" y2="700"/><line x1="940" y1="220" x2="980" y2="220"/><line x1="940" y1="700" x2="980" y2="700"/></g>
-<g font-family="JetBrains Mono" font-size="15" fill="${L}"><text x="380" y="160">6.40</text><text x="710" y="160">6.80</text><text x="962" y="470" transform="rotate(-90 962 470)">9.60</text>
-<text x="390" y="360">VANO 1</text><text x="690" y="360">VANO 2</text><text x="390" y="580">VANO 3</text><text x="690" y="580">VANO 4</text></g>
-<g stroke="${L}" stroke-width="2" fill="none"><line x1="200" y1="560" x2="940" y2="560" stroke-dasharray="20 6 3 6" stroke-width="1"/><path d="M200 560v-24M940 560v-24"/></g>
-<g font-family="Bodoni Moda" font-size="26" fill="${L}"><text x="188" y="526">A</text><text x="930" y="526">A</text></g>
-<rect x="900" y="760" width="250" height="90" fill="none" stroke="${L}" stroke-width="1.5"/><line x1="900" y1="800" x2="1150" y2="800" stroke="${L}"/>
-<text x="914" y="788" font-family="Hanken Grotesk" font-size="16" fill="${L}">Rilievo · piano terra</text><text x="914" y="830" font-family="JetBrains Mono" font-size="13" fill="${L}">SCALA 1:50   TAV. 02</text></g>`;
-// scalimetro e matita sul tavolo
-g+=`<g transform="rotate(14 820 780)"><rect x="520" y="760" width="640" height="54" fill="#f4f1ea" stroke="#9c9285"/><rect x="520" y="802" width="640" height="12" fill="#3e7a52"/>`;
-for(let i=0;i<=80;i++)g+=`<line x1="${530+i*7.8}" y1="760" x2="${530+i*7.8}" y2="${i%10?768:776}" stroke="#333"/>`;
-g+=`</g><g transform="rotate(-32 1040 640)"><rect x="830" y="630" width="380" height="20" fill="#26231f"/><rect x="1210" y="630" width="26" height="20" fill="#b9b3a8"/><path d="M830 630L782 640L830 650Z" fill="#d6b48a"/><path d="M796 637L782 640L796 643Z" fill="#26231f"/></g>`;
+// ---------- disegni (ognuno in un riquadro 400x300) ----------
+const L='#45403a',PAPER='#ebe5d9',MONO='JetBrains Mono';
+const lab=t=>`<text x="12" y="290" font-family="${MONO}" font-size="13" fill="${L}" letter-spacing="1.5">${t}</text><line x1="12" y1="294" x2="${12+t.length*9.4}" y2="294" stroke="${L}"/>`;
+const hatch=`<pattern id="ht" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line y2="6" stroke="${L}" stroke-width="1.1"/></pattern>`;
+function prospetto(){let s=`<g stroke="${L}" fill="none" stroke-width="1.3"><rect x="40" y="50" width="320" height="210"/><path d="M30 50H370M34 42H366M30 42V50M370 42V50"/>`;
+ for(let i=0;i<32;i++)s+=`<line x1="${44+i*10}" y1="42" x2="${44+i*10}" y2="50" stroke-width=".8"/>`;
+ s+=`<path d="M40 130H360M40 196H360"/>`;for(let y=200;y<260;y+=8)s+=`<line x1="40" y1="${y}" x2="360" y2="${y}" stroke-width=".6"/>`;
+ [80,140,260,320].forEach(cx=>{s+=`<path d="M${cx-16} 120V82A16 16 0 0 1 ${cx+16} 82V120Z"/><path d="M${cx-16} 186V150H${cx+16}V186Z"/><path d="M${cx-22} 120H${cx+22}"/>`;});
+ s+=`<path d="M200-0" /><path d="M176 260V214A24 24 0 0 1 224 214V260" fill="${PAPER}"/><path d="M182 120V82A18 18 0 0 1 218 82V120ZM182 186V150H218V186Z"/></g>`;return s+lab('PROSPETTO');}
+function sezione(){let s=`<rect x="20" y="248" width="360" height="22" fill="url(#ht)"/><g stroke="${L}" fill="none" stroke-width="1.3"><line x1="10" y1="248" x2="390" y2="248"/>
+ <rect x="50" y="70" width="18" height="178" fill="url(#ht)"/><rect x="332" y="70" width="18" height="178" fill="url(#ht)"/><rect x="190" y="150" width="20" height="98" fill="url(#ht)"/>
+ <path d="M68 150A61 50 0 0 1 190 150M210 150A61 50 0 0 1 332 150" stroke-width="1.6"/><path d="M68 142H332" stroke-dasharray="5 4"/>
+ <rect x="68" y="134" width="264" height="10" fill="url(#ht)"/><path d="M40 72L200 18L360 72M68 70L200 26L332 70M110 56V70M200 26V70M290 56V70"/></g>
+ <g font-family="${MONO}" font-size="11" fill="${L}"><path d="M368 248l-6-8h12Z M368 139l-6-8h12Z" fill="${L}"/><text x="352" y="234">±0.00</text><text x="352" y="125">+4.20</text></g>`;return s+lab('SEZIONE A-A');}
+function pianta(){let s=`<path fill="url(#ht)" stroke="${L}" stroke-width="1.5" fill-rule="evenodd" d="M40 40H340V250H40Z M56 56H324V234H56Z"/>
+ <rect x="56" y="140" width="268" height="10" fill="url(#ht)" stroke="${L}"/><rect x="186" y="56" width="10" height="178" fill="url(#ht)" stroke="${L}"/>
+ <rect x="100" y="138" width="44" height="14" fill="${PAPER}"/><rect x="230" y="246" width="50" height="6" fill="${PAPER}"/>
+ <g stroke="${L}" fill="none" stroke-width="1"><path d="M100 150A44 44 0 0 1 144 106M144 150V106"/>
+ <g stroke-dasharray="5 4"><path d="M56 56L186 140M186 56L56 140M196 56L324 140M324 56L196 140M56 150L186 234M186 150L56 234M196 150L324 234M324 150L196 234"/></g>
+ <path d="M40 22H340M40 16V28M186 16V28M340 16V28M358 40V250M352 40H364M352 250H364"/></g>
+ <g font-family="${MONO}" font-size="11" fill="${L}"><text x="100" y="16">6.40</text><text x="250" y="16">6.80</text></g>`;return s+lab('PIANTA PIANO TERRA');}
+function assonometria(){const k=Math.cos(Math.PI/6),P=(a,b,z)=>[200+(a-b)*k*60,250+(a+b)*.5*60-z*60].map(n=>n.toFixed(1)).join(' ');
+ const ln=(A,B,da)=>`<line x1="${P(...A).split(' ')[0]}" y1="${P(...A).split(' ')[1]}" x2="${P(...B).split(' ')[0]}" y2="${P(...B).split(' ')[1]}" stroke="${L}" stroke-width="1.4" ${da?'stroke-dasharray="5 4"':''}/>`;
+ const w=2.4,dd=1.6,h=1.4,r=2.3;let s='';
+ [[[0,0,0],[w,0,0]],[[w,0,0],[w,dd,0]],[[0,0,0],[0,dd,0]],[[0,0,0],[0,0,h]],[[w,0,0],[w,0,h]],[[w,dd,0],[w,dd,h]],[[0,dd,0],[0,dd,h]],[[0,0,h],[w,0,h]],[[0,0,h],[0,dd,h]],[[w,0,h],[w,dd/2,r]],[[0,0,h],[0,dd/2,r]],[[0,dd/2,r],[0,dd,h]],[[0,dd/2,r],[w,dd/2,r]],[[w,dd/2,r],[w,dd,h]]].forEach(([a,b])=>s+=ln(a,b));
+ s+=ln([0,dd,0],[w,dd,0],1)+ln([0,dd,h],[w,dd,h],1);
+ for(let i=0;i<4;i++){const a=.3+i*.5;s+=ln([a,0,.35],[a+.22,0,.35])+ln([a,0,.35],[a,0,.85])+ln([a+.22,0,.35],[a+.22,0,.85])+ln([a,0,.85],[a+.22,0,.85]);}
+ return s+lab('ASSONOMETRIA');}
+function prospettiva(){const vl=[-120,120],vr=[540,120];let s=`<g stroke="${L}" fill="none" stroke-width="1.2"><line x1="0" y1="120" x2="400" y2="120" stroke-dasharray="2 4"/>`;
+ const top=[200,30],bot=[200,270];const t=(p,v,f)=>[p[0]+(v[0]-p[0])*f,p[1]+(v[1]-p[1])*f];
+ const A=t(top,vl,.55),B=t(bot,vl,.55),C=t(top,vr,.45),D=t(bot,vr,.45);
+ s+=`<path d="M${top}L${A}L${B}L${bot}Z M${top}L${C}L${D}L${bot}Z"/>`;
+ for(let f=.12;f<.55;f+=.13){const a=t(top,vl,f),b=t(bot,vl,f);s+=`<line x1="${a[0]}" y1="${a[1]+40}" x2="${b[0]}" y2="${b[1]-40}"/>`;}
+ for(let f=.1;f<.45;f+=.11){const a=t(top,vr,f),b=t(bot,vr,f);s+=`<line x1="${a[0]}" y1="${a[1]+40}" x2="${b[0]}" y2="${b[1]-40}"/>`;}
+ s+=`<path d="M${top}L${vl}M${bot}L${vl}M${top}L${vr}M${bot}L${vr}" stroke-width=".5" stroke-dasharray="3 5"/></g>`;return s+lab('PROSPETTIVA');}
+const DRAW={prospetto,sezione,pianta,assonometria,prospettiva};
+// carta + tavole posizionate
+const box=(fn,x0,y0,w,rot=0)=>`<g transform="translate(${x0} ${y0}) rotate(${rot}) scale(${w/400})">${DRAW[fn]()}</g>`;
+function paper(){let s=`<rect width="1440" height="900" fill="${PAPER}"/>`;for(let i=0;i<60;i++)s+=`<line x1="${i*24}" y1="0" x2="${i*24}" y2="900" stroke="#ddd5c6" stroke-width=".8"/>`;for(let i=0;i<38;i++)s+=`<line x1="0" y1="${i*24}" x2="1440" y2="${i*24}" stroke="#ddd5c6" stroke-width=".8"/>`;return s;}
 
-const SQ='M150 110L150 870L910 870Z M260 420L260 790L630 790Z';
-const A_TEXT='<text x="560" y="870" text-anchor="middle" font-family="Bodoni Moda" font-weight="500" font-size="1060">A</text>';
-let out=`<defs><filter id="sh"><feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#000" flood-opacity=".5"/></filter>
-<clipPath id="win">${V==='a'?A_TEXT:`<path d="M150 110L150 870L910 870Z"/>`}</clipPath></defs>`;
-out+=`<g filter="url(#sh)"><g clip-path="url(#win)">${g}<rect width="1440" height="900" fill="#fff" opacity=".05"/></g></g>`;
-if(V!=='a'){
-  // bordi della squadra in acrilico, foro interno, tacche millimetrate
-  out+=`<path d="${SQ}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5" fill-rule="evenodd"/>
-  <path d="M260 420L260 790L630 790Z" fill="#fff" fill-opacity=".06"/>`;
-  for(let i=0;i<=74;i++){const y=860-i*10;out+=`<line x1="150" y1="${y}" x2="${150+(i%5?10:20)}" y2="${y}" stroke="#2c2824" stroke-width="1" opacity=".75"/>`;}
-  for(let i=0;i<=74;i++){const xx=160+i*10;out+=`<line x1="${xx}" y1="870" x2="${xx}" y2="${870-(i%5?10:20)}" stroke="#2c2824" stroke-width="1" opacity=".75"/>`;}
-  out+=`<text x="180" y="400" font-family="JetBrains Mono" font-size="12" fill="#2c2824" transform="rotate(-90 180 400)">45° · cm</text>`;
-}else{
-  out+=`<g clip-path="url(#win)"><rect width="1440" height="900" fill="none"/></g>`;
+let defs=`<defs>${hatch}<filter id="sh"><feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#000" flood-opacity=".5"/></filter>`;
+let body='';const tag=document.getElementById('tag');
+if(V==='1'){ // A larga e pesante: tutte le proiezioni nella lettera
+  tag.textContent='Proposta 1 · A larga e piena, cinque proiezioni dentro la lettera';
+  defs+=`<clipPath id="w"><text x="570" y="880" text-anchor="middle" font-family="Archivo" font-stretch="125%" font-weight="900" font-size="1080">A</text></clipPath></defs>`;
+  body=`<g filter="url(#sh)"><g clip-path="url(#w)">${paper()}${box('assonometria',420,60,300)}${box('prospetto',100,330,400)}${box('sezione',620,330,400)}${box('pianta',40,600,360)}${box('prospettiva',740,600,360)}</g></g>`;
+}else if(V==='2'){ // A fatta di tre strisce, ognuna una proiezione con il suo nome
+  tag.textContent='Proposta 2 · A fatta di tre strisce, ognuna una proiezione diversa';
+  const left='M470 70H600L330 870H180Z',right='M610 70H740L980 870H830Z',bar='M250 560H930V660H250Z';
+  defs+=`<clipPath id="l"><path d="${left}"/></clipPath><clipPath id="r"><path d="${right}"/></clipPath><clipPath id="b"><path d="${bar}"/></clipPath></defs>`;
+  const strip=(id,content)=>`<g filter="url(#sh)"><g clip-path="url(#${id})">${paper()}${content}</g></g>`;
+  body=strip('l',box('prospetto',150,90,480)+box('assonometria',150,480,480))+strip('r',box('sezione',600,120,480)+box('prospettiva',640,500,420))+strip('b',box('pianta',240,520,700,0));
+  body+=`<g font-family="${MONO}" font-size="13" fill="#ece6dc" stroke="#ece6dc"><line x1="300" y1="300" x2="380" y2="300" stroke-width="1"/><text x="196" y="304" stroke="none">PROSPETTO</text>
+  <line x1="770" y1="300" x2="840" y2="300"/><text x="850" y="304" stroke="none">SEZIONE</text><line x1="930" y1="610" x2="980" y2="610"/><text x="990" y="614" stroke="none">PIANTA</text></g>`;
+}else{ // A bastoni a contrasto + linee di costruzione della lettera
+  tag.textContent='Proposta 3 · A classica a contrasto, con le linee di costruzione della lettera';
+  defs+=`<clipPath id="w"><text x="560" y="870" text-anchor="middle" font-family="Bodoni Moda" font-weight="900" font-size="960">A</text></clipPath></defs>`;
+  body=`<g filter="url(#sh)"><g clip-path="url(#w)">${paper()}${box('assonometria',420,140,280)}${box('prospetto',520,360,340)}${box('sezione',640,600,380)}${box('pianta',160,620,360)}${box('prospettiva',260,380,280)}</g></g>
+  <g stroke="#ece6dc" stroke-opacity=".45" fill="none" stroke-width="1"><line x1="80" y1="870" x2="1040" y2="870"/><line x1="80" y1="140" x2="1040" y2="140"/><line x1="560" y1="40" x2="560" y2="890" stroke-dasharray="14 5 2 5"/><circle cx="560" cy="505" r="370" stroke-dasharray="2 6"/></g>
+  <g font-family="${MONO}" font-size="12" fill="#ece6dc" fill-opacity=".7"><text x="84" y="132">ALTEZZA MAIUSCOLE</text><text x="84" y="888">LINEA DI BASE</text></g>`;
 }
-document.getElementById('scene').innerHTML=out;
+document.getElementById('scene').innerHTML=defs+body;
 </script>
