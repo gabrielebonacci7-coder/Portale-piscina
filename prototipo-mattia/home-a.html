@@ -69,7 +69,26 @@ function prospettiva(){const vl=[-120,120],vr=[540,120];let s=`<g stroke="${L}" 
  for(let f=.12;f<.55;f+=.13){const a=t(top,vl,f),b=t(bot,vl,f);s+=`<line x1="${a[0]}" y1="${a[1]+40}" x2="${b[0]}" y2="${b[1]-40}"/>`;}
  for(let f=.1;f<.45;f+=.11){const a=t(top,vr,f),b=t(bot,vr,f);s+=`<line x1="${a[0]}" y1="${a[1]+40}" x2="${b[0]}" y2="${b[1]-40}"/>`;}
  s+=`<path d="M${top}L${vl}M${bot}L${vl}M${top}L${vr}M${bot}L${vr}" stroke-width=".5" stroke-dasharray="3 5"/></g>`;return s+lab('PROSPETTIVA');}
-const DRAW={prospetto,sezione,pianta,assonometria,prospettiva};
+// Pianta primo piano: scala, finestre, bagno, quote interne
+function pianta2(){let s=`<path fill="url(#ht)" stroke="${L}" stroke-width="1.5" fill-rule="evenodd" d="M30 40H370V260H30Z M46 56H354V244H46Z"/>
+ <rect x="150" y="56" width="10" height="188" fill="url(#ht)" stroke="${L}"/><rect x="260" y="56" width="8" height="110" fill="url(#ht)" stroke="${L}"/><rect x="160" y="160" width="194" height="8" fill="url(#ht)" stroke="${L}"/>
+ <g fill="${PAPER}"><rect x="80" y="36" width="40" height="24"/><rect x="190" y="36" width="44" height="24"/><rect x="296" y="36" width="36" height="24"/><rect x="80" y="240" width="40" height="24"/><rect x="290" y="240" width="40" height="24"/><rect x="146" y="100" width="18" height="36"/><rect x="200" y="156" width="30" height="16"/></g>
+ <g stroke="${L}" fill="none" stroke-width="1"><path d="M80 40H120M80 48H120M80 56H120M190 40H234M190 48H234M190 56H234M296 40H332M296 48H332M296 56H332M80 244H120M80 252H120M80 260H120M290 244H330M290 252H330M290 260H330"/>
+ <path d="M164 100A36 36 0 0 1 200 136M200 172A30 30 0 0 0 230 202"/>
+ <rect x="56" y="150" width="84" height="84"/>${[...Array(9)].map((_,i)=>`<line x1="56" y1="${150+i*9.3}" x2="140" y2="${150+i*9.3}"/>`).join('')}<path d="M98 230V158M92 166L98 158L104 166"/>
+ <rect x="282" y="70" width="40" height="22" rx="4"/><circle cx="336" cy="140" r="9"/><rect x="190" y="70" width="56" height="40"/>
+ <path d="M30 22H370M30 16V28M150 16V28M260 16V28M370 16V28M388 40V260M382 40H394M382 160H394M382 260H394"/></g>
+ <g font-family="${MONO}" font-size="11" fill="${L}"><text x="80" y="14">4.80</text><text x="194" y="14">4.40</text><text x="300" y="14">4.40</text><text x="60" y="100">CAMERA</text><text x="270" y="210">SOGGIORNO</text><text x="276" y="118">BAGNO</text></g>`;return s+lab('PIANTA PRIMO PIANO');}
+// Sezione longitudinale B-B: due piani, volte a botte, solaio in legno, tetto a capriate
+function sezione2(){let s=`<rect x="10" y="250" width="380" height="22" fill="url(#ht)"/><g stroke="${L}" fill="none" stroke-width="1.3"><line x1="0" y1="250" x2="400" y2="250"/>
+ <rect x="30" y="60" width="16" height="190" fill="url(#ht)"/><rect x="354" y="60" width="16" height="190" fill="url(#ht)"/><rect x="190" y="60" width="16" height="190" fill="url(#ht)"/>
+ <path d="M46 170A72 38 0 0 1 190 170M206 170A74 38 0 0 1 354 170" stroke-width="1.6"/><rect x="46" y="162" width="308" height="8" fill="url(#ht)"/>
+ <path d="M46 100H354M46 106H354"/>${[...Array(20)].map((_,i)=>`<rect x="${52+i*15}" y="100" width="6" height="6" fill="${L}"/>`).join('')}
+ <path d="M20 62L200 18L380 62M46 60L200 26L354 60M200 26V60M110 46L140 60M290 46L260 60"/>
+ <rect x="80" y="196" width="26" height="40"/><rect x="290" y="196" width="26" height="40"/><rect x="100" y="118" width="22" height="34"/><rect x="278" y="118" width="22" height="34"/>
+ <path d="M206 250L240 220H260L290 190H310" stroke-dasharray="4 3"/></g>
+ <g font-family="${MONO}" font-size="11" fill="${L}"><path d="M382 250l-6-8h12Z M382 162l-6-8h12Z M382 100l-6-8h12Z" fill="${L}"/><text x="342" y="240" text-anchor="end">±0.00</text><text x="342" y="152" text-anchor="end">+3.80</text><text x="342" y="92" text-anchor="end">+6.90</text></g>`;return s+lab('SEZIONE B-B');}
+const DRAW={prospetto,sezione,pianta,assonometria,prospettiva,pianta2,sezione2};
 // carta + tavole posizionate
 const box=(fn,x0,y0,w,rot=0)=>`<g transform="translate(${x0} ${y0}) rotate(${rot}) scale(${w/400})">${DRAW[fn]()}</g>`;
 function paper(){let s=`<rect width="1440" height="900" fill="${PAPER}"/>`;for(let i=0;i<60;i++)s+=`<line x1="${i*24}" y1="0" x2="${i*24}" y2="900" stroke="#ddd5c6" stroke-width=".8"/>`;for(let i=0;i<38;i++)s+=`<line x1="0" y1="${i*24}" x2="1440" y2="${i*24}" stroke="#ddd5c6" stroke-width=".8"/>`;return s;}
@@ -89,9 +108,9 @@ if(V==='1'){ // A larga e pesante: tutte le proiezioni nella lettera
   body+=`<g font-family="${MONO}" font-size="13" fill="#ece6dc" stroke="#ece6dc"><line x1="300" y1="300" x2="380" y2="300" stroke-width="1"/><text x="196" y="304" stroke="none">PROSPETTO</text>
   <line x1="770" y1="300" x2="840" y2="300"/><text x="850" y="304" stroke="none">SEZIONE</text><line x1="930" y1="610" x2="980" y2="610"/><text x="990" y="614" stroke="none">PIANTA</text></g>`;
 }else{ // A bastoni a contrasto + linee di costruzione della lettera
-  tag.textContent='Proposta 3 · A classica a contrasto, con le linee di costruzione della lettera';
+  tag.textContent='';
   defs+=`<clipPath id="w"><text x="560" y="870" text-anchor="middle" font-family="Bodoni Moda" font-weight="900" font-size="960">A</text></clipPath></defs>`;
-  body=`<g filter="url(#sh)"><g clip-path="url(#w)">${paper()}${box('assonometria',420,140,280)}${box('prospetto',520,360,340)}${box('sezione',640,600,380)}${box('pianta',160,620,360)}${box('prospettiva',260,380,280)}</g></g>
+  body=`<g filter="url(#sh)"><g clip-path="url(#w)">${paper()}${box('sezione2',440,128,280)}${box('pianta2',470,330,330)}${box('sezione',560,600,345)}</g></g>
   <g stroke="#ece6dc" stroke-opacity=".45" fill="none" stroke-width="1"><line x1="80" y1="870" x2="1040" y2="870"/><line x1="80" y1="140" x2="1040" y2="140"/><line x1="560" y1="40" x2="560" y2="890" stroke-dasharray="14 5 2 5"/><circle cx="560" cy="505" r="370" stroke-dasharray="2 6"/></g>
   <g font-family="${MONO}" font-size="12" fill="#ece6dc" fill-opacity=".7"><text x="84" y="132">ALTEZZA MAIUSCOLE</text><text x="84" y="888">LINEA DI BASE</text></g>`;
 }
