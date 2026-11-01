@@ -1,0 +1,116 @@
+<!doctype html><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=JetBrains+Mono:wght@500&family=Cormorant+Garamond:wght@600&display=swap">
+<style>
+:root{--paper:#efebe4;--card:#f8f6f2;--ink:#1d1b19;--brown:#8b5a34;--muted:#857a6f}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hanken Grotesk",sans-serif}
+.sheet{width:1700px;padding:56px 64px 64px;display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+h1{grid-column:1/-1;margin:0;font:500 30px "Hanken Grotesk";letter-spacing:-.01em}
+.sub{grid-column:1/-1;margin:-8px 0 12px;color:var(--muted);font-size:17px}
+.cell{background:var(--card);height:420px;position:relative;display:grid;place-items:center;padding:30px 20px 78px}
+.n{position:absolute;left:18px;top:14px;font:500 13px "JetBrains Mono";color:var(--muted)}
+.tg{position:absolute;right:18px;top:14px;font:500 11px "JetBrains Mono";color:var(--brown);letter-spacing:.08em}
+.t{position:absolute;left:18px;right:18px;bottom:16px;font:500 15px/1.35 "Hanken Grotesk"}
+.t span{display:block;color:var(--muted);font-weight:400;font-size:13px}
+svg{width:200px;height:200px;overflow:visible}
+</style>
+<div class="sheet" id="p3">
+<h1>Loghi 21–30 · Con la M e più elaborati</h1>
+<p class="sub">I primi tre lavorano sulle iniziali, gli altri sette sono simboli più ricchi presi dal restauro e dal disegno.</p>
+<div class="cell"><span class="n">21</span><span class="tg">M M</span><svg id="l21" viewBox="0 0 200 200"></svg><div class="t">MM in volume<span>Le due M estruse in assonometria, come due blocchi di pietra</span></div></div>
+<div class="cell"><span class="n">22</span><span class="tg">M M</span><svg id="l22" viewBox="0 0 200 200"></svg><div class="t">Capitali costruite<span>Le M disegnate con riga e compasso, come le lettere del Rinascimento</span></div></div>
+<div class="cell"><span class="n">23</span><span class="tg">M M</span><svg id="l23" viewBox="0 0 200 200"></svg><div class="t">MM in pianta<span>Le lettere diventano muri in pianta, con porta e quota</span></div></div>
+<div class="cell"><span class="n">24</span><svg id="l24" viewBox="0 0 200 200"></svg><div class="t">Rosone<span>La costruzione a compasso di un rosone, con la casa al centro</span></div></div>
+<div class="cell"><span class="n">25</span><svg id="l25" viewBox="0 0 200 200"></svg><div class="t">Capitello ionico<span>Le volute disegnate a spirale: il classico da restaurare</span></div></div>
+<div class="cell"><span class="n">26</span><svg id="l26" viewBox="0 0 200 200"></svg><div class="t">Esploso assonometrico<span>La casa smontata in strati: fondazione, muri, solaio, tetto</span></div></div>
+<div class="cell"><span class="n">27</span><svg id="l27" viewBox="0 0 200 200"></svg><div class="t">Borgo dei Castelli<span>Un borgo sulla collina con cupola e campanile, chiuso in un cerchio</span></div></div>
+<div class="cell"><span class="n">28</span><svg id="l28" viewBox="0 0 200 200"></svg><div class="t">Rilievo<span>La stazione totale che misura i punti di una facciata</span></div></div>
+<div class="cell"><span class="n">29</span><svg id="l29" viewBox="0 0 200 200"></svg><div class="t">Pavimento cosmatesco<span>Il disco di porfido e le fasce di triangoli dei pavimenti romani</span></div></div>
+<div class="cell"><span class="n">30</span><svg id="l30" viewBox="0 0 200 200"></svg><div class="t">Cupola<span>Tamburo, spicchi e lanterna di una cupola in alzato</span></div></div>
+</div>
+<script>
+const NS='http://www.w3.org/2000/svg',INK='#1d1b19',BR='#8b5a34',CARD='#f8f6f2';
+const E=(p,t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const S=id=>document.getElementById(id);
+const line=(s,a,b,o={})=>E(s,'line',Object.assign({x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:INK,'stroke-width':1.6},o));
+const poly=(s,pts,o={})=>E(s,'polygon',Object.assign({points:pts.map(p=>p.join(',')).join(' ')},o));
+
+// 21 MM estruse (proiezione obliqua)
+{const s=S('l21'),M=[[0,90],[0,0],[18,0],[35,32],[52,0],[70,0],[70,90],[53,90],[53,36],[35,68],[17,36],[17,90]],off=[16,-12];
+ const draw=(ox,oy,front,side)=>{const F=M.map(([x,y])=>[x+ox,y+oy]),B=F.map(([x,y])=>[x+off[0],y+off[1]]);
+  poly(s,B,{fill:side});for(let i=0;i<F.length;i++){const j=(i+1)%F.length;poly(s,[F[i],F[j],B[j],B[i]],{fill:side,stroke:side,'stroke-width':.6});}
+  poly(s,F,{fill:front,stroke:INK,'stroke-width':1.6});};
+ draw(78,62,CARD,BR);draw(18,92,INK,'#4a3a2e');}
+// 22 Capitali costruite
+{const s=S('l22');const g={fill:'none',stroke:BR,'stroke-width':.8};
+ E(s,'rect',Object.assign({x:10,y:50,width:90,height:90},g));E(s,'rect',Object.assign({x:100,y:50,width:90,height:90},g));
+ E(s,'circle',Object.assign({cx:55,cy:95,r:45},g));E(s,'circle',Object.assign({cx:145,cy:95,r:45},g));
+ line(s,[10,50],[100,140],g);line(s,[100,50],[10,140],g);line(s,[100,50],[190,140],g);line(s,[190,50],[100,140],g);
+ line(s,[0,140],[200,140],{stroke:INK,'stroke-width':.8});
+ E(s,'text',{x:55,y:140,'text-anchor':'middle','font-family':'Cormorant Garamond','font-weight':600,'font-size':104,fill:INK}).textContent='M';
+ E(s,'text',{x:145,y:140,'text-anchor':'middle','font-family':'Cormorant Garamond','font-weight':600,'font-size':104,fill:INK}).textContent='M';
+ [[10,50],[100,50],[190,50],[10,140],[190,140]].forEach(([x,y])=>E(s,'circle',{cx:x,cy:y,r:2.5,fill:BR}));}
+// 23 MM in pianta
+{const s=S('l23');const d=E(s,'defs',{}),p=E(d,'pattern',{id:'h23',width:5,height:5,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'});E(p,'line',{x1:0,y1:0,x2:0,y2:5,stroke:INK,'stroke-width':1.1});
+ const wall={fill:'url(#h23)',stroke:INK,'stroke-width':1.6};
+ const M=(ox)=>{poly(s,[[ox,150],[ox,50],[ox+14,50],[ox+40,92],[ox+66,50],[ox+80,50],[ox+80,150],[ox+66,150],[ox+66,78],[ox+40,118],[ox+14,78],[ox+14,150]],wall);};
+ M(14);M(106);E(s,'rect',{x:106,y:112,width:14,height:24,fill:CARD});
+ E(s,'path',{d:'M106 136A24 24 0 0 1 130 112',fill:'none',stroke:BR,'stroke-width':1.3});line(s,[120,112],[120,136],{stroke:BR,'stroke-width':1.3});
+ line(s,[14,170],[186,170],{'stroke-width':1});[[14],[94],[106],[186]].forEach(([x])=>{line(s,[x,164],[x,176],{'stroke-width':1});line(s,[x-4,174],[x+4,166],{'stroke-width':1});});
+ E(s,'text',{x:100,y:190,'text-anchor':'middle','font-family':'JetBrains Mono','font-size':10,fill:BR}).textContent='17.20';}
+// 24 Rosone
+{const s=S('l24'),c=[100,100],r=36,o={fill:'none',stroke:INK,'stroke-width':1.1};
+ E(s,'circle',Object.assign({cx:100,cy:100,r:84},o,{'stroke-width':3}));E(s,'circle',Object.assign({cx:100,cy:100,r:76},o));
+ for(let i=0;i<12;i++){const a=i*Math.PI/6;E(s,'circle',Object.assign({cx:100+r*Math.cos(a),cy:100+r*Math.sin(a),r:r},o,{stroke:i%2?INK:BR}));}
+ E(s,'circle',{cx:100,cy:100,r:22,fill:CARD,stroke:INK,'stroke-width':1.6});
+ E(s,'path',{d:'M90 110V98L100 90L110 98V110Z',fill:BR});}
+// 25 Capitello ionico
+{const s=S('l25'),o={fill:'none',stroke:INK,'stroke-width':1.6};
+ const spiral=(cx,cy,dir)=>{let d='';for(let t=0;t<=4.2*Math.PI;t+=.12){const r=24*Math.exp(-.16*t),x=cx+dir*r*Math.cos(t),y=cy+r*Math.sin(t);d+=(d?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);}E(s,'path',Object.assign({d},o));E(s,'circle',{cx,cy,r:2.5,fill:BR});};
+ E(s,'rect',Object.assign({x:22,y:40,width:156,height:12},o));
+ E(s,'path',Object.assign({d:'M30 56H170M34 56Q100 84 166 56'},o));
+ spiral(46,78,1);spiral(154,78,-1);
+ E(s,'path',Object.assign({d:'M62 100Q100 118 138 100'},o,{stroke:BR}));
+ for(let i=0;i<5;i++){[1,0].forEach(k=>{})}
+ E(s,'path',Object.assign({d:'M66 112V190M134 112V190'},o));for(let i=1;i<6;i++)line(s,[66+i*11.3,118],[66+i*11.3,190],{'stroke-width':1});
+ line(s,[40,190],[160,190],{'stroke-width':2.4});}
+// 26 Esploso assonometrico
+{const s=S('l26'),k=Math.cos(Math.PI/6),P=(x,y,z)=>[100+(x-y)*k*38,150+(x+y)*.5*38-z*38];
+ const face=(pts,fill)=>poly(s,pts.map(p=>P(...p)),{fill,stroke:INK,'stroke-width':1.4,'stroke-linejoin':'round'});
+ const box=(z0,h,fillTop,fillL,fillR)=>{face([[0,1.6,z0],[1.6,1.6,z0],[1.6,1.6,z0+h],[0,1.6,z0+h]],fillL);face([[1.6,0,z0],[1.6,1.6,z0],[1.6,1.6,z0+h],[1.6,0,z0+h]],fillR);face([[0,0,z0+h],[1.6,0,z0+h],[1.6,1.6,z0+h],[0,1.6,z0+h]],fillTop);};
+ box(0,.18,'#d9cfc2','#a89a8a','#c8bcae');
+ box(.6,.9,CARD,'#e8e1d7',CARD);
+ box(1.85,.12,'#d9cfc2','#a89a8a','#c8bcae');
+ const z=2.45;face([[0,0,z],[1.6,0,z],[1.6,.8,z+.9],[0,.8,z+.9]],BR);face([[1.6,0,z],[1.6,1.6,z],[1.6,.8,z+.9]],'#5e3c22');face([[0,1.6,z],[1.6,1.6,z],[1.6,.8,z+.9],[0,.8,z+.9]],'#6f4a2c');
+ [[0,1.6],[1.6,1.6],[1.6,0]].forEach(([x,y])=>{const a=P(x,y,.18),b=P(x,y,.6);line(s,a,b,{'stroke-width':1,'stroke-dasharray':'3 3'});const c=P(x,y,1.5),d=P(x,y,1.85);line(s,c,d,{'stroke-width':1,'stroke-dasharray':'3 3'});const e=P(x,y,1.97),f=P(x,y,2.45);line(s,e,f,{'stroke-width':1,'stroke-dasharray':'3 3'});});}
+// 27 Borgo
+{const s=S('l27'),cp=E(E(s,'defs',{}),'clipPath',{id:'c27'});E(cp,'circle',{cx:100,cy:100,r:80});
+ const g=E(s,'g',{'clip-path':'url(#c27)'}),o={fill:CARD,stroke:INK,'stroke-width':1.4,'stroke-linejoin':'round'};
+ E(g,'path',Object.assign({d:'M10 170Q60 120 100 118Q150 118 190 160V190H10Z'},o));
+ const h=(x,y,w,hh,roof=8)=>E(g,'path',Object.assign({d:`M${x} ${y}V${y-hh}L${x+w/2} ${y-hh-roof}L${x+w} ${y-hh}V${y}`},o));
+ h(40,150,22,20);h(58,140,20,26);h(132,140,22,22);h(150,152,20,16);
+ E(g,'rect',Object.assign({x:120,y:72,width:14,height:52},o));E(g,'path',Object.assign({d:'M120 72L127 60L134 72'},o));E(g,'rect',{x:124,y:80,width:6,height:8,fill:INK});
+ E(g,'rect',Object.assign({x:78,y:96,width:40,height:30},o));E(g,'path',Object.assign({d:'M80 96A18 18 0 0 1 116 96Z'},o,{fill:BR}));E(g,'rect',Object.assign({x:94,y:70,width:8,height:8},o));E(g,'path',Object.assign({d:'M98 64V70'},o));
+ for(let i=0;i<4;i++)E(g,'rect',{x:82+i*9,y:106,width:4,height:10,fill:INK});
+ E(s,'circle',{cx:100,cy:100,r:80,fill:'none',stroke:INK,'stroke-width':2.2});E(s,'circle',{cx:100,cy:100,r:88,fill:'none',stroke:BR,'stroke-width':1});}
+// 28 Rilievo con stazione totale
+{const s=S('l28'),o={fill:'none',stroke:INK,'stroke-width':1.6};
+ E(s,'path',Object.assign({d:'M110 186V64L150 36L190 64V186Z'},o));
+ [[124,80],[176,80],[124,130],[176,130],[150,48],[150,160]].forEach(([x,y])=>{line(s,[40,104],[x,y],{stroke:BR,'stroke-width':.9,'stroke-dasharray':'3 3'});line(s,[x-4,y-4],[x+4,y+4],{'stroke-width':1.2});line(s,[x-4,y+4],[x+4,y-4],{'stroke-width':1.2});});
+ E(s,'rect',Object.assign({x:28,y:94,width:24,height:18,rx:2},o,{fill:CARD}));E(s,'circle',{cx:52,cy:103,r:4,fill:INK});
+ E(s,'path',Object.assign({d:'M40 112L18 186M40 112L40 186M40 112L62 186'},o));line(s,[8,186],[192,186],{'stroke-width':1.2});}
+// 29 Cosmatesco
+{const s=S('l29');E(s,'rect',{x:10,y:10,width:180,height:180,fill:'none',stroke:INK,'stroke-width':2.4});
+ const tri=(cx,cy,r1,r2,n)=>{for(let i=0;i<n;i++){const a0=i*2*Math.PI/n,a1=(i+1)*2*Math.PI/n,am=(a0+a1)/2;
+  poly(s,[[cx+r1*Math.cos(a0),cy+r1*Math.sin(a0)],[cx+r1*Math.cos(a1),cy+r1*Math.sin(a1)],[cx+r2*Math.cos(am),cy+r2*Math.sin(am)]],{fill:i%2?INK:CARD,stroke:INK,'stroke-width':.6});}};
+ E(s,'circle',{cx:100,cy:100,r:66,fill:'none',stroke:INK,'stroke-width':1.6});tri(100,100,64,50,36);E(s,'circle',{cx:100,cy:100,r:48,fill:BR});
+ E(s,'circle',{cx:100,cy:100,r:48,fill:'none',stroke:INK,'stroke-width':1.6});
+ [[10,10],[150,10],[10,150],[150,150]].forEach(([x,y])=>{for(let i=0;i<4;i++)for(let j=0;j<4;j++){if((i+j)%2)E(s,'rect',{x:x+i*10,y:y+j*10,width:10,height:10,fill:INK});}E(s,'rect',{x,y,width:40,height:40,fill:'none',stroke:INK,'stroke-width':1.2});});}
+// 30 Cupola
+{const s=S('l30'),o={fill:'none',stroke:INK,'stroke-width':1.5};
+ E(s,'rect',Object.assign({x:36,y:120,width:128,height:44},o));for(let i=1;i<8;i++)line(s,[36+i*16,128],[36+i*16,156],{'stroke-width':1});
+ E(s,'path',Object.assign({d:'M28 120H172M24 164H176V176H24Z'},o));
+ E(s,'path',Object.assign({d:'M40 120A60 72 0 0 1 160 120'},o,{'stroke-width':2}));
+ [-.75,-.45,-.15,.15,.45,.75].forEach(f=>{const rx=Math.abs(f)*60;E(s,'path',{d:`M${100+f*60} 120Q${100+f*60*0.95} 62 100 48`,fill:'none',stroke:f===-.15||f===.15?BR:INK,'stroke-width':1.1});});
+ E(s,'rect',Object.assign({x:90,y:30,width:20,height:18},o));E(s,'path',Object.assign({d:'M88 30H112M94 30Q100 18 106 30M100 14V20'},o));E(s,'circle',{cx:100,cy:12,r:2.5,fill:BR});}
+</script>
