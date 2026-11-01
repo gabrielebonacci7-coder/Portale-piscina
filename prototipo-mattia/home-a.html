@@ -1,62 +1,81 @@
 <!doctype html><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=Bodoni+Moda:opsz,wght@6..96,500&family=JetBrains+Mono:wght@400&display=swap">
 <style>
-:root{--concrete:#57524c;--taupe:#8b8075;--light:#ece6dc;--muted:#c2b8aa;--brown:#b98654}
+/* Home 1440x900: cemento grigio-tortora; un oggetto trasparente (squadra o A) apre una finestra sul tavolo da disegno */
+:root{--light:#ece6dc;--muted:#bdb2a4;--brown:#c08d5f}
 *{box-sizing:border-box}
-html,body{margin:0;width:1440px;height:900px;overflow:hidden;font-family:"Instrument Sans",sans-serif;color:var(--light);background:var(--concrete)}
-canvas{position:absolute;inset:0}
-nav{position:absolute;left:64px;right:64px;top:44px;display:flex;justify-content:space-between;align-items:center}
-.brand{display:flex;align-items:center;gap:16px;font:600 14px/1.3 "Instrument Sans";letter-spacing:.28em;text-transform:uppercase}
-.brand span{display:block;font-weight:400;letter-spacing:.2em;font-size:12px;color:var(--muted);text-transform:lowercase}
-.brand svg{width:46px;height:46px;fill:none;stroke:var(--light);stroke-width:3.5;stroke-linecap:square}
-.links{display:flex;gap:36px;font:500 15px "Instrument Sans";color:var(--muted)}
-.links b{color:var(--light);font-weight:500}
-.bigA{position:absolute;left:120px;top:90px;width:760px;height:800px}
-.side{position:absolute;right:64px;top:300px;width:420px}
-.side h1{margin:0;font:500 64px/1 "Instrument Sans";letter-spacing:-.02em}
-.side p{margin:22px 0 0;font-size:19px;line-height:1.5;color:var(--muted);max-width:34ch}
-.strip{position:absolute;right:64px;bottom:64px;width:420px;display:grid;gap:10px}
-.strip div{display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid #ffffff2a;font-size:15px}
-.strip span{color:var(--muted)}
+html,body{margin:0;width:1440px;height:900px;overflow:hidden;background:#55504a;color:var(--light);font-family:"Hanken Grotesk",sans-serif}
+canvas,#scene{position:absolute;inset:0}
+nav{position:absolute;left:64px;right:64px;top:44px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.brand{display:flex;align-items:center;gap:16px;font:400 18px "Hanken Grotesk";letter-spacing:.02em}
+.brand svg{width:64px;height:30px;fill:none;stroke:var(--light);stroke-width:2.4;stroke-linejoin:round}
+.links{display:flex;gap:40px;font:400 15px "Hanken Grotesk";color:var(--muted)}
+.copy{position:absolute;right:64px;top:210px;width:400px;z-index:2}
+.copy h1{margin:0;font:300 58px/1.02 "Hanken Grotesk";letter-spacing:-.025em;text-wrap:balance}
+.copy p{margin:22px 0 0;font-size:18px;line-height:1.5;color:var(--muted)}
+.foot{position:absolute;right:64px;bottom:56px;width:400px;display:flex;justify-content:space-between;font:400 13px "JetBrains Mono";color:var(--muted);z-index:2}
 </style>
 <canvas id="c" width="1440" height="900"></canvas>
+<svg id="scene" viewBox="0 0 1440 900"></svg>
 <nav>
-  <div class="brand"><svg viewBox="0 0 120 120"><path d="M8 84H38V54L60 34L82 54V84H112"/></svg><div>Mattia Moretti<span>architetto</span></div></div>
-  <div class="links"><b>Progetti</b><span>Studio</span><span>Formazione</span><span>Contatti</span></div>
+  <div class="brand"><svg viewBox="0 0 240 110"><path d="M0 96H48V44L84 16L120 44V96H136V60L160 40L184 60V96H232"/></svg>Mattia Moretti, architetto</div>
+  <div class="links"><span>Progetti</span><span>Ambiti</span><span>Formazione</span><span>Contatti</span></div>
 </nav>
-
-<svg class="bigA" viewBox="0 0 760 800">
-  <defs>
-    <clipPath id="a"><path fill-rule="evenodd" d="M300 20H460L740 780H580L522 610H238L180 780H20ZM380 230L282 480H478Z"/></clipPath>
-    <filter id="sh"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity=".45"/></filter>
-  </defs>
-  <g filter="url(#sh)">
-    <g clip-path="url(#a)">
-      <image href="foto.jpg" x="-60" y="-520" width="900" height="1480" preserveAspectRatio="xMidYMid slice" style="filter:saturate(.75) contrast(1.05)"/>
-      <rect width="760" height="800" fill="#5a4a3a" opacity=".18"/>
-    </g>
-  </g>
-  <path fill="none" stroke="#ece6dc" stroke-opacity=".55" stroke-width="1.5" fill-rule="evenodd" d="M300 20H460L740 780H580L522 610H238L180 780H20ZM380 230L282 480H478Z"/>
-</svg>
-
-<div class="side">
-  <h1>Restauro e progetto di case storiche</h1>
-  <p>Dal rilievo al cantiere. Studio a Marino, ai Castelli Romani.</p>
-</div>
-<div class="strip">
-  <div>Progettazione <span>01</span></div>
-  <div>Restauro e conservazione <span>02</span></div>
-  <div>Pratiche e autorizzazioni <span>03</span></div>
-</div>
+<div class="copy"><h1>Restauro e progetto di case storiche</h1><p>Dal rilievo al cantiere, con le pratiche incluse. Studio a Marino.</p></div>
+<div class="foot"><span>41°45′N 12°39′E</span><span>scorri ↓</span></div>
 
 <script>
-// Effetto cemento: macchie larghe tortora + grana fine
+const V=new URLSearchParams(location.search).get('v')||'squadra';
+// --- cemento ---
 const c=document.getElementById('c'),x=c.getContext('2d'),W=1440,H=900;
-x.fillStyle='#57524c';x.fillRect(0,0,W,H);
-for(let i=0;i<260;i++){const r=40+Math.random()*220,px=Math.random()*W,py=Math.random()*H;
-  const g=x.createRadialGradient(px,py,0,px,py,r);const t=Math.random()<.55;
-  g.addColorStop(0,t?'rgba(139,128,117,.16)':'rgba(40,37,34,.14)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-r,py-r,r*2,r*2);}
-const d=x.getImageData(0,0,W,H),p=d.data;for(let i=0;i<p.length;i+=4){const n=(Math.random()-.5)*26;p[i]+=n;p[i+1]+=n;p[i+2]+=n;}
-x.putImageData(d,0,0);
-for(let i=0;i<900;i++){x.fillStyle=Math.random()<.5?'rgba(30,28,26,.35)':'rgba(200,190,178,.18)';const s=Math.random()*2.2+.4;x.beginPath();x.arc(Math.random()*W,Math.random()*H,s,0,7);x.fill();}
+x.fillStyle='#55504a';x.fillRect(0,0,W,H);
+for(let i=0;i<320;i++){const r=30+Math.random()*240,px=Math.random()*W,py=Math.random()*H,g=x.createRadialGradient(px,py,0,px,py,r),t=Math.random()<.55;
+g.addColorStop(0,t?'rgba(150,138,124,.14)':'rgba(36,33,30,.13)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-r,py-r,2*r,2*r);}
+const d=x.getImageData(0,0,W,H),p=d.data;for(let i=0;i<p.length;i+=4){const n=(Math.random()-.5)*22;p[i]+=n;p[i+1]+=n;p[i+2]+=n;}x.putImageData(d,0,0);
+for(let i=0;i<1400;i++){x.fillStyle=Math.random()<.6?'rgba(28,26,24,.4)':'rgba(205,195,182,.16)';x.beginPath();x.arc(Math.random()*W,Math.random()*H,Math.random()*1.8+.3,0,7);x.fill();}
+
+// --- tavolo da disegno (SVG) ---
+const L='#4a443e', P='#ebe5d9';
+let g=`<rect width="1440" height="900" fill="#d9d1c3"/>
+<g transform="rotate(-4 700 480)"><rect x="40" y="60" width="1140" height="820" fill="${P}"/>`;
+for(let i=0;i<48;i++)g+=`<line x1="${40+i*24}" y1="60" x2="${40+i*24}" y2="880" stroke="#ddd5c6" stroke-width=".8"/>`;
+for(let i=0;i<35;i++)g+=`<line x1="40" y1="${60+i*24}" x2="1180" y2="${60+i*24}" stroke="#ddd5c6" stroke-width=".8"/>`;
+// pianta: muri pieni con retino, volte a crociera tratteggiate, porte, quote
+g+=`<defs><pattern id="ht" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line y2="6" stroke="${L}" stroke-width="1.2"/></pattern></defs>
+<path fill="url(#ht)" stroke="${L}" stroke-width="2" fill-rule="evenodd" d="M240 220H900V700H240Z M268 248H872V672H268Z"/>
+<rect x="268" y="440" width="604" height="16" fill="url(#ht)" stroke="${L}" stroke-width="1.6"/>
+<rect x="560" y="248" width="16" height="424" fill="url(#ht)" stroke="${L}" stroke-width="1.6"/>
+<rect x="400" y="436" width="70" height="24" fill="${P}"/><rect x="556" y="540" width="24" height="70" fill="${P}"/><rect x="680" y="696" width="90" height="8" fill="${P}"/>
+<path d="M400 456A70 70 0 0 1 470 386" fill="none" stroke="${L}" stroke-width="1"/><line x1="470" y1="456" x2="470" y2="386" stroke="${L}"/>
+<g stroke="${L}" stroke-width="1" stroke-dasharray="7 6"><line x1="268" y1="248" x2="560" y2="440"/><line x1="560" y1="248" x2="268" y2="440"/><line x1="576" y1="248" x2="872" y2="440"/><line x1="872" y1="248" x2="576" y2="440"/><line x1="268" y1="456" x2="560" y2="672"/><line x1="560" y1="456" x2="268" y2="672"/><line x1="576" y1="456" x2="872" y2="672"/><line x1="872" y1="456" x2="576" y2="672"/></g>
+<g stroke="${L}" stroke-width="1"><line x1="240" y1="170" x2="900" y2="170"/><line x1="240" y1="160" x2="240" y2="200"/><line x1="560" y1="160" x2="560" y2="200"/><line x1="900" y1="160" x2="900" y2="200"/>
+<line x1="234" y1="176" x2="246" y2="164"/><line x1="554" y1="176" x2="566" y2="164"/><line x1="894" y1="176" x2="906" y2="164"/>
+<line x1="950" y1="220" x2="950" y2="700"/><line x1="940" y1="220" x2="980" y2="220"/><line x1="940" y1="700" x2="980" y2="700"/></g>
+<g font-family="JetBrains Mono" font-size="15" fill="${L}"><text x="380" y="160">6.40</text><text x="710" y="160">6.80</text><text x="962" y="470" transform="rotate(-90 962 470)">9.60</text>
+<text x="390" y="360">VANO 1</text><text x="690" y="360">VANO 2</text><text x="390" y="580">VANO 3</text><text x="690" y="580">VANO 4</text></g>
+<g stroke="${L}" stroke-width="2" fill="none"><line x1="200" y1="560" x2="940" y2="560" stroke-dasharray="20 6 3 6" stroke-width="1"/><path d="M200 560v-24M940 560v-24"/></g>
+<g font-family="Bodoni Moda" font-size="26" fill="${L}"><text x="188" y="526">A</text><text x="930" y="526">A</text></g>
+<rect x="900" y="760" width="250" height="90" fill="none" stroke="${L}" stroke-width="1.5"/><line x1="900" y1="800" x2="1150" y2="800" stroke="${L}"/>
+<text x="914" y="788" font-family="Hanken Grotesk" font-size="16" fill="${L}">Rilievo · piano terra</text><text x="914" y="830" font-family="JetBrains Mono" font-size="13" fill="${L}">SCALA 1:50   TAV. 02</text></g>`;
+// scalimetro e matita sul tavolo
+g+=`<g transform="rotate(14 820 780)"><rect x="520" y="760" width="640" height="54" fill="#f4f1ea" stroke="#9c9285"/><rect x="520" y="802" width="640" height="12" fill="#3e7a52"/>`;
+for(let i=0;i<=80;i++)g+=`<line x1="${530+i*7.8}" y1="760" x2="${530+i*7.8}" y2="${i%10?768:776}" stroke="#333"/>`;
+g+=`</g><g transform="rotate(-32 1040 640)"><rect x="830" y="630" width="380" height="20" fill="#26231f"/><rect x="1210" y="630" width="26" height="20" fill="#b9b3a8"/><path d="M830 630L782 640L830 650Z" fill="#d6b48a"/><path d="M796 637L782 640L796 643Z" fill="#26231f"/></g>`;
+
+const SQ='M150 110L150 870L910 870Z M260 420L260 790L630 790Z';
+const A_TEXT='<text x="560" y="870" text-anchor="middle" font-family="Bodoni Moda" font-weight="500" font-size="1060">A</text>';
+let out=`<defs><filter id="sh"><feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#000" flood-opacity=".5"/></filter>
+<clipPath id="win">${V==='a'?A_TEXT:`<path d="M150 110L150 870L910 870Z"/>`}</clipPath></defs>`;
+out+=`<g filter="url(#sh)"><g clip-path="url(#win)">${g}<rect width="1440" height="900" fill="#fff" opacity=".05"/></g></g>`;
+if(V!=='a'){
+  // bordi della squadra in acrilico, foro interno, tacche millimetrate
+  out+=`<path d="${SQ}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5" fill-rule="evenodd"/>
+  <path d="M260 420L260 790L630 790Z" fill="#fff" fill-opacity=".06"/>`;
+  for(let i=0;i<=74;i++){const y=860-i*10;out+=`<line x1="150" y1="${y}" x2="${150+(i%5?10:20)}" y2="${y}" stroke="#2c2824" stroke-width="1" opacity=".75"/>`;}
+  for(let i=0;i<=74;i++){const xx=160+i*10;out+=`<line x1="${xx}" y1="870" x2="${xx}" y2="${870-(i%5?10:20)}" stroke="#2c2824" stroke-width="1" opacity=".75"/>`;}
+  out+=`<text x="180" y="400" font-family="JetBrains Mono" font-size="12" fill="#2c2824" transform="rotate(-90 180 400)">45° · cm</text>`;
+}else{
+  out+=`<g clip-path="url(#win)"><rect width="1440" height="900" fill="none"/></g>`;
+}
+document.getElementById('scene').innerHTML=out;
 </script>
