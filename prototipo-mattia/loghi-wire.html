@@ -1,0 +1,66 @@
+<!doctype html><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;800&family=Big+Shoulders+Display:wght@800&family=Bodoni+Moda:ital,opsz,wght@0,96,900;1,96,500&family=Archivo:wdth,wght@125,300;125,600&family=Hanken+Grotesk:wght@400;500&family=JetBrains+Mono:wght@500&family=Antonio:wght@700&display=swap">
+<style>
+:root{--ink:#1d1b19;--brown:#7a4e2c;--card:#f8f6f2;--paper:#efebe4;--muted:#857a6f}
+*{box-sizing:border-box}html,body{margin:0;background:var(--paper);font-family:"Hanken Grotesk";color:var(--ink)}
+.sheet{width:1700px;padding:56px 64px 64px;display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+h1{grid-column:1/-1;margin:0;font:500 30px "Hanken Grotesk"}.sub{grid-column:1/-1;margin:-8px 0 12px;color:var(--muted);font-size:17px}
+.cell{background:var(--card);height:440px;position:relative;padding:30px 20px 84px;overflow:hidden}
+.stage{position:relative;width:100%;height:100%;display:grid;place-items:center}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.logo{position:relative;z-index:1}
+.n{position:absolute;left:18px;top:14px;font:500 13px "JetBrains Mono";color:var(--muted);z-index:2}
+.t{position:absolute;left:18px;right:18px;bottom:16px;font:500 15px/1.35 "Hanken Grotesk"}.t span{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.l1 i{display:block;height:9px;background:var(--brown);margin-bottom:14px}.l1 b{display:block;font:800 104px/.82 "Barlow Condensed";color:var(--brown)}.l1 span{display:block;font:500 40px/1 "Barlow Condensed";color:var(--brown);margin-top:6px}
+.l2{display:flex;align-items:center;gap:14px}.l2 b{font:800 72px/.8 "Big Shoulders Display"}.l2 em{width:2px;height:64px;background:var(--brown)}.l2 span{font:400 17px/1.15 "Hanken Grotesk"}
+.l3 b{display:block;text-shadow:0 0 6px var(--card),0 0 12px var(--card),0 0 18px var(--card);font:900 96px/.8 "Bodoni Moda";letter-spacing:.22em}.l3 span{display:block;font:italic 500 28px "Bodoni Moda";color:var(--brown);margin:8px 0 0 6px}
+.l4{text-align:center}.l4 b{display:block;font:300 62px/.9 "Archivo";font-stretch:125%;letter-spacing:.06em}.l4 span{display:block;font:600 11px "Archivo";font-stretch:125%;letter-spacing:.5em;margin-top:12px;padding-left:.5em;color:var(--brown)}
+.l5{display:flex;align-items:flex-end;gap:10px}.l5 b{font:700 140px/.78 "Antonio"}.l5 span{writing-mode:vertical-rl;transform:rotate(180deg);font:500 19px "Hanken Grotesk";letter-spacing:.3em;color:var(--brown)}
+</style>
+<div class="sheet" id="wf">
+<h1>MM architetto · con il wireframe</h1><p class="sub">La sagoma di un edificio a fil di ferro, in dissolvenza dietro o come cornice.</p>
+<div class="cell"><span class="n">A</span><div class="stage"><svg id="w1" viewBox="0 0 280 320"></svg><div class="logo l1"><i></i><b>MM</b><span>architetto</span></div></div><div class="t">Casa in dissolvenza<span>Una casa in assonometria a fil di ferro, sbiadita dietro le lettere</span></div></div>
+<div class="cell"><span class="n">B</span><div class="stage"><svg id="w2" viewBox="0 0 280 320"></svg><div class="logo l2" style="margin-top:60px"><b>MM</b><em></em><span>architetto<br>Marino</span></div></div><div class="t">Cornice a capanna<span>Il prospetto della casa a fil di ferro racchiude il logo</span></div></div>
+<div class="cell"><span class="n">C</span><div class="stage"><svg id="w3" viewBox="0 0 280 320"></svg><div class="logo l3"><b>MM</b><span>architetto</span></div></div><div class="t">Palazzo storico dietro<span>La facciata di un palazzo con archi, che sfuma verso il basso</span></div></div>
+<div class="cell"><span class="n">D</span><div class="stage"><svg id="w4" viewBox="0 0 280 320"></svg><div class="logo l4" style="margin:58px 0 0 -26px"><b>MM</b><span>ARCHITETTO</span></div></div><div class="t">Volume come cornice<span>Il riquadro diventa un volume a fil di ferro, il logo sta sulla faccia davanti</span></div></div>
+<div class="cell"><span class="n">E</span><div class="stage"><svg id="w5" viewBox="0 0 280 320"></svg><div class="logo l5"><b>MM</b><span>architetto</span></div></div><div class="t">Edificio in prospettiva<span>Una torre vista dal basso che sale dietro le lettere</span></div></div>
+</div>
+<script>
+const NS='http://www.w3.org/2000/svg',INK='#1d1b19',BR='#7a4e2c';
+const E=(p,t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const L=(s,a,b,o={})=>E(s,'line',Object.assign({x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:INK,'stroke-width':1},o));
+// casa a capanna in isometria, tutti gli spigoli (anche quelli nascosti)
+function isoHouse(s,cx,cy,u,o={}){const k=Math.cos(Math.PI/6),P=(x,y,z)=>[cx+(x-y)*k*u,cy+(x+y)*.5*u-z*u];
+ const w=2,d=1.6,h=1.3,r=2.2,V=[[0,0,0],[w,0,0],[w,d,0],[0,d,0],[0,0,h],[w,0,h],[w,d,h],[0,d,h],[0,d/2,r],[w,d/2,r]];
+ const Ed=[[0,1],[1,2],[2,3],[3,0],[0,4],[1,5],[2,6],[3,7],[4,5],[5,6],[6,7],[7,4],[4,8],[7,8],[5,9],[6,9],[8,9]];
+ Ed.forEach(([a,b])=>L(s,P(...V[a]),P(...V[b]),o));
+ for(let i=0;i<3;i++){const x=.35+i*.55;[[x,0,.35],[x+.3,0,.35],[x+.3,0,.85],[x,0,.85]].reduce((p,c,j,arr)=>{L(s,P(...c),P(...arr[(j+1)%4]),o);return c},0);}
+ V.forEach(v=>E(s,'circle',{cx:P(...v)[0],cy:P(...v)[1],r:1.8,fill:o.stroke||INK,opacity:o.opacity||1}));}
+// A: casa in dissolvenza dietro
+{const s=document.getElementById('w1');isoHouse(s,140,196,64,{opacity:.28,'stroke-width':1.1});}
+// B: cornice a capanna doppia linea
+{const s=document.getElementById('w2'),o={'stroke-width':1.1};
+ E(s,'path',{d:'M4 300V130L140 30L276 130V300Z',fill:'none',stroke:INK,'stroke-width':1.2});
+ E(s,'path',{d:'M16 300V136L140 46L264 136V300',fill:'none',stroke:BR,'stroke-width':.8});
+ [[4,130],[140,30],[276,130],[4,300],[276,300]].forEach(([x,y])=>E(s,'circle',{cx:x,cy:y,r:2.4,fill:INK}));
+ L(s,[140,30],[140,10],{'stroke-width':.8,'stroke-dasharray':'3 3'});L(s,[0,300],[280,300],{'stroke-width':.8});}
+// C: facciata di palazzo che sfuma
+{const s=document.getElementById('w3'),df=E(s,'defs',{}),lg=E(df,'linearGradient',{id:'fd',x1:0,y1:0,x2:0,y2:1});
+ E(lg,'stop',{offset:0,'stop-color':'#fff','stop-opacity':.9});E(lg,'stop',{offset:.85,'stop-color':'#fff','stop-opacity':0});
+ const m=E(df,'mask',{id:'mk'});E(m,'rect',{x:0,y:0,width:280,height:320,fill:'url(#fd)'});
+ const g=E(s,'g',{mask:'url(#mk)',opacity:.45,stroke:INK,fill:'none','stroke-width':1});
+ E(g,'path',{d:'M14 40H266M18 34H262M20 40V320M260 40V320M20 120H260M20 200H260'});
+ for(let i=0;i<5;i++){const x=34+i*46;E(g,'path',{d:`M${x} 108V72A14 14 0 0 1 ${x+28} 72V108ZM${x} 188V140H${x+28}V188ZM${x} 300V236A14 14 0 0 1 ${x+28} 236V300`});}
+ for(let i=0;i<26;i++)L(g,[20+i*9.6,34],[20+i*9.6,40]);}
+// D: volume a fil di ferro come cornice
+{const s=document.getElementById('w4'),o={'stroke-width':1.2},F=[[24,110],[226,110],[226,290],[24,290]],off=[34,-30],B=F.map(([x,y])=>[x+off[0],y+off[1]]);
+ for(let i=0;i<4;i++){L(s,F[i],F[(i+1)%4],o);L(s,B[i],B[(i+1)%4],{'stroke-width':.8,'stroke-dasharray':i==3||i==2?'3 3':''});L(s,F[i],B[i],{'stroke-width':.8});}
+ const top=[(B[0][0]+B[1][0])/2,B[0][1]-60];L(s,F[0],[ (F[0][0]+F[1][0])/2,F[0][1]-60],{stroke:BR});L(s,F[1],[(F[0][0]+F[1][0])/2,F[0][1]-60],{stroke:BR});
+ L(s,[(F[0][0]+F[1][0])/2,F[0][1]-60],top,{stroke:BR,'stroke-width':.8});L(s,B[1],top,{stroke:BR,'stroke-width':.8});L(s,B[0],top,{stroke:BR,'stroke-width':.8,'stroke-dasharray':'3 3'});}
+// E: torre in prospettiva dal basso
+{const s=document.getElementById('w5'),vp=[140,-260],g=E(s,'g',{opacity:.35});
+ const base=[[40,320],[110,320],[240,320]],t=(p,f)=>[p[0]+(vp[0]-p[0])*f,p[1]+(vp[1]-p[1])*f];
+ base.forEach(p=>L(g,p,t(p,.5)));L(g,t(base[0],.5),t(base[1],.5));L(g,t(base[1],.5),t(base[2],.5));
+ for(let f=.06;f<.5;f+=.06){L(g,t(base[0],f),t(base[1],f),{'stroke-width':.7});L(g,t(base[1],f),t(base[2],f),{'stroke-width':.7});}
+ E(g,'circle',{cx:t(base[1],.5)[0],cy:t(base[1],.5)[1],r:2.5,fill:BR});}
+</script>
