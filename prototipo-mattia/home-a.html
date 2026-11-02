@@ -22,6 +22,14 @@ nav{position:absolute;left:64px;right:64px;top:44px;display:flex;justify-content
 .mm p{margin:34px 0 0 140px;font:400 13px "JetBrains Mono";letter-spacing:.18em;color:var(--muted)}
 .mm h2{margin:30px 0 0 140px;font:300 24px/1.4 "Hanken Grotesk";color:var(--muted);max-width:26ch}
 body.v4 .copy{display:none}body.v4 .mm{display:block}body.v4 .brand span.nm{display:none}
+body.big .mm b{font-size:290px}
+body.big .mm span{font-size:56px}
+body.v4.big .mm{left:880px;top:150px}
+body.v4.big .mm div+div{margin-left:96px;margin-top:6px}
+body.v4.big .mm p,body.v4.big .mm h2{margin-left:150px}
+body.v5 .copy{display:none}body.v5 .mm{display:block;left:1010px;top:150px}body.v5 .brand span.nm{display:none}
+body.v5 .mm div+div{margin-left:-104px;margin-top:6px}
+body.v5 .mm p{margin:30px 0 0 -104px}body.v5 .mm h2{margin:22px 0 0 -104px}
 </style>
 <canvas id="c" width="1440" height="900"></canvas>
 <svg id="scene" viewBox="0 0 1440 900"></svg>
@@ -34,7 +42,7 @@ body.v4 .copy{display:none}body.v4 .mm{display:block}body.v4 .brand span.nm{disp
 <div class="tag" id="tag"></div>
 
 <script>
-const V=new URLSearchParams(location.search).get('v')||'1';if(V==='4')document.body.classList.add('v4');
+const V=new URLSearchParams(location.search).get('v')||'1';if(V==='4')document.body.classList.add('v4','big');if(V==='5')document.body.classList.add('v5','big');
 // cemento
 const c=document.getElementById('c'),x=c.getContext('2d'),W=1440,H=900;
 x.fillStyle='#55504a';x.fillRect(0,0,W,H);
