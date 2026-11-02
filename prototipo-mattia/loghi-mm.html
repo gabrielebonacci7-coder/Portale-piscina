@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;800&family=Big+Shoulders+Display:wght@800&family=Bodoni+Moda:ital,opsz,wght@0,96,900;1,96,500&family=Archivo:wdth,wght@125,300;125,600&family=Hanken+Grotesk:wght@300;400;500&family=JetBrains+Mono:wght@500&family=Antonio:wght@700&display=swap">
+<style>
+:root{--ink:#1d1b19;--brown:#7a4e2c;--card:#f8f6f2;--paper:#efebe4;--muted:#857a6f}
+*{box-sizing:border-box}html,body{margin:0;background:var(--paper);font-family:"Hanken Grotesk";color:var(--ink)}
+.sheet{width:1700px;padding:56px 64px 64px;display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+h1{grid-column:1/-1;margin:0;font:500 30px "Hanken Grotesk"}.sub{grid-column:1/-1;margin:-8px 0 12px;color:var(--muted);font-size:17px}
+.cell{background:var(--card);height:400px;position:relative;display:grid;place-items:center;padding:30px 20px 80px}
+.n{position:absolute;left:18px;top:14px;font:500 13px "JetBrains Mono";color:var(--muted)}
+.t{position:absolute;left:18px;right:18px;bottom:16px;font:500 15px/1.35 "Hanken Grotesk"}.t span{display:block;color:var(--muted);font-weight:400;font-size:13px}
+/* 1 come MDU */
+.l1{width:max-content}.l1 i{display:block;height:9px;background:var(--brown);margin-bottom:14px}
+.l1 b{display:block;font:800 104px/.82 "Barlow Condensed";color:var(--brown);letter-spacing:-.01em}
+.l1 span{display:block;font:500 40px/1 "Barlow Condensed";color:var(--brown);margin-top:6px}
+/* 2 orizzontale con filetto */
+.l2{display:flex;align-items:center;gap:16px}.l2 b{font:800 92px/.8 "Big Shoulders Display";color:var(--ink)}
+.l2 em{width:2px;height:76px;background:var(--brown)}.l2 span{font:400 22px/1.15 "Hanken Grotesk";color:var(--ink)}
+/* 3 serif come la A */
+.l3{text-align:left}.l3 b{display:block;font:900 110px/.8 "Bodoni Moda";letter-spacing:.03em}
+.l3 span{display:block;font:italic 500 30px "Bodoni Moda";color:var(--brown);margin:8px 0 0 6px}
+/* 4 largo e leggero, centrato */
+.l4{text-align:center;border:1.5px solid var(--ink);padding:26px 30px 22px}.l4 b{display:block;font:300 74px/.9 "Archivo";font-stretch:125%;letter-spacing:.06em}
+.l4 span{display:block;font:600 12px "Archivo";font-stretch:125%;letter-spacing:.5em;margin-top:14px;padding-left:.5em;color:var(--brown)}
+/* 5 verticale */
+.l5{display:flex;align-items:flex-end;gap:10px}.l5 b{font:700 150px/.78 "Antonio";letter-spacing:-.02em;color:var(--ink)}
+.l5 span{writing-mode:vertical-rl;transform:rotate(180deg);font:500 21px "Hanken Grotesk";letter-spacing:.3em;color:var(--brown);margin-bottom:2px}
+</style>
+<div class="sheet" id="mm">
+<h1>MM architetto · 5 versioni</h1><p class="sub">Ispirate al logo di MDU: un blocco di lettere forte e la parola "architetto" che lo accompagna.</p>
+<div class="cell"><span class="n">A</span><div class="l1"><i></i><b>MM</b><span>architetto</span></div><div class="t">Come MDU<span>Barra sopra, MM in bastone stretto e pesante, "architetto" sotto in minuscolo</span></div></div>
+<div class="cell"><span class="n">B</span><div class="l2"><b>MM</b><em></em><span>architetto<br>Marino</span></div><div class="t">In linea<span>Le iniziali e il nome divisi da un filetto marrone, per testate e biglietti</span></div></div>
+<div class="cell"><span class="n">C</span><div class="l3"><b>MM</b><span>architetto</span></div><div class="t">Classico<span>Lo stesso carattere della A in home: il logo e il sito parlano la stessa lingua</span></div></div>
+<div class="cell"><span class="n">D</span><div class="l4"><b>MM</b><span>ARCHITETTO</span></div><div class="t">Largo nel riquadro<span>Lettere larghe e sottili in una cornice, come un cartello di cantiere</span></div></div>
+<div class="cell"><span class="n">E</span><div class="l5"><b>MM</b><span>architetto</span></div><div class="t">Verticale<span>MM altissime, "architetto" che sale lungo il fianco</span></div></div>
+</div>
