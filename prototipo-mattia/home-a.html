@@ -14,18 +14,27 @@ nav{position:absolute;left:64px;right:64px;top:44px;display:flex;justify-content
 .copy h1{margin:0;font:300 54px/1.04 "Hanken Grotesk";letter-spacing:-.025em}
 .copy p{margin:22px 0 0;font-size:18px;line-height:1.5;color:var(--muted)}
 .tag{position:absolute;right:64px;width:380px;bottom:56px;font:400 13px "JetBrains Mono";color:var(--muted);z-index:2}
+.mm{display:none;position:absolute;left:960px;top:190px;z-index:2}
+.mm div{display:flex;align-items:baseline;gap:6px;line-height:.86}
+.mm b{font:900 210px/.86 "Bodoni Moda";color:var(--light)}
+.mm span{font:300 46px "Hanken Grotesk";letter-spacing:.01em;color:var(--light)}
+.mm div+div{margin-top:18px}
+.mm p{margin:34px 0 0;font:400 13px "JetBrains Mono";letter-spacing:.18em;color:var(--muted)}
+.mm h2{margin:38px 0 0;font:300 24px/1.4 "Hanken Grotesk";color:var(--muted);max-width:26ch}
+body.v4 .copy{display:none}body.v4 .mm{display:block}body.v4 .brand span.nm{display:none}
 </style>
 <canvas id="c" width="1440" height="900"></canvas>
 <svg id="scene" viewBox="0 0 1440 900"></svg>
 <nav>
-  <div class="brand"><svg viewBox="0 0 240 110"><path d="M0 96H48V44L84 16L120 44V96H136V60L160 40L184 60V96H232"/></svg>Mattia Moretti, architetto</div>
+  <div class="brand"><svg viewBox="0 0 240 110"><path d="M0 96H48V44L84 16L120 44V96H136V60L160 40L184 60V96H232"/></svg><span class="nm">Mattia Moretti, architetto</span></div>
   <div class="links"><span>Progetti</span><span>Ambiti</span><span>Formazione</span><span>Contatti</span></div>
 </nav>
+<div class="mm"><div><b>M</b><span>attia</span></div><div><b>M</b><span>oretti</span></div><p>ARCHITETTO · RESTAURO · MARINO</p><h2>Restauro e progetto di case storiche, dal rilievo al cantiere.</h2></div>
 <div class="copy"><h1>Restauro e progetto di case storiche</h1><p>Dal rilievo al cantiere, con le pratiche incluse. Studio a Marino.</p></div>
 <div class="tag" id="tag"></div>
 
 <script>
-const V=new URLSearchParams(location.search).get('v')||'1';
+const V=new URLSearchParams(location.search).get('v')||'1';if(V==='4')document.body.classList.add('v4');
 // cemento
 const c=document.getElementById('c'),x=c.getContext('2d'),W=1440,H=900;
 x.fillStyle='#55504a';x.fillRect(0,0,W,H);
