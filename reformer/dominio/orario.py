@@ -13,12 +13,12 @@ FUSO = ZoneInfo(settings.fuso_orario)
 
 # Giorno della settimana (lunedì = 0, come date.weekday()) → orari d'inizio.
 ORARIO: dict[int, list[time]] = {
-    0: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
-    1: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
-    2: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
-    3: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
-    4: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)],
-    5: [time(11, 30), time(12, 30)],
+    0: [time(16, 30), time(17, 30)],                 # lunedì (Greta)
+    1: [time(15, 30), time(16, 30)],                 # martedì (Elisa)
+    2: [time(16, 30), time(17, 30)],                 # mercoledì (Greta)
+    3: [time(15, 30), time(16, 30), time(17, 30)],   # giovedì (Elisa)
+    4: [time(15, 30), time(16, 30)],                 # venerdì (Elisa)
+    5: [time(11, 30)],                               # sabato (Greta)
 }
 DURATA_MINUTI = 60
 
@@ -34,7 +34,7 @@ TITOLO_BASE = "Pilates"
 # Oltre all'orario fisso, Greta ed Elisa possono aprire una lezione in più dal
 # gestionale (per esempio alle 19:30): ORARIO_EXTRA_SUGGERITO è l'ora che il
 # gestionale propone, giorno per giorno.
-ORARIO_EXTRA_SUGGERITO = {0: "19:30", 1: "19:30", 2: "19:30", 3: "19:30", 4: "19:30", 5: "13:30"}
+ORARIO_EXTRA_SUGGERITO = {0: "18:30", 1: "17:30", 2: "18:30", 3: "18:30", 4: "17:30", 5: "12:30"}
 
 ISTRUTTRICI = {
     "elisa": {"id": "elisa", "nome": "Elisa", "cognome": "Bonacci"},
@@ -90,6 +90,18 @@ def giorni(da: date, quanti: int) -> list[date]:
 
 def ultimo_giorno_prenotabile() -> date:
     return oggi() + timedelta(days=settings.giorni_prenotabili)
+
+
+def primo_giorno_prenotabile() -> date:
+    """Le prenotazioni si chiudono a mezzanotte del giorno prima: la lezione di
+    oggi non si prenota più (con 0 giorni, si prenota fino all'inizio)."""
+    return oggi() + timedelta(days=settings.giorni_chiusura_prenotazioni)
+
+
+# Le lezioni create prima di questa data seguivano l'orario precedente: quelle
+# future che non stanno nell'orario nuovo vengono tolte all'avvio. Quelle create
+# dopo (le lezioni in più aperte dal gestionale) non si toccano.
+ORARIO_VALIDO_DAL = datetime(2026, 11, 12, tzinfo=timezone.utc)
 
 
 GIORNI = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"]

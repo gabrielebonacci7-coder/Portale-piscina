@@ -16,8 +16,8 @@ from reformer import __version__
 from reformer.api.routers import auth, cliente, pubblico, staff
 from reformer.core.config import settings
 from reformer.db.init_db import init_db
-from reformer.db.session import engine
-from reformer.servizi import promemoria
+from reformer.db.session import SessionLocal, engine
+from reformer.servizi import promemoria, regole
 
 log = logging.getLogger("reformer")
 
@@ -49,6 +49,8 @@ def controlla_configurazione() -> None:
 async def lifespan(app: FastAPI):
     controlla_configurazione()
     init_db()
+    with SessionLocal() as db:
+        regole.allinea_al_nuovo_orario(db)
     giro = asyncio.create_task(promemoria.giro_continuo()) if settings.promemoria_attivi else None
     yield
     if giro:

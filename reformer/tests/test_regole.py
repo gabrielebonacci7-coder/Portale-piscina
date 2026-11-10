@@ -26,8 +26,12 @@ def test_orario_della_settimana(client, cliente):
     per_giorno = {}
     for l in settimana:
         per_giorno.setdefault(l["inizio"][:10], []).append(l)
-    assert len(per_giorno["2026-10-12"]) == 4          # lunedì: 15:30, 16:30, 17:30, 18:30
-    assert len(per_giorno["2026-10-17"]) == 2          # sabato
+    assert [l["inizio"][11:16] for l in per_giorno["2026-10-12"]] == ["14:30", "15:30"]   # lunedì 16:30, 17:30
+    assert len(per_giorno["2026-10-13"]) == 2          # martedì 15:30, 16:30
+    assert len(per_giorno["2026-10-14"]) == 2          # mercoledì 16:30, 17:30
+    assert len(per_giorno["2026-10-15"]) == 3          # giovedì 15:30, 16:30, 17:30
+    assert len(per_giorno["2026-10-16"]) == 2          # venerdì 15:30, 16:30
+    assert [l["inizio"][11:16] for l in per_giorno["2026-10-17"]] == ["09:30"]            # sabato 11:30
     assert "2026-10-18" not in per_giorno              # domenica chiuso
     assert {l["istruttrice"]["id"] for l in per_giorno["2026-10-13"]} == {"elisa"}  # martedì
     assert {l["istruttrice"]["id"] for l in per_giorno["2026-10-14"]} == {"greta"}  # mercoledì
@@ -37,11 +41,11 @@ def test_orario_della_settimana(client, cliente):
 
 
 def test_ora_legale(client, cliente):
-    """Il 25 ottobre cambia l'ora: le 15:30 restano le 15:30 a Roma."""
-    prima = lezioni(client, cliente, "2026-10-23")[0]["inizio"]
-    dopo = lezioni(client, cliente, "2026-10-26")[0]["inizio"]
-    assert prima.startswith("2026-10-23T13:30")   # 15:30 a Roma, UTC+2
-    assert dopo.startswith("2026-10-26T14:30")    # 15:30 a Roma, UTC+1
+    """Il 25 ottobre cambia l'ora: le 16:30 restano le 16:30 a Roma."""
+    prima = lezioni(client, cliente, "2026-10-19")[0]["inizio"]    # lunedì, 16:30
+    dopo = lezioni(client, cliente, "2026-10-26")[0]["inizio"]     # lunedì, 16:30
+    assert prima.startswith("2026-10-19T14:30")   # 16:30 a Roma, UTC+2
+    assert dopo.startswith("2026-10-26T15:30")    # 16:30 a Roma, UTC+1
 
 
 def test_calendario_entro_limiti_ragionevoli(client, cliente):
@@ -99,11 +103,12 @@ def test_non_una_lezione_gia_iniziata(client, cliente, orologio):
 
 def test_a_pacchetto_finito_non_si_prenota(client, staff):
     t = registra(client, "zero@example.com", lezioni=0)["token"]
-    l = domani(client, t)
+    ls = lezioni(client, t, "2026-10-14", 2)   # mercoledì (2) e giovedì (3)
+    l = ls[0]
     r = client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(t))
     assert r.status_code == 409 and "finito le lezioni" in r.json()["detail"]
     # Nemmeno in lista d'attesa.
-    piena = domani(client, t, 1)
+    piena = ls[1]
     _riempi(client, piena["id"])
     assert client.post(f"/api/lezioni/{piena['id']}/attesa", headers=auth(t)).status_code == 409
     # Rinnovato in studio, si prenota.
@@ -111,8 +116,8 @@ def test_a_pacchetto_finito_non_si_prenota(client, staff):
     assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(t)).status_code == 200
     # L'ultima lezione si usa, poi stop.
     carica(client, staff, io(client, t)["id"], 1)
-    assert client.post(f"/api/lezioni/{domani(client, t, 2)['id']}/prenota", headers=auth(t)).status_code == 200
-    assert client.post(f"/api/lezioni/{domani(client, t, 3)['id']}/prenota", headers=auth(t)).status_code == 409
+    assert client.post(f"/api/lezioni/{ls[2]['id']}/prenota", headers=auth(t)).status_code == 200
+    assert client.post(f"/api/lezioni/{ls[3]['id']}/prenota", headers=auth(t)).status_code == 409
 
 
 # ------------------------------------------------------------------ disdire
@@ -126,11 +131,11 @@ def test_disdetta_in_tempo_restituisce_la_lezione(client, staff, cliente):
     assert r.json()["lezione"]["mia"] is False
 
 
-def test_meno_di_12_ore_non_si_disdice(client, cliente):
-    oggi = lezioni(client, cliente)[0]  # 15:30, fra 6 ore e mezza
-    assert oggi["disdicibile"] is False
-    client.post(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente))
-    r = client.delete(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente))
+def test_meno_di_12_ore_non_si_disdice(client, cliente, orologio):
+    l = domani(client, cliente)   # martedì 15:30 = 13:30 UTC
+    assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 200
+    orologio.avanti(hours=24)     # ora mancano 6 ore e mezza
+    r = client.delete(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
     assert r.status_code == 409
     assert "12 ore" in r.json()["detail"]
 
@@ -245,7 +250,7 @@ def test_lo_staff_scrive_le_lezioni_rimaste(client, staff, cliente):
 
 
 def test_lo_staff_vede_i_nomi_e_segna_le_presenze(client, staff, cliente):
-    l = lezioni(client, cliente)[0]
+    l = domani(client, cliente)
     client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
     cid = io(client, cliente)["id"]
     vista = client.get(f"/api/staff/lezioni/{l['id']}", headers=auth(staff)).json()
@@ -255,9 +260,10 @@ def test_lo_staff_vede_i_nomi_e_segna_le_presenze(client, staff, cliente):
     assert client.get(f"/api/staff/lezioni/{l['id']}", headers=auth(staff)).json()["iscritte"][0]["presente"] is True
 
 
-def test_lo_staff_toglie_anche_all_ultimo(client, staff, cliente):
-    l = lezioni(client, cliente)[0]  # oggi, meno di 12 ore
+def test_lo_staff_toglie_anche_all_ultimo(client, staff, cliente, orologio):
+    l = domani(client, cliente)
     client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
+    orologio.avanti(hours=24)  # meno di 12 ore: la cliente non può più disdire, lo staff sì
     cid = io(client, cliente)["id"]
     r = client.delete(f"/api/staff/lezioni/{l['id']}/iscritte/{cid}", headers=auth(staff))
     assert r.status_code == 200
@@ -316,7 +322,7 @@ def test_lo_staff_apre_una_lezione_alle_19_30(client, staff, cliente):
     r = client.post("/api/staff/lezioni", json={"giorno": "2026-10-13", "ora": "19:30"}, headers=auth(staff))
     assert r.status_code == 201, r.text
     giorno = lezioni(client, cliente, "2026-10-13")
-    assert [l["inizio"][11:16] for l in giorno] == ["13:30", "14:30", "15:30", "16:30", "17:30"]
+    assert [l["inizio"][11:16] for l in giorno] == ["13:30", "14:30", "17:30"]
     extra = giorno[-1]
     assert extra["istruttrice"]["id"] == "elisa" and extra["posti"] == 3
     assert client.post(f"/api/lezioni/{extra['id']}/prenota", headers=auth(cliente)).status_code == 200
@@ -429,3 +435,70 @@ def test_gli_scambi_di_un_giorno_battono_la_regola_della_settimana():
     assert orario.istruttrice_del(date(2026, 11, 27)) == "greta"   # venerdì
     assert orario.istruttrice_del(date(2026, 12, 4)) == "elisa"    # il venerdì dopo torna la regola
     assert orario.istruttrice_del(date(2026, 11, 28)) == "greta"   # e il sabato dopo
+
+
+# ------------------------------------------------ chiusura delle prenotazioni
+def test_si_prenota_fino_a_mezzanotte_del_giorno_prima(client, cliente, orologio):
+    oggi = lezioni(client, cliente)[0]          # lunedì 16:30, oggi
+    assert oggi["prenotabile"] is False
+    r = client.post(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente))
+    assert r.status_code == 409 and "mezzanotte del giorno prima" in r.json()["detail"]
+    domani_ = domani(client, cliente)
+    assert domani_["prenotabile"] is True
+    orologio.avanti(hours=14)                    # lunedì 23:00 a Roma: domani si prenota ancora
+    assert client.post(f"/api/lezioni/{domani_['id']}/prenota", headers=auth(cliente)).status_code == 200
+    altra = lezioni(client, cliente, "2026-10-14")[0]
+    orologio.avanti(hours=2)                     # dopo mezzanotte: ora è il giorno stesso
+    r = client.post(f"/api/lezioni/{domani_['id']}/attesa", headers=auth(cliente))
+    assert r.status_code == 409
+    assert client.post(f"/api/lezioni/{altra['id']}/prenota", headers=auth(cliente)).status_code == 200
+
+
+def test_lo_staff_iscrive_anche_a_prenotazioni_chiuse(client, staff, cliente):
+    oggi = lezioni(client, cliente)[0]
+    cid = io(client, cliente)["id"]
+    r = client.post(f"/api/staff/lezioni/{oggi['id']}/iscritte", json={"cliente_id": cid}, headers=auth(staff))
+    assert r.status_code in (200, 201), r.text
+
+
+# ---------------------------------------------- avviso allo staff alla prenotazione
+def test_lo_staff_riceve_una_notifica_a_ogni_prenotazione(client, staff, cliente):
+    l = domani(client, cliente)
+    client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
+    elenco = client.get("/api/notifiche", headers=auth(staff)).json()["elenco"]
+    testi = [n["testo"] for n in elenco if "Sofia Marini ha prenotato" in n["testo"]]
+    assert len(testi) == 1 and "Lezioni rimaste: 9" in testi[0]
+    # Quando la prenotazione la fa lo staff a mano, non c'è bisogno di avvisarsi.
+    cid = io(client, cliente)["id"]
+    altra = lezioni(client, cliente, "2026-10-14")[0]
+    client.post(f"/api/staff/lezioni/{altra['id']}/iscritte", json={"cliente_id": cid}, headers=auth(staff))
+    elenco = client.get("/api/notifiche", headers=auth(staff)).json()["elenco"]
+    assert len([n for n in elenco if "Sofia Marini ha prenotato" in n["testo"]]) == 1
+
+
+# ------------------------------------------------------------ cambio di orario
+def test_le_lezioni_fuori_dal_nuovo_orario_si_tolgono(client, cliente, monkeypatch):
+    from datetime import datetime, timezone
+
+    from reformer.db.session import SessionLocal
+    from reformer.dominio import orario
+    from reformer.models import Lezione, Prenotazione, Utente
+    from reformer.servizi import regole
+
+    monkeypatch.setattr(orario, "ORARIO_VALIDO_DAL", datetime(2100, 1, 1, tzinfo=timezone.utc))
+    domani_ = domani(client, cliente)                     # nell'orario nuovo: resta
+    with SessionLocal() as db:
+        vuota = Lezione(inizio=datetime(2026, 10, 13, 16, 30, tzinfo=timezone.utc), istruttrice="elisa")   # 18:30
+        piena = Lezione(inizio=datetime(2026, 10, 13, 15, 30, tzinfo=timezone.utc), istruttrice="elisa")   # 17:30
+        db.add_all([vuota, piena])
+        db.commit()
+        u = db.query(Utente).filter_by(email="sofia@example.com").one()
+        db.add(Prenotazione(lezione_id=piena.id, utente_id=u.id))
+        u.lezioni_rimaste = 9
+        db.commit()
+        vuota_id, piena_id = vuota.id, piena.id
+        assert regole.allinea_al_nuovo_orario(db) == 2
+        assert db.get(Lezione, vuota_id) is None
+        assert db.get(Lezione, piena_id).annullata_il is not None
+        assert db.get(Lezione, domani_["id"]).annullata_il is None
+        assert db.get(Utente, u.id).lezioni_rimaste == 10     # la lezione è tornata nel pacchetto

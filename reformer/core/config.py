@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     posti_per_lezione: int = 3
     ore_disdetta: int = 12
     giorni_prenotabili: int = 30
+    # Le prenotazioni si chiudono a mezzanotte di N giorni prima (1 = la sera
+    # prima; 0 = si prenota fino all'inizio della lezione).
+    giorni_chiusura_prenotazioni: int = 1
     # Quante lezioni si possono prenotare senza averle nel pacchetto. Lo studio
     # ha scelto 0: a pacchetto finito non si prenota, si rinnova in studio.
     # (Greta ed Elisa possono comunque iscrivere a mano chi vogliono.)

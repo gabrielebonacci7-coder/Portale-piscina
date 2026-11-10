@@ -12,6 +12,7 @@ prendano insieme l'ultimo reformer. Il database aggiunge una seconda
 garanzia: l'indice unico su (lezione, cliente) per le prenotazioni attive.
 """
 
+import logging
 import threading
 from datetime import date, datetime, timedelta
 
@@ -33,6 +34,9 @@ from reformer.models import (
 )
 
 _scrittura = threading.RLock()
+
+
+log = logging.getLogger("reformer.regole")
 
 
 class ErroreRegola(Exception):
@@ -222,7 +226,24 @@ def _iscrivi(
     if dalla_lista:
         motivo = "Entrata dalla lista d'attesa"
     muovi_saldo(db, utente, -1, motivo, autore=da_staff, lezione=lezione)
+    if da_staff is None and not utente.e_staff:
+        notifica_staff(
+            db,
+            f"{utente.nome_completo} "
+            + ("è entrata dalla lista d'attesa" if dalla_lista else "ha prenotato")
+            + f": {orario.quando(lezione.inizio)} ({lezione.titolo}, {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}). "
+            f"Lezioni rimaste: {utente.lezioni_rimaste}.",
+        )
     return p
+
+
+def controlla_apertura(lezione: Lezione) -> None:
+    """Le prenotazioni si chiudono a mezzanotte del giorno prima."""
+    if orario.locale(lezione.inizio).date() < orario.primo_giorno_prenotabile():
+        raise ErroreRegola(
+            "Le prenotazioni si chiudono a mezzanotte del giorno prima. Se ti serve ancora, "
+            f"scrivi a {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}."
+        )
 
 
 def controlla_pacchetto(utente: Utente) -> None:
@@ -242,6 +263,7 @@ def prenota(db: Session, lezione_id: int, utente: Utente) -> Prenotazione:
             raise ErroreRegola("Questa lezione è stata annullata.")
         if lezione.inizio <= orario.adesso():
             raise ErroreRegola("La lezione è già iniziata.")
+        controlla_apertura(lezione)
         if orario.locale(lezione.inizio).date() > orario.ultimo_giorno_prenotabile():
             raise ErroreRegola(f"Si può prenotare al massimo {settings.giorni_prenotabili} giorni prima.")
         if prenotazione_attiva(lezione, utente.id):
@@ -318,6 +340,7 @@ def entra_in_attesa(db: Session, lezione_id: int, utente: Utente) -> int:
         db.refresh(lezione)
         if lezione.annullata_il or lezione.inizio <= orario.adesso():
             raise ErroreRegola("Per questa lezione non c'è più la lista d'attesa.")
+        controlla_apertura(lezione)
         if prenotazione_attiva(lezione, utente.id):
             raise ErroreRegola("Sei già iscritta a questa lezione.")
         if lezione.liberi > 0:
@@ -387,7 +410,7 @@ def staff_togli(db: Session, lezione_id: int, cliente_id: int, autore: Utente) -
         return entrata
 
 
-def annulla_lezione(db: Session, lezione_id: int, motivo: str, autore: Utente) -> int:
+def annulla_lezione(db: Session, lezione_id: int, motivo: str, autore: Utente | None) -> int:
     """Annulla la lezione: chi era iscritta riavrà la lezione ed è avvisata,
     e anche chi era in attesa lo viene a sapere. Ritorna quante erano iscritte."""
     with _scrittura:
@@ -527,3 +550,32 @@ def imposta_saldo(
             cliente.scadenza = scadenza
         db.commit()
         return cliente
+
+
+def allinea_al_nuovo_orario(db: Session) -> int:
+    """All'avvio: toglie dal calendario le lezioni future che l'orario nuovo non
+    prevede (solo quelle create prima di ORARIO_VALIDO_DAL). Se avevano iscritte
+    vengono annullate: la lezione torna nel pacchetto e la cliente è avvisata.
+    Ritorna quante ne ha tolte."""
+    with _scrittura:
+        tolte = 0
+        future = db.scalars(
+            select(Lezione).where(
+                Lezione.inizio > orario.adesso(),
+                Lezione.annullata_il.is_(None),
+                Lezione.creato_il < orario.ORARIO_VALIDO_DAL,
+            )
+        ).all()
+        for lez in future:
+            loc = orario.locale(lez.inizio)
+            if loc.time().replace(second=0, microsecond=0) in orario.ORARIO[loc.weekday()]:
+                continue
+            if lez.prenotazioni or lez.attese:
+                annulla_lezione(db, lez.id, "cambio di orario", None)
+            else:
+                db.delete(lez)
+            tolte += 1
+        db.commit()
+        if tolte:
+            log.warning("Orario nuovo: %d lezioni future tolte dal calendario", tolte)
+        return tolte

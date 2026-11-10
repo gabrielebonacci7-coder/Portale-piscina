@@ -26,7 +26,9 @@ def _base(lez: Lezione) -> dict:
         "passata": lez.inizio <= orario.adesso(),
         "disdicibile": disdicibile(lez),
         "limite_disdetta": limite_disdetta(lez).isoformat(),
-        "prenotabile": orario.locale(lez.inizio).date() <= orario.ultimo_giorno_prenotabile(),
+        "prenotabile": (
+            orario.primo_giorno_prenotabile() <= orario.locale(lez.inizio).date() <= orario.ultimo_giorno_prenotabile()
+        ),
     }
 
 def per_cliente(lez: Lezione, utente: Utente) -> dict:
@@ -73,4 +75,5 @@ def regole() -> dict:
         "posti": settings.posti_per_lezione,
         "ore_disdetta": settings.ore_disdetta,
         "giorni_prenotabili": settings.giorni_prenotabili,
+        "giorni_chiusura": settings.giorni_chiusura_prenotazioni,
     }
