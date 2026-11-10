@@ -35,7 +35,7 @@ pytest reformer/tests          # 39 prove: le regole, l'avvio, e un giro complet
 
 | | |
 |---|---|
-| Orario | lun e mer 16:30 · 17:30 (Greta); mar e ven 15:30 · 16:30 (Elisa); gio 15:30 · 16:30 · 17:30 (Elisa); sab 11:30 (Greta); lezioni da un'ora. Greta ed Elisa possono aprire una lezione in più dal gestionale |
+| Orario | **dal 16 novembre 2026** (prima valeva quello vecchio: lun–ven 15:30–18:30, sab 11:30 e 12:30): lun e mer 16:30 · 17:30 (Greta); mar e ven 15:30 · 16:30 (Elisa); gio 15:30 · 16:30 · 17:30 (Elisa); sab 11:30 (Greta); lezioni da un'ora. Greta ed Elisa possono aprire una lezione in più dal gestionale |
 | Nomi delle lezioni | "Pilates"; lunedì e mercoledì alle 16:30 "Pilates fitness". Greta ed Elisa li cambiano dal gestionale, per una lezione o per tutte le settimane |
 | Chi insegna | Greta lunedì, mercoledì, sabato · Elisa martedì, giovedì, venerdì |
 | Posti | 3 per lezione (i 3 reformer) |

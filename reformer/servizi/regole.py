@@ -239,7 +239,8 @@ def _iscrivi(
 
 def controlla_apertura(lezione: Lezione) -> None:
     """Le prenotazioni si chiudono a mezzanotte del giorno prima."""
-    if orario.locale(lezione.inizio).date() < orario.primo_giorno_prenotabile():
+    giorno = orario.locale(lezione.inizio).date()
+    if giorno >= orario.NUOVO_ORARIO_DAL and giorno < orario.primo_giorno_prenotabile():
         raise ErroreRegola(
             "Le prenotazioni si chiudono a mezzanotte del giorno prima. Se ti serve ancora, "
             f"scrivi a {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}."
@@ -568,7 +569,7 @@ def allinea_al_nuovo_orario(db: Session) -> int:
         ).all()
         for lez in future:
             loc = orario.locale(lez.inizio)
-            if loc.time().replace(second=0, microsecond=0) in orario.ORARIO[loc.weekday()]:
+            if loc.time().replace(second=0, microsecond=0) in orario.ore_del(loc.date()):
                 continue
             if lez.prenotazioni or lez.attese:
                 annulla_lezione(db, lez.id, "cambio di orario", None)
@@ -579,3 +580,43 @@ def allinea_al_nuovo_orario(db: Session) -> int:
         if tolte:
             log.warning("Orario nuovo: %d lezioni future tolte dal calendario", tolte)
         return tolte
+
+
+def ripristina_lezioni_della_settimana(db: Session) -> int:
+    """Rimette com'erano le lezioni annullate per "cambio di orario" che cadono
+    prima del NUOVO_ORARIO_DAL e stanno nell'orario di prima: le stesse persone
+    tornano iscritte (e la lezione si ri-scala dal loro pacchetto). Chi era in
+    lista d'attesa non si può recuperare. Ritorna quante lezioni ha rimesso."""
+    with _scrittura:
+        rimesse = 0
+        annullate = db.scalars(
+            select(Lezione).where(
+                Lezione.inizio > orario.adesso(),
+                Lezione.annullata_il.is_not(None),
+                Lezione.motivo_annullamento == "cambio di orario",
+            )
+        ).all()
+        for lez in annullate:
+            loc = orario.locale(lez.inizio)
+            if loc.date() >= orario.NUOVO_ORARIO_DAL:
+                continue
+            if loc.time().replace(second=0, microsecond=0) not in orario.ore_del(loc.date()):
+                continue
+            lez.annullata_il = None
+            lez.motivo_annullamento = None
+            for p in lez.prenotazioni:
+                if p.stato != StatoPrenotazione.ANNULLATA:
+                    continue
+                p.stato = StatoPrenotazione.ATTIVA
+                p.chiusa_il = None
+                muovi_saldo(db, p.utente, -1, "Lezione rimessa in calendario", lezione=lez)
+                notifica(
+                    db, p.utente_id,
+                    f"La lezione di {orario.quando(lez.inizio)} è tornata in calendario: "
+                    "sei di nuovo iscritta, nessun cambiamento.",
+                )
+            rimesse += 1
+        db.commit()
+        if rimesse:
+            log.warning("Rimesse in calendario %d lezioni della settimana in corso", rimesse)
+        return rimesse

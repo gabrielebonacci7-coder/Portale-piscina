@@ -12,6 +12,7 @@ from reformer.core.config import settings
 FUSO = ZoneInfo(settings.fuso_orario)
 
 # Giorno della settimana (lunedì = 0, come date.weekday()) → orari d'inizio.
+# Questo è l'orario NUOVO, in vigore dal NUOVO_ORARIO_DAL in poi.
 ORARIO: dict[int, list[time]] = {
     0: [time(16, 30), time(17, 30)],                 # lunedì (Greta)
     1: [time(15, 30), time(16, 30)],                 # martedì (Elisa)
@@ -20,6 +21,25 @@ ORARIO: dict[int, list[time]] = {
     4: [time(15, 30), time(16, 30)],                 # venerdì (Elisa)
     5: [time(11, 30)],                               # sabato (Greta)
 }
+
+# L'orario di prima: vale per i giorni prima del NUOVO_ORARIO_DAL, così le
+# lezioni della settimana in corso (con le prenotazioni già fatte) non cambiano.
+ORARIO_PRECEDENTE: dict[int, list[time]] = {
+    **{g: [time(15, 30), time(16, 30), time(17, 30), time(18, 30)] for g in range(5)},
+    5: [time(11, 30), time(12, 30)],
+}
+
+# Da questo lunedì (compreso) valgono l'orario nuovo e la chiusura delle
+# prenotazioni a mezzanotte del giorno prima.
+NUOVO_ORARIO_DAL = date(2026, 11, 16)
+
+
+def ore_del(giorno: date) -> list[time]:
+    """Gli orari d'inizio delle lezioni fisse di quel giorno."""
+    tabella = ORARIO if giorno >= NUOVO_ORARIO_DAL else ORARIO_PRECEDENTE
+    return tabella.get(giorno.weekday(), [])
+
+
 DURATA_MINUTI = 60
 
 # Il nome di partenza di alcune lezioni fisse. Greta ed Elisa possono
@@ -81,7 +101,7 @@ def locale(istante: datetime) -> datetime:
 
 
 def orari_del_giorno(giorno: date) -> list[datetime]:
-    return [inizio_utc(giorno, ora) for ora in ORARIO.get(giorno.weekday(), [])]
+    return [inizio_utc(giorno, ora) for ora in ore_del(giorno)]
 
 
 def giorni(da: date, quanti: int) -> list[date]:
@@ -101,7 +121,7 @@ def primo_giorno_prenotabile() -> date:
 # Le lezioni create prima di questa data seguivano l'orario precedente: quelle
 # future che non stanno nell'orario nuovo vengono tolte all'avvio. Quelle create
 # dopo (le lezioni in più aperte dal gestionale) non si toccano.
-ORARIO_VALIDO_DAL = datetime(2026, 11, 12, tzinfo=timezone.utc)
+ORARIO_VALIDO_DAL = datetime(2026, 11, 14, tzinfo=timezone.utc)
 
 
 GIORNI = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"]

@@ -502,3 +502,47 @@ def test_le_lezioni_fuori_dal_nuovo_orario_si_tolgono(client, cliente, monkeypat
         assert db.get(Lezione, piena_id).annullata_il is not None
         assert db.get(Lezione, domani_["id"]).annullata_il is None
         assert db.get(Utente, u.id).lezioni_rimaste == 10     # la lezione è tornata nel pacchetto
+
+
+# ------------------------------------------ la settimana in corso resta com'era
+def test_prima_del_nuovo_orario_valgono_orario_e_regole_di_prima(client, cliente, monkeypatch):
+    from datetime import date
+
+    from reformer.dominio import orario
+
+    monkeypatch.setattr(orario, "NUOVO_ORARIO_DAL", date(2026, 10, 19))   # lunedì prossimo
+    questa = lezioni(client, cliente, "2026-10-12", 7)
+    per_giorno = {}
+    for l in questa:
+        per_giorno.setdefault(l["inizio"][:10], []).append(l)
+    assert len(per_giorno["2026-10-12"]) == 4           # lunedì, come prima: 15:30 … 18:30
+    assert len(per_giorno["2026-10-17"]) == 2           # sabato, come prima: 11:30 e 12:30
+    prossima = lezioni(client, cliente, "2026-10-19", 7)
+    assert len([l for l in prossima if l["inizio"].startswith("2026-10-19")]) == 2    # lunedì nuovo
+    # Fino al nuovo orario si prenota anche il giorno stesso.
+    oggi = lezioni(client, cliente)[3]                  # lunedì 18:30, oggi
+    assert oggi["prenotabile"] is True
+    assert client.post(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente)).status_code == 200
+
+
+def test_le_lezioni_annullate_per_il_cambio_si_rimettono_com_erano(client, cliente, monkeypatch):
+    from datetime import date
+
+    from reformer.db.session import SessionLocal
+    from reformer.dominio import orario
+    from reformer.models import Lezione, StatoPrenotazione, Utente
+    from reformer.servizi import regole
+
+    monkeypatch.setattr(orario, "NUOVO_ORARIO_DAL", date(2026, 10, 19))
+    l = lezioni(client, cliente, "2026-10-13")[3]       # martedì 18:30, orario di prima
+    assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 200
+    with SessionLocal() as db:
+        u = db.query(Utente).filter_by(email="sofia@example.com").one()
+        prima = u.lezioni_rimaste
+        regole.annulla_lezione(db, l["id"], "cambio di orario", None)    # com'è successo online
+        assert db.get(Utente, u.id).lezioni_rimaste == prima + 1
+        assert regole.ripristina_lezioni_della_settimana(db) == 1
+        lez = db.get(Lezione, l["id"])
+        assert lez.annullata_il is None and [p.stato for p in lez.prenotazioni] == [StatoPrenotazione.ATTIVA]
+        assert db.get(Utente, u.id).lezioni_rimaste == prima
+        assert regole.ripristina_lezioni_della_settimana(db) == 0         # una volta sola

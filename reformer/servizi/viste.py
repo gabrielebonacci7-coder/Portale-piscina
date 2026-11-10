@@ -10,6 +10,14 @@ from reformer.dominio import orario
 from reformer.models import Lezione, Utente
 from reformer.servizi.regole import disdicibile, fine_lezione, limite_disdetta
 
+def _prenotabile(lez: Lezione) -> bool:
+    """Dentro i giorni prenotabili e, dal nuovo orario in poi, non oltre la
+    mezzanotte del giorno prima."""
+    giorno = orario.locale(lez.inizio).date()
+    primo = orario.primo_giorno_prenotabile() if giorno >= orario.NUOVO_ORARIO_DAL else orario.oggi()
+    return primo <= giorno <= orario.ultimo_giorno_prenotabile()
+
+
 def _base(lez: Lezione) -> dict:
     ist = orario.ISTRUTTRICI[lez.istruttrice]
     return {
@@ -26,9 +34,7 @@ def _base(lez: Lezione) -> dict:
         "passata": lez.inizio <= orario.adesso(),
         "disdicibile": disdicibile(lez),
         "limite_disdetta": limite_disdetta(lez).isoformat(),
-        "prenotabile": (
-            orario.primo_giorno_prenotabile() <= orario.locale(lez.inizio).date() <= orario.ultimo_giorno_prenotabile()
-        ),
+        "prenotabile": _prenotabile(lez),
     }
 
 def per_cliente(lez: Lezione, utente: Utente) -> dict:

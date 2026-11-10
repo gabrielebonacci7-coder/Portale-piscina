@@ -50,6 +50,7 @@ async def lifespan(app: FastAPI):
     controlla_configurazione()
     init_db()
     with SessionLocal() as db:
+        regole.ripristina_lezioni_della_settimana(db)
         regole.allinea_al_nuovo_orario(db)
     giro = asyncio.create_task(promemoria.giro_continuo()) if settings.promemoria_attivi else None
     yield

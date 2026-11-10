@@ -8,7 +8,7 @@ disdire), quella di domani sì.
 
 import os
 import tempfile
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 _cartella = tempfile.mkdtemp(prefix="reformer-test-")
@@ -49,6 +49,8 @@ def ambiente(monkeypatch):
     orologio = Orologio()
     monkeypatch.setattr(orario, "adesso", lambda: orologio.ora)
     monkeypatch.setattr(orario, "oggi", lambda: orologio.ora.astimezone(orario.FUSO).date())
+    # Le prove vivono nell'orario nuovo; la transizione ha le sue prove a parte.
+    monkeypatch.setattr(orario, "NUOVO_ORARIO_DAL", date(2000, 1, 1))
     yield orologio
 
 
