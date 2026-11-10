@@ -417,3 +417,15 @@ def test_a_nuova_iscritta_avvisa_lo_staff(client):
     registra(client, "nuova@example.com", nome="Nuova", cognome="Cliente", lezioni=0)
     r = client.get("/api/notifiche", headers=auth(staff["token"]))
     assert any("Nuova cliente: Nuova Cliente" in n["testo"] for n in r.json()["elenco"])
+
+
+def test_gli_scambi_di_un_giorno_battono_la_regola_della_settimana():
+    from datetime import date
+
+    from reformer.dominio import orario
+
+    assert orario.istruttrice_del(date(2026, 11, 20)) == "greta"   # venerdì: di solito Elisa
+    assert orario.istruttrice_del(date(2026, 11, 21)) == "elisa"   # sabato: di solito Greta
+    assert orario.istruttrice_del(date(2026, 11, 27)) == "greta"   # venerdì
+    assert orario.istruttrice_del(date(2026, 12, 4)) == "elisa"    # il venerdì dopo torna la regola
+    assert orario.istruttrice_del(date(2026, 11, 28)) == "greta"   # e il sabato dopo

@@ -44,6 +44,19 @@ ISTRUTTRICI = {
 # Lunedì, mercoledì e sabato Greta; martedì, giovedì e venerdì Elisa.
 ISTRUTTRICE_DEL_GIORNO = {0: "greta", 1: "elisa", 2: "greta", 3: "elisa", 4: "elisa", 5: "greta"}
 
+# Scambi di un giorno solo, che valgono al posto della regola della settimana
+# ("AAAA-MM-GG": chi insegna quel giorno). Si tolgono pure quando sono passati.
+ECCEZIONI_ISTRUTTRICE = {
+    "2026-11-20": "greta",   # venerdì
+    "2026-11-21": "elisa",   # sabato
+    "2026-11-27": "greta",   # venerdì
+}
+
+
+def istruttrice_del(giorno) -> str:
+    """Chi insegna in quel giorno (una `date`): l'eccezione, se c'è, o la regola."""
+    return ECCEZIONI_ISTRUTTRICE.get(giorno.isoformat()) or ISTRUTTRICE_DEL_GIORNO[giorno.weekday()]
+
 
 def adesso() -> datetime:
     return datetime.now(timezone.utc)

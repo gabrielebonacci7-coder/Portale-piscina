@@ -65,7 +65,7 @@ def assicura_lezioni(db: Session, da: date, giorni: int) -> None:
     # Se cambia chi insegna un giorno, le lezioni future già nel calendario si
     # riallineano da sole (quelle passate restano com'erano).
     for l in gia:
-        giusta = orario.ISTRUTTRICE_DEL_GIORNO[orario.locale(l.inizio).weekday()]
+        giusta = orario.istruttrice_del(orario.locale(l.inizio).date())
         if l.istruttrice != giusta and l.inizio > orario.adesso():
             l.istruttrice = giusta
     if db.dirty:
@@ -75,7 +75,7 @@ def assicura_lezioni(db: Session, da: date, giorni: int) -> None:
         Lezione(
             inizio=i,
             durata_minuti=orario.DURATA_MINUTI,
-            istruttrice=orario.ISTRUTTRICE_DEL_GIORNO[orario.locale(i).weekday()],
+            istruttrice=orario.istruttrice_del(orario.locale(i).date()),
             posti=settings.posti_per_lezione,
             titolo=titoli.get(_chiave_settimanale(i), orario.TITOLO_BASE),
         )
@@ -435,7 +435,7 @@ def aggiungi_lezione(db: Session, giorno: date, ora: str, titolo: str = "") -> L
         lezione = Lezione(
             inizio=inizio,
             durata_minuti=orario.DURATA_MINUTI,
-            istruttrice=orario.ISTRUTTRICE_DEL_GIORNO[giorno.weekday()],
+            istruttrice=orario.istruttrice_del(giorno),
             posti=settings.posti_per_lezione,
             titolo=(titolo or "").strip()[:60] or titoli_fissi(db).get((giorno.weekday(), ora), orario.TITOLO_BASE),
         )
