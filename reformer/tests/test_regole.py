@@ -505,7 +505,7 @@ def test_le_lezioni_fuori_dal_nuovo_orario_si_tolgono(client, cliente, monkeypat
 
 
 # ------------------------------------------ la settimana in corso resta com'era
-def test_prima_del_nuovo_orario_valgono_orario_e_regole_di_prima(client, cliente, monkeypatch):
+def test_prima_del_nuovo_orario_vale_l_orario_di_prima(client, cliente, monkeypatch):
     from datetime import date
 
     from reformer.dominio import orario
@@ -519,10 +519,10 @@ def test_prima_del_nuovo_orario_valgono_orario_e_regole_di_prima(client, cliente
     assert len(per_giorno["2026-10-17"]) == 2           # sabato, come prima: 11:30 e 12:30
     prossima = lezioni(client, cliente, "2026-10-19", 7)
     assert len([l for l in prossima if l["inizio"].startswith("2026-10-19")]) == 2    # lunedì nuovo
-    # Fino al nuovo orario si prenota anche il giorno stesso.
+    # La chiusura a mezzanotte del giorno prima vale già: oggi non si prenota.
     oggi = lezioni(client, cliente)[3]                  # lunedì 18:30, oggi
-    assert oggi["prenotabile"] is True
-    assert client.post(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente)).status_code == 200
+    assert oggi["prenotabile"] is False
+    assert client.post(f"/api/lezioni/{oggi['id']}/prenota", headers=auth(cliente)).status_code == 409
 
 
 def test_le_lezioni_annullate_per_il_cambio_si_rimettono_com_erano(client, cliente, monkeypatch):

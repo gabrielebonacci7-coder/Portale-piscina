@@ -239,8 +239,7 @@ def _iscrivi(
 
 def controlla_apertura(lezione: Lezione) -> None:
     """Le prenotazioni si chiudono a mezzanotte del giorno prima."""
-    giorno = orario.locale(lezione.inizio).date()
-    if giorno >= orario.NUOVO_ORARIO_DAL and giorno < orario.primo_giorno_prenotabile():
+    if orario.locale(lezione.inizio).date() < orario.primo_giorno_prenotabile():
         raise ErroreRegola(
             "Le prenotazioni si chiudono a mezzanotte del giorno prima. Se ti serve ancora, "
             f"scrivi a {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}."

@@ -29,8 +29,8 @@ ORARIO_PRECEDENTE: dict[int, list[time]] = {
     5: [time(11, 30), time(12, 30)],
 }
 
-# Da questo lunedì (compreso) valgono l'orario nuovo e la chiusura delle
-# prenotazioni a mezzanotte del giorno prima.
+# Da questo lunedì (compreso) vale l'orario nuovo. La chiusura delle prenotazioni
+# a mezzanotte del giorno prima, invece, vale per tutte le lezioni.
 NUOVO_ORARIO_DAL = date(2026, 11, 16)
 
 
