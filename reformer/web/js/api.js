@@ -129,6 +129,8 @@ export const nuovaLezione = (giorno, ora, titolo) =>
 export const staffLezione = (id) => chiama(`/api/staff/lezioni/${id}`);
 export const cambiaTitolo = (id, titolo, ogniSettimana = false) =>
   chiama(`/api/staff/lezioni/${id}`, { metodo: "PATCH", corpo: { titolo, ogni_settimana: ogniSettimana } });
+export const cambiaIstruttrice = (giorno, istruttrice) =>
+  chiama(`/api/staff/giorni/${giorno}/istruttrice`, { metodo: "PUT", corpo: { istruttrice } });
 export const annullaLezione = (id, motivo) =>
   chiama(`/api/staff/lezioni/${id}/annulla`, { metodo: "POST", corpo: { motivo } });
 export const ripristinaLezione = (id) => chiama(`/api/staff/lezioni/${id}/ripristina`, { metodo: "POST" });

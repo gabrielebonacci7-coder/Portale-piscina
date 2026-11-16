@@ -228,6 +228,16 @@ async function gestisci(id, ctx) {
     ]),
     el("div", { classe: "suggerimenti" }, ["Pilates", "Pilates fitness", "Principianti", "Postura e schiena", "Total body", "Core e addome"].map((t) =>
       el("button", { type: "button", classe: "chip", testo: t, onclick: () => { titolo.value = t; } }))),
+    l.passata ? null : el("div", {}, [
+      el("h3", { classe: "titolo-sezione", testo: `Chi insegna ${T.GIORNI[inizio.getDay()]} ${inizio.getDate()}` }),
+      el("div", { classe: "riga-bottoni" }, [["elisa", "Elisa"], ["greta", "Greta"]].map(([idn, nome]) => el("button", {
+        classe: `bottone ${l.istruttrice.id === idn ? "" : "secondario"}`, type: "button", testo: nome,
+        "aria-pressed": l.istruttrice.id === idn ? "true" : "false",
+        onclick: () => l.istruttrice.id === idn ? null : prova(() => api.cambiaIstruttrice(T.chiaveGiorno(inizio), idn),
+          (r) => `Quel giorno insegna ${nome} (${r.cambiate} lezioni cambiate)`).then(chiudiERidisegna),
+      }))),
+      el("p", { classe: "nota", testo: "Vale per tutte le lezioni di quel giorno. Chi era già iscritta riceve un avviso." }),
+    ]),
     l.annullata
       ? el("div", { classe: "riquadro avviso-riquadro" }, [
           el("p", { testo: `Lezione annullata${l.motivo_annullamento ? ` (${l.motivo_annullamento})` : ""}.` }),

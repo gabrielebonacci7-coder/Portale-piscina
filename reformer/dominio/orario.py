@@ -67,15 +67,16 @@ ISTRUTTRICE_DEL_GIORNO = {0: "greta", 1: "elisa", 2: "greta", 3: "elisa", 4: "el
 # Scambi di un giorno solo, che valgono al posto della regola della settimana
 # ("AAAA-MM-GG": chi insegna quel giorno). Si tolgono pure quando sono passati.
 ECCEZIONI_ISTRUTTRICE = {
-    "2026-11-20": "greta",   # venerdì
-    "2026-11-21": "elisa",   # sabato
     "2026-11-27": "greta",   # venerdì
 }
 
 
-def istruttrice_del(giorno) -> str:
-    """Chi insegna in quel giorno (una `date`): l'eccezione, se c'è, o la regola."""
-    return ECCEZIONI_ISTRUTTRICE.get(giorno.isoformat()) or ISTRUTTRICE_DEL_GIORNO[giorno.weekday()]
+def istruttrice_del(giorno, scambi: dict[str, str] | None = None) -> str:
+    """Chi insegna in quel giorno (una `date`). Vince lo scambio scelto dal
+    gestionale (`scambi`, dal database), poi l'eccezione scritta qui, poi la
+    regola della settimana."""
+    iso = giorno.isoformat()
+    return (scambi or {}).get(iso) or ECCEZIONI_ISTRUTTRICE.get(iso) or ISTRUTTRICE_DEL_GIORNO[giorno.weekday()]
 
 
 def adesso() -> datetime:

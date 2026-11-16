@@ -14,11 +14,13 @@ garanzia: l'indice unico su (lezione, cliente) per le prenotazioni attive.
 
 import logging
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import event, select
 from sqlalchemy.orm import Session, selectinload
 
+from reformer.core import email as posta
 from reformer.core.config import settings
 from reformer.dominio import orario
 from reformer.models import (
@@ -28,6 +30,7 @@ from reformer.models import (
     Notifica,
     Prenotazione,
     Ruolo,
+    Scambio,
     StatoPrenotazione,
     TitoloFisso,
     Utente,
@@ -68,8 +71,9 @@ def assicura_lezioni(db: Session, da: date, giorni: int) -> None:
     esistenti = {l.inizio for l in gia}
     # Se cambia chi insegna un giorno, le lezioni future già nel calendario si
     # riallineano da sole (quelle passate restano com'erano).
+    sc = scambi(db)
     for l in gia:
-        giusta = orario.istruttrice_del(orario.locale(l.inizio).date())
+        giusta = orario.istruttrice_del(orario.locale(l.inizio).date(), sc)
         if l.istruttrice != giusta and l.inizio > orario.adesso():
             l.istruttrice = giusta
     if db.dirty:
@@ -79,7 +83,7 @@ def assicura_lezioni(db: Session, da: date, giorni: int) -> None:
         Lezione(
             inizio=i,
             durata_minuti=orario.DURATA_MINUTI,
-            istruttrice=orario.istruttrice_del(orario.locale(i).date()),
+            istruttrice=orario.istruttrice_del(orario.locale(i).date(), sc),
             posti=settings.posti_per_lezione,
             titolo=titoli.get(_chiave_settimanale(i), orario.TITOLO_BASE),
         )
@@ -161,9 +165,36 @@ def notifica(db: Session, utente_id: int, testo: str) -> None:
     db.add(Notifica(utente_id=utente_id, testo=testo))
 
 
-def notifica_staff(db: Session, testo: str) -> None:
+def notifica_staff(db: Session, testo: str, oggetto_email: str | None = None) -> None:
+    """Un avviso nella campanella di ogni staff. Con `oggetto_email` parte anche
+    un'email agli indirizzi dello staff, ma solo dopo che la modifica è stata
+    salvata (se la prenotazione salta, l'email non parte)."""
     for sid in db.scalars(select(Utente.id).where(Utente.ruolo == Ruolo.STAFF)):
         notifica(db, sid, testo)
+    if oggetto_email and settings.email_avvisi_staff:
+        db.info.setdefault("email_staff", []).append((oggetto_email, testo))
+
+
+# Le email partono in un altro filo: chi prenota non aspetta la posta, e se la
+# posta non parte la prenotazione resta valida (la campanella c'è comunque).
+_esecutore = ThreadPoolExecutor(max_workers=2, thread_name_prefix="avvisi-staff")
+
+
+def _scrivi_allo_staff(oggetto: str, testo: str) -> None:
+    corpo = f"{testo}\n\nApri RE FORMER: {settings.url_pubblico}\n"
+    for indirizzo in sorted(settings.indirizzi_staff):
+        posta.invia_senza_bloccare(indirizzo, f"RE FORMER · {oggetto}", corpo)
+
+
+@event.listens_for(Session, "after_commit")
+def _email_dopo_il_salvataggio(sessione: Session) -> None:
+    for oggetto, testo in sessione.info.pop("email_staff", []):
+        _esecutore.submit(_scrivi_allo_staff, oggetto, testo)
+
+
+@event.listens_for(Session, "after_rollback")
+def _niente_email_se_salta(sessione: Session) -> None:
+    sessione.info.pop("email_staff", None)
 
 
 def muovi_saldo(
@@ -233,6 +264,7 @@ def _iscrivi(
             + ("è entrata dalla lista d'attesa" if dalla_lista else "ha prenotato")
             + f": {orario.quando(lezione.inizio)} ({lezione.titolo}, {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}). "
             f"Lezioni rimaste: {utente.lezioni_rimaste}.",
+            ("Dalla lista d'attesa: " if dalla_lista else "Nuova prenotazione: ") + utente.nome_completo,
         )
     return p
 
@@ -458,7 +490,7 @@ def aggiungi_lezione(db: Session, giorno: date, ora: str, titolo: str = "") -> L
         lezione = Lezione(
             inizio=inizio,
             durata_minuti=orario.DURATA_MINUTI,
-            istruttrice=orario.istruttrice_del(giorno),
+            istruttrice=orario.istruttrice_del(giorno, scambi(db)),
             posti=settings.posti_per_lezione,
             titolo=(titolo or "").strip()[:60] or titoli_fissi(db).get((giorno.weekday(), ora), orario.TITOLO_BASE),
         )
@@ -499,6 +531,46 @@ def cambia_titolo(db: Session, lezione_id: int, titolo: str, ogni_settimana: boo
                 altra.titolo = titolo
     db.commit()
     return lezione
+
+
+def scambi(db: Session) -> dict[str, str]:
+    """Gli scambi di istruttrice scelti dal gestionale: {"AAAA-MM-GG": "elisa"}."""
+    return {s.giorno: s.istruttrice for s in db.scalars(select(Scambio))}
+
+
+def cambia_istruttrice(db: Session, giorno: date, istruttrice: str) -> int:
+    """Chi fa le lezioni di un giorno. Vale per tutte quelle del giorno (anche
+    quelle che nasceranno) e chi era iscritta viene avvisata. Ritorna quante
+    lezioni sono cambiate."""
+    with _scrittura:
+        if istruttrice not in orario.ISTRUTTRICI:
+            raise ErroreRegola("Istruttrice non valida.", 400)
+        if giorno < orario.oggi():
+            raise ErroreRegola("Quel giorno è già passato.", 400)
+        riga = db.get(Scambio, giorno.isoformat())
+        if riga is None:
+            db.add(Scambio(giorno=giorno.isoformat(), istruttrice=istruttrice))
+        else:
+            riga.istruttrice = istruttrice
+        nome = orario.ISTRUTTRICI[istruttrice]["nome"]
+        inizio = orario.inizio_utc(giorno, datetime.min.time())
+        cambiate = 0
+        for lez in db.scalars(
+            select(Lezione).where(
+                Lezione.inizio >= inizio,
+                Lezione.inizio < inizio + timedelta(days=1),
+                Lezione.inizio > orario.adesso(),
+                Lezione.annullata_il.is_(None),
+            )
+        ):
+            if lez.istruttrice == istruttrice:
+                continue
+            lez.istruttrice = istruttrice
+            cambiate += 1
+            for p in lez.attive:
+                notifica(db, p.utente_id, f"La lezione di {orario.quando(lez.inizio)} ora è con {nome}.")
+        db.commit()
+        return cambiate
 
 
 def segna_presenza(db: Session, lezione_id: int, cliente_id: int, presente: bool | None) -> None:

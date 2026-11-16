@@ -220,6 +220,17 @@ class TitoloFisso(Base):
     titolo: Mapped[str] = mapped_column(String(60))
 
 
+class Scambio(Base):
+    """Chi insegna in un giorno preciso, quando non è chi dice la regola della
+    settimana (es. venerdì 20 fa Greta). Lo scelgono Greta ed Elisa dal
+    gestionale e vale per tutte le lezioni di quel giorno."""
+
+    __tablename__ = "scambi_istruttrice"
+
+    giorno: Mapped[str] = mapped_column(String(10), primary_key=True)   # "AAAA-MM-GG"
+    istruttrice: Mapped[str] = mapped_column(String(20))                # "greta" | "elisa"
+
+
 class TokenEmail(Base):
     """Link monouso. Nel database c'è solo l'impronta del codice: chi leggesse
     la tabella non potrebbe usarli."""

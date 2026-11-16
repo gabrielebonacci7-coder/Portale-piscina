@@ -54,6 +54,18 @@ def ambiente(monkeypatch):
     yield orologio
 
 
+@pytest.fixture(autouse=True)
+def email_subito(monkeypatch):
+    """Nelle prove le email allo staff partono subito, non in un altro filo."""
+    from reformer.servizi import regole
+
+    class Subito:
+        def submit(self, fn, *a):
+            fn(*a)
+
+    monkeypatch.setattr(regole, "_esecutore", Subito())
+
+
 @pytest.fixture
 def orologio(ambiente):
     return ambiente

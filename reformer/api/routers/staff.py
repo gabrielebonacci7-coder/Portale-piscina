@@ -69,6 +69,19 @@ def cambia_titolo(
         return viste.per_staff(r.cambia_titolo(db, lezione_id, dati.titolo, dati.ogni_settimana))
 
 
+class Istruttrice(BaseModel):
+    istruttrice: str = Field(max_length=20)
+
+
+@router.put("/giorni/{giorno}/istruttrice")
+def cambia_istruttrice(
+    giorno: date, dati: Istruttrice, _: Utente = Depends(solo_staff), db: Session = Depends(get_db)
+) -> dict:
+    """Chi fa le lezioni di quel giorno (tutte)."""
+    with regole():
+        return {"cambiate": r.cambia_istruttrice(db, giorno, dati.istruttrice)}
+
+
 class Motivo(BaseModel):
     motivo: str = Field(default="", max_length=200)
 

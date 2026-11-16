@@ -430,11 +430,12 @@ def test_gli_scambi_di_un_giorno_battono_la_regola_della_settimana():
 
     from reformer.dominio import orario
 
-    assert orario.istruttrice_del(date(2026, 11, 20)) == "greta"   # venerdì: di solito Elisa
-    assert orario.istruttrice_del(date(2026, 11, 21)) == "elisa"   # sabato: di solito Greta
-    assert orario.istruttrice_del(date(2026, 11, 27)) == "greta"   # venerdì
+    assert orario.istruttrice_del(date(2026, 11, 20)) == "elisa"   # venerdì: la regola
+    assert orario.istruttrice_del(date(2026, 11, 21)) == "greta"   # sabato: la regola
+    assert orario.istruttrice_del(date(2026, 11, 27)) == "greta"   # venerdì: scambio fisso nel codice
     assert orario.istruttrice_del(date(2026, 12, 4)) == "elisa"    # il venerdì dopo torna la regola
-    assert orario.istruttrice_del(date(2026, 11, 28)) == "greta"   # e il sabato dopo
+    # Lo scambio scelto dal gestionale vince su tutto.
+    assert orario.istruttrice_del(date(2026, 11, 27), {"2026-11-27": "elisa"}) == "elisa"
 
 
 # ------------------------------------------------ chiusura delle prenotazioni
@@ -546,3 +547,42 @@ def test_le_lezioni_annullate_per_il_cambio_si_rimettono_com_erano(client, clien
         assert lez.annullata_il is None and [p.stato for p in lez.prenotazioni] == [StatoPrenotazione.ATTIVA]
         assert db.get(Utente, u.id).lezioni_rimaste == prima
         assert regole.ripristina_lezioni_della_settimana(db) == 0         # una volta sola
+
+
+# ------------------------------------------ chi insegna, dal gestionale
+def test_lo_staff_cambia_chi_insegna_in_un_giorno(client, staff, cliente):
+    l = domani(client, cliente)                           # martedì 13: Elisa
+    assert l["istruttrice"]["id"] == "elisa"
+    assert client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente)).status_code == 200
+    r = client.put("/api/staff/giorni/2026-10-13/istruttrice", json={"istruttrice": "greta"}, headers=auth(staff))
+    assert r.status_code == 200 and r.json()["cambiate"] == 2
+    assert {x["istruttrice"]["id"] for x in lezioni(client, cliente, "2026-10-13")} == {"greta"}
+    avvisi = [n["testo"] for n in client.get("/api/notifiche", headers=auth(cliente)).json()["elenco"]]
+    assert any("ora è con Greta" in t for t in avvisi)
+    # Le altre settimane restano con la regola, e un altro giorno non cambia.
+    assert {x["istruttrice"]["id"] for x in lezioni(client, cliente, "2026-10-20")} == {"elisa"}
+    # Vale anche per le lezioni che nascono dopo.
+    client.put("/api/staff/giorni/2026-10-22/istruttrice", json={"istruttrice": "greta"}, headers=auth(staff))
+    assert {x["istruttrice"]["id"] for x in lezioni(client, cliente, "2026-10-22")} == {"greta"}
+    # Cliente no, giorno passato no, nome sbagliato no.
+    assert client.put("/api/staff/giorni/2026-10-14/istruttrice", json={"istruttrice": "elisa"}, headers=auth(cliente)).status_code == 403
+    assert client.put("/api/staff/giorni/2026-10-10/istruttrice", json={"istruttrice": "elisa"}, headers=auth(staff)).status_code == 400
+    assert client.put("/api/staff/giorni/2026-10-14/istruttrice", json={"istruttrice": "marta"}, headers=auth(staff)).status_code == 400
+
+
+# ------------------------------------------ email allo staff
+def test_lo_staff_riceve_anche_una_email(client, staff, cliente, posta_inviata):
+    posta_inviata.clear()
+    l = domani(client, cliente)
+    client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
+    destinatari = {a for a, o, t in posta_inviata if "Nuova prenotazione: Sofia Marini" in o}
+    assert destinatari == {GRETA, ELISA}
+    testo = next(t for a, o, t in posta_inviata if a == GRETA)
+    assert "Sofia Marini ha prenotato" in testo and "Lezioni rimaste: 9" in testo
+    # Una nuova iscritta: email; Greta o Elisa che si iscrivono: nessuna.
+    posta_inviata.clear()
+    registra(client, "nuova@example.com", nome="Nuova", cognome="Cliente", lezioni=0)
+    assert {a for a, o, t in posta_inviata if "Nuova iscritta: Nuova Cliente" in o} == {GRETA, ELISA}
+    posta_inviata.clear()
+    registra(client, ELISA, nome="Elisa", cognome="Bonacci", lezioni=0)
+    assert not [1 for a, o, t in posta_inviata if "Nuova iscritta" in o]

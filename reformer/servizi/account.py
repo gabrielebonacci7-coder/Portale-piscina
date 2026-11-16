@@ -129,6 +129,7 @@ def registra(
         db,
         f"Nuova cliente: {utente.nome_completo} ({utente.telefono}). "
         "Quando ha pagato, caricale le lezioni da Clienti.",
+        None if email in settings.indirizzi_staff else f"Nuova iscritta: {utente.nome_completo}",
     )
     db.commit()
     invia_verifica(db, utente)

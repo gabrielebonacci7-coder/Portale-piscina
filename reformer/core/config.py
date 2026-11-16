@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     # Le prenotazioni si chiudono a mezzanotte di N giorni prima (1 = la sera
     # prima; 0 = si prenota fino all'inizio della lezione).
     giorni_chiusura_prenotazioni: int = 1
+    # Email a Greta ed Elisa a ogni nuova iscritta e a ogni prenotazione.
+    email_avvisi_staff: bool = True
     # Quante lezioni si possono prenotare senza averle nel pacchetto. Lo studio
     # ha scelto 0: a pacchetto finito non si prenota, si rinnova in studio.
     # (Greta ed Elisa possono comunque iscrivere a mano chi vogliono.)
