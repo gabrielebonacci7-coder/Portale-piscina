@@ -20,7 +20,8 @@ const s=document.getElementById('s');
 const el=(p,t,a={})=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
 const draw=e=>{const L=e.getTotalLength();e.style.strokeDasharray=L;e.style.strokeDashoffset=L;return e};
 // geometria: R destra (asta, occhiello, gamba); la R sinistra è la stessa ruotata di 180° attorno al centro
-const P={stem:'M234 100V377',bowl:'M234 112H322A80 80 0 0 1 322 272H234',leg:'M306 272L414 380'};
+// occhiello aperto: la curva finisce direttamente nella gamba, senza stanghetta verso l'asta
+const P={stem:'M234 100V377',bowl:'M234 112H322A80 80 0 0 1 322 272L414 380',leg:'M414 380L414 380'};
 const df=el(s,'defs');const cp=el(df,'clipPath',{id:'in'});el(cp,'rect',{x:40,y:103,width:400,height:265});
 const flood=el(df,'clipPath',{id:'fl'});const fc=el(flood,'circle',{cx:237,cy:236,r:400});
 const sq=el(s,'rect',{x:3,y:13,width:469,height:447,rx:86,fill:RED,'clip-path':'url(#fl)'});
