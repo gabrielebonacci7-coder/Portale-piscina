@@ -1,0 +1,128 @@
+<!doctype html><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300&display=swap">
+<style>
+:root{--bg:#f1e7d8;--ink:#0b0b0b;--bord:#7d2333;--sh:#d8cebd}
+html,body{margin:0;width:1280px;height:720px;overflow:hidden;background:var(--bg)}
+svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+#vig{position:absolute;inset:0;background:radial-gradient(80% 80% at 50% 45%,transparent 55%,rgba(120,100,70,.06));pointer-events:none}
+</style>
+<div id="stage"></div><div id="vig"></div>
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<script>
+const V=new URLSearchParams(location.search).get('v')||'1';
+const NS='http://www.w3.org/2000/svg',INK='#0b0b0b',BORD='#7d2333',SH='#d8cebd',BG='#f1e7d8';
+const stage=document.getElementById('stage');
+const el=(p,t,a={},txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e};
+const draw=(e)=>{const L=e.getTotalLength();e.style.strokeDasharray=L;e.style.strokeDashoffset=L;return L};
+// M del logo (contorno pieno), riferito al riquadro 1600x1600 del logo 1
+const MPTS=[[390,305],[515,305],[805,968],[1100,305],[1222,305],[1222,1122],[1128,1122],[1128,445],[830,1122],[800,1122],[482,445],[482,1122],[390,1122]];
+const ptsStr=(p,dx=0,dy=0,s=1,ox=0,oy=0)=>p.map(([x,y])=>`${(ox+(x-390)*s+dx).toFixed(1)},${(oy+(y-305)*s+dy).toFixed(1)}`).join(' ');
+const TWO='M1265 238C1292 196 1390 182 1390 268C1390 330 1300 378 1262 420H1392';
+let tl=gsap.timeline({paused:true,defaults:{ease:'expo.out'}});
+
+if(V==='1'){ // FIRMA: il logo lungo si scrive con un tratto continuo
+  const s=el(stage,'svg',{viewBox:'0 0 1600 400',width:1240,height:310});
+  const shadow=el(s,'g',{opacity:0}),main=el(s,'g',{});
+  const path='M95 335V232L140 335L185 232V335H455V232L500 335L545 232V335H860L966 70L976 232';
+  const bar='M905 232H1505';
+  const build=(g,col,txtCol,clipId)=>{
+    const p=el(g,'path',{d:path,fill:'none',stroke:col,'stroke-width':9,'stroke-linejoin':'miter'});
+    const b=el(g,'path',{d:bar,fill:'none',stroke:col,'stroke-width':9});
+    const t=el(g,'g',{fill:txtCol,'font-family':'Jost','font-weight':300,'clip-path':clipId?`url(#${clipId})`:null});
+    el(t,'text',{x:192,y:333,'font-size':82,'letter-spacing':2},'ATTIA');el(t,'text',{x:552,y:333,'font-size':82,'letter-spacing':2},'ORETTI');el(t,'text',{x:982,y:228,'font-size':98,'letter-spacing':2},'RCHITETTO');
+    return {p,b,t};};
+  const df=el(s,'defs');const cp=el(df,'clipPath',{id:'rev'});const cr=el(cp,'rect',{x:0,y:0,width:0,height:400});
+  build(shadow,SH,SH);const M=build(main,BORD,INK,'rev');
+  const L=draw(M.p),Lb=draw(M.b);
+  const nib=el(s,'circle',{r:7,fill:BORD,cx:95,cy:335});
+  const st={l:0};
+  tl.to(st,{l:L,duration:3.2,ease:'power2.inOut',onUpdate(){M.p.style.strokeDashoffset=L-st.l;const pt=M.p.getPointAtLength(st.l);nib.setAttribute('cx',pt.x);nib.setAttribute('cy',pt.y);cr.setAttribute('width',Math.max(+cr.getAttribute('width'),pt.x-8));}},0.4)
+    .to(M.b,{strokeDashoffset:0,duration:1.1,ease:'power3.inOut',onUpdate(){cr.setAttribute('width',905+600*(1-(+getComputedStyle(M.b).strokeDashoffset.replace('px',''))/Lb))}},3.3)
+    .to(nib,{attr:{cx:1505,cy:232},duration:1.1,ease:'power3.inOut'},3.3)
+    .to(nib,{scale:0,opacity:0,transformOrigin:'center',duration:.4,ease:'power2.in'},4.4)
+    .to(shadow,{opacity:.9,duration:1.2},4.3)
+    .fromTo(shadow,{x:-15,y:12},{x:-45,y:40,duration:1.6},4.3)
+    .to({},{duration:1.6});
+}
+if(V==='2'){ // MONOGRAMMA M²: ombra che sale, M tagliata in diagonale, barra e 2 tracciati
+  const s=el(stage,'svg',{viewBox:'150 120 1350 1300',width:700,height:674});
+  const df=el(s,'defs');const bl=el(df,'filter',{id:'bl',x:'-20%',y:'-20%',width:'140%',height:'140%'});const gb=el(bl,'feGaussianBlur',{stdDeviation:14});
+  const cp=el(df,'clipPath',{id:'wipe'});const wp=el(cp,'polygon',{points:'250,1300 250,1300 250,1300'});
+  const shG=el(s,'g',{filter:'url(#bl)',opacity:0});
+  el(shG,'polygon',{points:ptsStr(MPTS,-80,80,1,390,305),fill:SH});el(shG,'rect',{x:870,y:890,width:475,height:75,fill:SH});
+  const sh2=el(s,'path',{d:TWO,fill:'none',stroke:SH,'stroke-width':10,transform:'translate(-80 80)',opacity:0});
+  const barG=el(s,'g',{});const bar=el(barG,'rect',{x:935,y:803,width:489,height:85,fill:BORD});
+  const m=el(s,'polygon',{points:ptsStr(MPTS,0,0,1,390,305),fill:INK,'clip-path':'url(#wipe)'});
+  const stud=el(s,'text',{x:1160,y:875,'font-family':'Jost','font-weight':300,'font-size':86,fill:'#fff','letter-spacing':1},'STUDIO');
+  const two=el(s,'path',{d:TWO,fill:'none',stroke:BORD,'stroke-width':11});draw(two);
+  const nm=el(s,'text',{x:800,y:1290,'text-anchor':'middle','font-family':'Jost','font-weight':200,'font-size':86,fill:INK,'letter-spacing':40,opacity:0},'— MATTIA MORETTI ARCHITETTO —');
+  gsap.set(bar,{scaleX:0,svgOrigin:'935 845'});gsap.set(stud,{opacity:0,y:20});
+  const w={t:0};const setW=()=>{const t=w.t,x0=250-300+t*1500,y0=1300-t*1500;wp.setAttribute('points',`250,1300 ${250+t*2200},1300 250,${1300-t*2200}`)};
+  tl.to(shG,{opacity:1,duration:1.4},.2).fromTo(shG,{y:60},{y:0,duration:1.4},.2).to(gb,{attr:{stdDeviation:0},duration:1.2,ease:'power2.out',onComplete:()=>shG.removeAttribute('filter')},.3)
+    .to(w,{t:1,duration:1.3,ease:'expo.inOut',onUpdate:setW},.8)
+    .to(bar,{scaleX:1,duration:.8},2.0).to(stud,{opacity:1,y:0,duration:.6},2.4)
+    .to(two,{strokeDashoffset:0,duration:1,ease:'power2.inOut'},2.3).to(sh2,{opacity:1,duration:.8},3.0)
+    .to(nm,{opacity:1,attr:{'letter-spacing':4},duration:1.6},3.0)
+    .to({},{duration:1.6});
+}
+if(V==='3'){ // PROIEZIONE: la M a fil di ferro proietta la M piena lungo le linee di proiezione
+  const s=el(stage,'svg',{viewBox:'150 100 1350 1150',width:780,height:665});
+  const S=.86,OX=470,OY=380;const blk=MPTS.map(([x,y])=>[OX+(x-390)*S,OY+(y-305)*S]);
+  const off=[-152,-210];const wht=blk.map(([x,y])=>[x+off[0],y+off[1]]);
+  const outl=el(s,'polygon',{points:wht.map(p=>p.join(',')).join(' '),fill:'none',stroke:'#fff','stroke-width':12,'stroke-linejoin':'miter'});
+  const pj=el(s,'g',{stroke:'#b9ad99','stroke-width':2,'stroke-dasharray':'8 8'});
+  const lines=[0,1,4,5,6,11,12].map(i=>el(pj,'line',{x1:wht[i][0],y1:wht[i][1],x2:wht[i][0],y2:wht[i][1],'data-x':blk[i][0],'data-y':blk[i][1]}));
+  const bm=el(s,'polygon',{points:blk.map(p=>p.join(',')).join(' '),fill:INK,opacity:0,transform:`translate(${off[0]} ${off[1]})`});
+  const bar=el(s,'rect',{x:905,y:972,width:505,height:31,fill:INK});const stud=el(s,'text',{x:1195,y:962,'font-family':'Jost','font-weight':300,'font-size':74,fill:INK},'STUDIO');
+  const two=el(s,'path',{d:'M1295 300C1320 262 1410 250 1410 328C1410 384 1330 428 1292 466H1414',fill:'none',stroke:INK,'stroke-width':11});draw(two);
+  const l1=el(s,'line',{x1:470,y1:1163,x2:470,y2:1163,stroke:INK,'stroke-width':2}),l2=el(s,'line',{x1:1250,y1:1163,x2:1250,y2:1163,stroke:INK,'stroke-width':2});
+  const nm=el(s,'text',{x:860,y:1182,'text-anchor':'middle','font-family':'Jost','font-weight':200,'font-size':54,fill:INK,opacity:0,'letter-spacing':3},'MATTIA  MORETTI  ARCHITETTO');
+  const L=draw(outl);gsap.set(bar,{scaleX:0,svgOrigin:'1410 990'});gsap.set(stud,{opacity:0,y:16});
+  tl.to(outl,{strokeDashoffset:0,duration:1.6,ease:'power2.inOut'},.3);
+  lines.forEach((ln,i)=>tl.to(ln,{attr:{x2:+ln.dataset.x,y2:+ln.dataset.y},duration:.9,ease:'power3.out'},1.7+i*.05));
+  tl.to(bm,{opacity:1,duration:.25,ease:'none'},2.5).to(bm,{attr:{transform:'translate(0 0)'},duration:1.2,ease:'expo.out'},2.5)
+    .to(bar,{scaleX:1,duration:.8},3.3).to(stud,{opacity:1,y:0,duration:.6},3.6).to(two,{strokeDashoffset:0,duration:.9,ease:'power2.inOut'},3.5)
+    .to(l1,{attr:{x2:300},duration:1,ease:'expo.out'},4.0).to(l2,{attr:{x2:1420},duration:1,ease:'expo.out'},4.0)
+    .to(nm,{opacity:1,duration:1},4.2).to(pj,{opacity:.55,duration:1},4.4)
+    .to({},{duration:1.6});
+}
+if(V==='4'){ // COSTRUZIONE: la M nasce come un disegno tecnico, con griglia e archi di compasso
+  const s=el(stage,'svg',{viewBox:'150 120 1350 1300',width:700,height:674});
+  const grid=el(s,'g',{stroke:'#d4c8b4','stroke-width':1.2,opacity:0});
+  for(let x=150;x<=1500;x+=75)el(grid,'line',{x1:x,y1:120,x2:x,y2:1420});for(let y=120;y<=1420;y+=75)el(grid,'line',{x1:150,y1:y,x2:1500,y2:y});
+  const guides=el(s,'g',{stroke:BORD,'stroke-width':2,fill:'none'});
+  const gl=[el(guides,'line',{x1:200,y1:305,x2:1450,y2:305}),el(guides,'line',{x1:200,y1:1122,x2:1450,y2:1122}),el(guides,'line',{x1:806,y1:180,x2:806,y2:1260,'stroke-dasharray':'14 8 3 8'})];
+  const arcs=[el(guides,'circle',{cx:806,cy:713,r:408}),el(guides,'path',{d:'M390 1122A830 830 0 0 1 1222 305'})];
+  [...gl,...arcs].forEach(draw);
+  const m=el(s,'polygon',{points:ptsStr(MPTS,0,0,1,390,305),fill:INK,'fill-opacity':0,stroke:INK,'stroke-width':4});draw(m);
+  const bar=el(s,'rect',{x:935,y:803,width:489,height:85,fill:BORD,opacity:0});
+  const stud=el(s,'text',{x:1160,y:875,'font-family':'Jost','font-weight':300,'font-size':86,fill:'#fff',opacity:0},'STUDIO');
+  const two=el(s,'path',{d:TWO,fill:'none',stroke:BORD,'stroke-width':11});draw(two);
+  const nm=el(s,'text',{x:800,y:1290,'text-anchor':'middle','font-family':'Jost','font-weight':200,'font-size':86,fill:INK,opacity:0,'letter-spacing':4},'— MATTIA MORETTI ARCHITETTO —');
+  const pts=MPTS.map(([x,y])=>el(s,'circle',{cx:x,cy:y,r:0,fill:BORD}));
+  tl.to(grid,{opacity:1,duration:.8,ease:'power2.out'},.1);
+  gl.forEach((g,i)=>tl.to(g,{strokeDashoffset:0,duration:.9,ease:'power2.inOut'},.4+i*.15));
+  arcs.forEach((a,i)=>tl.to(a,{strokeDashoffset:0,duration:1.2,ease:'power2.inOut'},.8+i*.2));
+  tl.to(pts,{attr:{r:9},duration:.35,stagger:.05,ease:'back.out(2)'},1.3)
+    .to(m,{strokeDashoffset:0,duration:1.6,ease:'power2.inOut'},1.7)
+    .to(m,{attr:{'fill-opacity':1},duration:.7,ease:'power2.out'},3.2)
+    .to([grid,guides],{opacity:0,duration:.8,ease:'power2.out'},3.3).to(pts,{attr:{r:0},duration:.4},3.3)
+    .to(bar,{opacity:1,duration:.5},3.6).fromTo(bar,{scaleX:0,svgOrigin:'935 845'},{scaleX:1,svgOrigin:'935 845',duration:.8},3.6)
+    .to(stud,{opacity:1,duration:.5},4.0).to(two,{strokeDashoffset:0,duration:.9,ease:'power2.inOut'},3.8)
+    .to(nm,{opacity:1,duration:1.2},4.4).to({},{duration:1.6});
+}
+if(V==='5'){ // INSEGNA: le lettere del logo lungo cadono in posizione come blocchi, poi la linea le lega
+  const s=el(stage,'svg',{viewBox:'0 0 1600 400',width:1240,height:310});
+  const shadow=el(s,'g',{opacity:0,transform:'translate(-45 40)'});
+  const line=el(s,'path',{d:'M95 335V232L140 335L185 232V335H455V232L500 335L545 232V335H860L966 70L976 232M905 232H1505',fill:'none',stroke:BORD,'stroke-width':9});
+  const shl=line.cloneNode();shl.setAttribute('stroke',SH);shadow.appendChild(shl);
+  const words=[['ATTIA',192,333,82],['ORETTI',552,333,82],['RCHITETTO',982,228,98]];
+  const letters=[];words.forEach(([w,x,y,f])=>{const t=el(s,'text',{x,y,'font-family':'Jost','font-weight':300,'font-size':f,fill:INK,'letter-spacing':2});
+    [...w].forEach(c=>{const sp=el(t,'tspan',{},c);letters.push(sp);});const st=t.cloneNode(true);st.setAttribute('fill',SH);shadow.appendChild(st);});
+  draw(line);
+  tl.from(letters,{opacity:0,y:-60,duration:.7,stagger:.06,ease:'back.out(1.6)'},.3)
+    .to(line,{strokeDashoffset:0,duration:1.8,ease:'power2.inOut'},1.6)
+    .to(shadow,{opacity:.85,duration:1.2},3.2).to({},{duration:1.6});
+}
+window.play=()=>{tl.play(0);return tl.duration();};
+</script>
