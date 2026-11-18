@@ -3,6 +3,23 @@
 import { el } from "../ui.js";
 import { IMMAGINE_OMINO } from "../omino.js";
 
+/** La mappa disegnata dei dintorni.
+
+    È un'immagine e non un pezzo di pagina: il disegno si porta dentro il suo
+    carattere, quindi si vede uguale anche aperto da solo o mandato a qualcuno. */
+function mappaDintorni(info) {
+  return el("img", {
+    classe: "mappa-dintorni",
+    src: "/immagini/dintorni.svg",
+    alt: `Mappa dei dintorni: ${info.nome}, ${info.indirizzo}, ${info.riferimento}`,
+    // Misure dichiarate: la scatola si prende il suo posto prima che il
+    // disegno arrivi, così la pagina non salta. Niente caricamento pigro:
+    // è l'illustrazione principale della pagina, e pesa trenta kilobyte.
+    width: 820,
+    height: 470,
+  });
+}
+
 export function vistaDove(ctx) {
   const i = ctx.info;
   const ricerca = encodeURIComponent(i.ricerca_mappe);
@@ -29,16 +46,12 @@ export function vistaDove(ctx) {
         el("span", { testo: "Telefono" }),
         el("a", { href: `tel:${i.telefono_compatto}`, testo: i.telefono }),
       ]),
-      // La mappa vera, dentro la pagina. Si cerca per nome invece che per
-      // coordinate: finché l'indirizzo esatto non è confermato, è la
-      // ricerca a portare al posto giusto.
-      el("iframe", {
-        classe: "mappa-incorporata",
-        src: `https://www.google.com/maps?q=${ricerca}&output=embed`,
-        loading: "lazy",
-        referrerpolicy: "no-referrer-when-downgrade",
-        title: `Mappa di ${i.nome}`,
-      }),
+      // La mappa dei dintorni: un disegno, non una mappa interattiva. Serve a
+      // capire in due secondi da che parte si entra e dove si lascia la
+      // macchina; per le indicazioni stradali ci sono i pulsanti qui sotto.
+      // Arriva come SVG e si infila nella pagina invece di stare dentro una
+      // <img>: così usa gli stessi caratteri del resto dell'app.
+      mappaDintorni(i),
       el("div", { style: "display:flex;gap:8px;flex-wrap:wrap;margin-top:16px" }, [
         el("a", {
           classe: "bottone",

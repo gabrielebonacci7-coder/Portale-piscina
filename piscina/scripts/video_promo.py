@@ -160,8 +160,12 @@ def gira(pagina) -> None:
         pagina.evaluate("([p, f]) => didascalia(p, f)", [passo, frase])
         pausa(attesa)
 
-    def tocca(elemento, attesa=1.2):
-        """Fa vedere il dito e poi tocca davvero."""
+    def tocca(elemento, attesa=1.2, forza=False):
+        """Fa vedere il dito e poi tocca davvero.
+
+        `forza` salta il controllo di stabilità: serve dopo un cambio di
+        schermata, quando la linguetta in basso si sta ancora assestando e
+        Playwright aspetterebbe un fermo che non arriva mai."""
         elemento.wait_for(timeout=15000)
         riquadro = elemento.bounding_box()
         if riquadro:
@@ -170,7 +174,7 @@ def gira(pagina) -> None:
                 [riquadro["x"] + riquadro["width"] / 2, riquadro["y"] + riquadro["height"] / 2],
             )
             pausa(0.35)
-        elemento.click()
+        elemento.click(force=forza)
         pausa(attesa)
 
     def scrivi(campo, testo, attesa=0.35):
@@ -208,14 +212,24 @@ def gira(pagina) -> None:
         pausa(0.55)
     pausa(0.5)
 
-    # --- 6. Due tocchi: il posto è scelto ---
+    # --- 6. Dove si viene, e dove si lascia la macchina ---
+    tocca(app.locator('.tab a[href="#/dove"]'), 0.7)
+    app.locator("img.mappa-dintorni").scroll_into_view_if_needed(timeout=15000)
+    pausa(0.4)
+    didascalia(
+        "Come raggiungerci",
+        "Via Superga, accanto al campo sportivo. Il parcheggio è dentro.",
+        2.4,
+    )
+
+    # --- 7. Due tocchi: il posto è scelto ---
     tocca(app.locator('.tab a[href="#/prenota"]'), 0.8)
     didascalia("Il posto", "Tocchi l'ombrellone che vuoi e dici quanti lettini ti servono.", 1.3)
     tocca(app.locator('[data-codice="A9"]'), 1.0)
     tocca(app.locator(".foglio .pacchetto").nth(3), 0.7)   # ombrellone + 3 lettini
     tocca(app.locator(".foglio .bottone.largo").first, 1.2)
 
-    # --- 7. Si conferma, e si paga in cassa ---
+    # --- 8. Si conferma, e si paga in cassa ---
     tocca(app.locator(".scheda .bottone.largo").last, 0.8)
     didascalia("Chi sei", "Nome e telefono. Non si paga online: si paga in cassa.", 1.1)
     scrivi(app.locator('input[name="nome"]'), "Marco Rossi")
@@ -223,12 +237,12 @@ def gira(pagina) -> None:
     scrivi(app.locator('input[name="email"]'), "marco.rossi@example.com", 0.6)
     tocca(app.locator('.foglio button[type="submit"]'), 2.0)
 
-    # --- 8. L'omino ringrazia, poi arriva il codice ---
+    # --- 9. L'omino ringrazia, poi arriva il codice ---
     didascalia("Fatto", "La postazione è tua. Alla cassa basta il codice.", 1.0)
     tocca(app.locator(".benvenuto .avanti"), 0.8)
     tocca(app.locator(".benvenuto .avanti"), 2.2)
 
-    # --- 9. Cartello finale ---
+    # --- 10. Cartello finale ---
     COPIONE.append((time.monotonic() - AVVIO_VIDEO, "Finale", "Piscina Comunale di Ciampino — prenota il tuo posto."))
     pagina.evaluate("() => finale()")
     pausa(3.6)
