@@ -2,8 +2,8 @@
 
 Contenuto di `kit-skill-claude.zip`:
 
-- `.claude/skills/`: le 24 skill.
-  - Design: `impeccable`, `ui-ux-pro-max`, `web-design-guidelines`.
+- `.claude/skills/`: le 25 skill.
+  - Design: `impeccable`, `design-taste-frontend` (Taste), `ui-ux-pro-max`, `web-design-guidelines`.
   - Animazioni, di Emil Kowalski: `animate`, `review-animations`, `improve-animations`, `find-animation-opportunities`, `animation-vocabulary`, `apple-design`, `emil-design-eng`, `prototype`, `pick-ui-library`, `ask-sonner`, `animate-expo`.
   - GSAP: `gsap-core`, `gsap-timeline`, `gsap-scrolltrigger`, `gsap-plugins`, `gsap-react`, `gsap-frameworks`, `gsap-utils`, `gsap-performance`.
   - Altro: `react-best-practices`, `write-swift`.
@@ -25,4 +25,7 @@ Per richiamarne una basta scriverla nel messaggio: "usa impeccable", oppure `/im
 - **Le skill già integrate in Claude Code**, come `artifact-design`, `code-review`, `simplify`, `pdf`, `docx`, `pptx` e `xlsx`. Ci sono già in ogni sessione e non vanno copiate.
 - **I connettori** (Gmail, GitHub, Claude Docs, Artifacts). Sono collegati al tuo account claude.ai, non al progetto: si attivano dalle impostazioni dell'account e valgono per tutte le sessioni.
 - **Le librerie GSAP, Lenis e React Bits.** Non sono skill: si aggiungono al sito quando servono, come spiega il `CLAUDE.md`.
-- **"Taste".** Non era installata in questa sessione, quindi qui non c'è.
+
+## Nota su Taste
+
+Taste (`design-taste-frontend`, licenza MIT, github.com/Leonxlnx/taste-skill) ha bisogno di Node 22 o più recente e di Chrome o Chromium. Quando Claude finisce un lavoro, parte da sola un controllo della pagina nel browser.

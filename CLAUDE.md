@@ -6,6 +6,7 @@ Per ogni sito, app o schermata nuova tieni in considerazione le skill in
 `.claude/skills/` (se una non serve, dillo in una riga e vai avanti):
 
 - `impeccable`: progettare, rifinire e controllare un'interfaccia.
+- `design-taste-frontend` (Taste): siti vetrina e landing che non sembrino fatti con l'AI; ha un controllo finale che verifica la pagina nel browser.
 - `ui-ux-pro-max`: stili, palette, abbinamenti di caratteri, accessibilità.
 - Le skill di Emil Kowalski (`animate`, `review-animations`, `improve-animations`,
   `find-animation-opportunities`, `animation-vocabulary`, `apple-design`,
