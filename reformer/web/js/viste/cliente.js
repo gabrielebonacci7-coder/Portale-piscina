@@ -13,6 +13,7 @@ let vista = "settimana";
 
 const POSTI = (ctx) => ctx.info?.regole?.posti ?? 3;
 const ORE_DISDETTA = (ctx) => ctx.info?.regole?.ore_disdetta ?? 12;
+const MAX_DA_SALDARE = (ctx) => ctx.info?.regole?.max_da_saldare ?? 0;
 
 function statoLezione(l) {
   if (l.annullata) return { classe: "annullata", testo: "Annullata" };
@@ -69,7 +70,7 @@ export async function lezioni(ctx) {
       ]),
     ]),
     el("div", { classe: "elenco-lezioni" }, delGiorno.map((l) => schedaLezione(l, ctx))),
-    el("p", { classe: "nota", testo: `Si prenota fino a un mese prima · ${POSTI(ctx)} reformer · disdetta fino a ${ORE_DISDETTA(ctx)} ore prima` }),
+    el("p", { classe: "nota", testo: `Si prenota fino a mezzanotte del giorno prima · ${POSTI(ctx)} reformer · disdetta fino a ${ORE_DISDETTA(ctx)} ore prima` }),
   ]);
 }
 
@@ -219,7 +220,7 @@ function dettaglio(l, ctx) {
     } else {
       righe.push(riga("lucchetto", `Mancano meno di ${ORE_DISDETTA(ctx)} ore: non è più possibile disdire. Per un'emergenza avvisa ${l.istruttrice.nome}.`));
     }
-  } else if (!l.passata && rimaste <= 0 && !l.in_attesa) {
+  } else if (!l.passata && rimaste - 1 < -MAX_DA_SALDARE(ctx) && !l.in_attesa) {
     // A pacchetto finito non si prenota: si rinnova in studio.
     righe.push(riga("pacchetto", "Hai finito le lezioni del pacchetto: rinnovalo in studio con Greta o Elisa e poi potrai prenotare."));
   } else if (!l.passata) {

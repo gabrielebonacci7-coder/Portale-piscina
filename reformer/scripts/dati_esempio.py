@@ -81,8 +81,9 @@ def main() -> int:
         for lez in regole.lezioni_nel_periodo(db, orario.oggi() + timedelta(days=1), 6):
             if lez.liberi == 0 and caso.random() < 0.5:
                 dentro = {p.utente_id for p in lez.attive}
-                fuori = [c for c in clienti if c.id not in dentro]
-                regole.entra_in_attesa(db, lez.id, caso.choice(fuori))
+                fuori = [c for c in clienti if c.id not in dentro and c.lezioni_rimaste > 0]
+                if fuori:
+                    regole.entra_in_attesa(db, lez.id, caso.choice(fuori))
 
         # Il saldo finale come quello di uno studio vero: qualche lezione
         # rimasta a testa, e una cliente da saldare.

@@ -80,4 +80,5 @@ def regole() -> dict:
         "ore_disdetta": settings.ore_disdetta,
         "giorni_prenotabili": settings.giorni_prenotabili,
         "giorni_chiusura": settings.giorni_chiusura_prenotazioni,
+        "max_da_saldare": settings.max_lezioni_da_saldare,
     }
