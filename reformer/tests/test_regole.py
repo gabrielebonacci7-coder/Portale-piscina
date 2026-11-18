@@ -464,14 +464,31 @@ def test_lo_staff_iscrive_anche_a_prenotazioni_chiuse(client, staff, cliente):
 
 # ---------------------------------------------- avviso allo staff alla prenotazione
 def test_lo_staff_riceve_una_notifica_a_ogni_prenotazione(client, staff, cliente):
-    l = domani(client, cliente)
+    # Elisa ha il suo account staff: ognuna riceve gli avvisi delle sue lezioni.
+    from reformer.db.session import SessionLocal
+    from reformer.models import Ruolo, Utente
+
+    elisa = registra(client, ELISA, nome="Elisa", cognome="Bonacci", lezioni=0)
+    with SessionLocal() as db:
+        db.get(Utente, elisa["utente"]["id"]).ruolo = Ruolo.STAFF
+        db.commit()
+    # Mercoledì insegna Greta (l'account `staff`): l'avviso arriva a lei.
+    l = lezioni(client, cliente, "2026-10-14")[0]
     client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
     elenco = client.get("/api/notifiche", headers=auth(staff)).json()["elenco"]
     testi = [n["testo"] for n in elenco if "Sofia Marini ha prenotato" in n["testo"]]
     assert len(testi) == 1 and "Lezioni rimaste: 9" in testi[0]
+    # Martedì insegna Elisa: Greta non riceve niente.
+    martedi = domani(client, cliente)
+    client.post(f"/api/lezioni/{martedi['id']}/prenota", headers=auth(cliente))
+    elenco = client.get("/api/notifiche", headers=auth(staff)).json()["elenco"]
+    assert len([n for n in elenco if "Sofia Marini ha prenotato" in n["testo"]]) == 1
+    elenco_elisa = client.get("/api/notifiche", headers=auth(elisa["token"])).json()["elenco"]
+    assert [n["testo"][:40] for n in elenco_elisa if "Sofia Marini ha prenotato" in n["testo"]] == [
+        "Sofia Marini ha prenotato: martedì 13 ot"]
     # Quando la prenotazione la fa lo staff a mano, non c'è bisogno di avvisarsi.
     cid = io(client, cliente)["id"]
-    altra = lezioni(client, cliente, "2026-10-14")[0]
+    altra = lezioni(client, cliente, "2026-10-14")[1]
     client.post(f"/api/staff/lezioni/{altra['id']}/iscritte", json={"cliente_id": cid}, headers=auth(staff))
     elenco = client.get("/api/notifiche", headers=auth(staff)).json()["elenco"]
     assert len([n for n in elenco if "Sofia Marini ha prenotato" in n["testo"]]) == 1
@@ -573,12 +590,15 @@ def test_lo_staff_cambia_chi_insegna_in_un_giorno(client, staff, cliente):
 # ------------------------------------------ email allo staff
 def test_lo_staff_riceve_anche_una_email(client, staff, cliente, posta_inviata):
     posta_inviata.clear()
-    l = domani(client, cliente)
-    client.post(f"/api/lezioni/{l['id']}/prenota", headers=auth(cliente))
-    destinatari = {a for a, o, t in posta_inviata if "Nuova prenotazione: Sofia Marini" in o}
-    assert destinatari == {GRETA, ELISA}
-    testo = next(t for a, o, t in posta_inviata if a == GRETA)
-    assert "Sofia Marini ha prenotato" in testo and "Lezioni rimaste: 9" in testo
+    # Martedì insegna Elisa: l'email va solo a lei. Mercoledì, solo a Greta.
+    martedi = domani(client, cliente)
+    client.post(f"/api/lezioni/{martedi['id']}/prenota", headers=auth(cliente))
+    assert {a for a, o, t in posta_inviata if "Nuova prenotazione: Sofia Marini" in o} == {ELISA}
+    mercoledi = lezioni(client, cliente, "2026-10-14")[0]
+    client.post(f"/api/lezioni/{mercoledi['id']}/prenota", headers=auth(cliente))
+    assert {a for a, o, t in posta_inviata if "Nuova prenotazione: Sofia Marini" in o} == {ELISA, GRETA}
+    testo = next(t for a, o, t in posta_inviata if a == GRETA and "Nuova prenotazione" in o)
+    assert "Sofia Marini ha prenotato" in testo and "Lezioni rimaste: 8" in testo
     # Una nuova iscritta: email; Greta o Elisa che si iscrivono: nessuna.
     posta_inviata.clear()
     registra(client, "nuova@example.com", nome="Nuova", cognome="Cliente", lezioni=0)

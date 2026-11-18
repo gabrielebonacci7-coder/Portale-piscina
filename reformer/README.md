@@ -44,7 +44,7 @@ pytest reformer/tests          # 39 prove: le regole, l'avvio, e un giro complet
 | Lezioni rimaste | le scrivono Greta ed Elisa dal gestionale (numero esatto o +/−, scadenza facoltativa) |
 | Lezioni finite | a pacchetto finito non si prenota e non si entra in lista d'attesa: si rinnova in studio (`REFORMER_MAX_LEZIONI_DA_SALDARE=0`). Lo staff può comunque iscrivere a mano |
 | Pagamento | solo in studio; nell'app non ci sono prezzi |
-| Avviso allo staff | a ogni nuova iscritta e a ogni prenotazione Greta ed Elisa ricevono una notifica nella campanella **e un'email** (`REFORMER_EMAIL_AVVISI_STAFF=false` per spegnerla) |
+| Avviso allo staff | a ogni nuova iscritta lo ricevono Greta ed Elisa; a ogni prenotazione solo chi insegna quella lezione. Ricevono una notifica nella campanella **e un'email** (`REFORMER_EMAIL_AVVISI_STAFF=false` per spegnerla) |
 | Chi insegna | la regola della settimana; Greta ed Elisa possono cambiare chi fa un giorno dal gestionale (apri una lezione → «Chi insegna»); le iscritte sono avvisate |
 | Promemoria | il giorno prima, nell'app e per email |
 | Staff | chi si registra con le email di Greta o di Elisa **e la conferma** |

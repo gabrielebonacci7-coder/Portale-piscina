@@ -165,14 +165,20 @@ def notifica(db: Session, utente_id: int, testo: str) -> None:
     db.add(Notifica(utente_id=utente_id, testo=testo))
 
 
-def notifica_staff(db: Session, testo: str, oggetto_email: str | None = None) -> None:
-    """Un avviso nella campanella di ogni staff. Con `oggetto_email` parte anche
-    un'email agli indirizzi dello staff, ma solo dopo che la modifica è stata
-    salvata (se la prenotazione salta, l'email non parte)."""
-    for sid in db.scalars(select(Utente.id).where(Utente.ruolo == Ruolo.STAFF)):
-        notifica(db, sid, testo)
+def notifica_staff(
+    db: Session, testo: str, oggetto_email: str | None = None, istruttrice: str | None = None
+) -> None:
+    """Un avviso nella campanella dello staff. Con `istruttrice` lo riceve solo
+    lei (se il suo account non c'è ancora, lo ricevono tutte e due); senza,
+    arriva a tutte e due. Con `oggetto_email` parte anche un'email, ma solo dopo
+    che la modifica è stata salvata (se la prenotazione salta, l'email non parte)."""
+    staff = list(db.scalars(select(Utente).where(Utente.ruolo == Ruolo.STAFF)))
+    indirizzo = orario.EMAIL_ISTRUTTRICE.get(istruttrice) if istruttrice else None
+    destinatarie = [u for u in staff if u.email == indirizzo] or staff
+    for u in destinatarie:
+        notifica(db, u.id, testo)
     if oggetto_email and settings.email_avvisi_staff:
-        db.info.setdefault("email_staff", []).append((oggetto_email, testo))
+        db.info.setdefault("email_staff", []).append((oggetto_email, testo, indirizzo))
 
 
 # Le email partono in un altro filo: chi prenota non aspetta la posta, e se la
@@ -180,16 +186,16 @@ def notifica_staff(db: Session, testo: str, oggetto_email: str | None = None) ->
 _esecutore = ThreadPoolExecutor(max_workers=2, thread_name_prefix="avvisi-staff")
 
 
-def _scrivi_allo_staff(oggetto: str, testo: str) -> None:
+def _scrivi_allo_staff(oggetto: str, testo: str, indirizzo: str | None = None) -> None:
     corpo = f"{testo}\n\nApri RE FORMER: {settings.url_pubblico}\n"
-    for indirizzo in sorted(settings.indirizzi_staff):
+    for indirizzo in ([indirizzo] if indirizzo else sorted(settings.indirizzi_staff)):
         posta.invia_senza_bloccare(indirizzo, f"RE FORMER · {oggetto}", corpo)
 
 
 @event.listens_for(Session, "after_commit")
 def _email_dopo_il_salvataggio(sessione: Session) -> None:
-    for oggetto, testo in sessione.info.pop("email_staff", []):
-        _esecutore.submit(_scrivi_allo_staff, oggetto, testo)
+    for oggetto, testo, indirizzo in sessione.info.pop("email_staff", []):
+        _esecutore.submit(_scrivi_allo_staff, oggetto, testo, indirizzo)
 
 
 @event.listens_for(Session, "after_rollback")
@@ -265,6 +271,7 @@ def _iscrivi(
             + f": {orario.quando(lezione.inizio)} ({lezione.titolo}, {orario.ISTRUTTRICI[lezione.istruttrice]['nome']}). "
             f"Lezioni rimaste: {utente.lezioni_rimaste}.",
             ("Dalla lista d'attesa: " if dalla_lista else "Nuova prenotazione: ") + utente.nome_completo,
+            lezione.istruttrice,
         )
     return p
 

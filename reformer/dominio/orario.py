@@ -61,6 +61,12 @@ ISTRUTTRICI = {
     "greta": {"id": "greta", "nome": "Greta", "cognome": "Lorenzetti"},
 }
 
+# Dove arrivano gli avvisi di ognuna (non finisce nell'API pubblica).
+EMAIL_ISTRUTTRICE = {
+    "greta": "greta.lorenzetti@icloud.com",
+    "elisa": "elisabonacci@yahoo.it",
+}
+
 # Lunedì, mercoledì e sabato Greta; martedì, giovedì e venerdì Elisa.
 ISTRUTTRICE_DEL_GIORNO = {0: "greta", 1: "elisa", 2: "greta", 3: "elisa", 4: "elisa", 5: "greta"}
 
