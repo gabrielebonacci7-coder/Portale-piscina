@@ -25,11 +25,12 @@ def test_la_mappa_arriva_con_scenografia_e_riepilogo(client):
     assert r.status_code == 200
     dati = r.json()
     assert dati["viewbox"]
-    assert len(dati["postazioni"]) == 62
-    assert dati["riepilogo"]["libere"] == 62
-    # Le vasche e la cassa servono a capire da che parte si sta guardando.
+    assert len(dati["postazioni"]) == 46
+    assert dati["riepilogo"]["libere"] == 46
+    # Le vasche, il pavimento e gli spogliatoi servono a capire da che parte
+    # si sta guardando: senza, sono quarantasei pallini e basta.
     tipi = {e["tipo"] for e in dati["scenografia"]}
-    assert {"vasca", "cassa", "bagnino"} <= tipi
+    assert {"vasca", "pavimento", "edificio", "bagnino"} <= tipi
 
 
 def test_prenotazione_completa(client):
@@ -135,7 +136,7 @@ def test_listino_e_info(client):
 
     info = client.get("/api/info").json()
     assert info["telefono"]
-    assert info["postazioni"]["ombrelloni"] == 50
+    assert info["postazioni"]["ombrelloni"] == 38
     assert [f["valore"] for f in info["fasce"]] == ["giornata", "mattina", "pomeriggio"]
     # La guida: paragrafi e sezioni da mostrare mentre si racconta.
     passi = info["benvenuto"]["passi"]

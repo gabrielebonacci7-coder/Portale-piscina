@@ -307,15 +307,45 @@ export function vistaPrenota(ctx) {
   const etichettaListino = (n) =>
     n === 0 ? "Ombrellone senza lettini" : `Postazione Relax ${n}`;
 
+  // Lo stesso ombrellone della mappa, con sotto i lettini del pacchetto: il
+  // parasole sta in alto e i lettini escono da sotto, perché visti davvero
+  // dall'alto il telo li coprirebbe e non si capirebbe cosa si sta comprando.
+  const POSTI_LETTINI = { 0: [], 1: [10], 2: [-13, 13], 3: [-25, 0, 25] };
+
   function disegnoPacchetto(n) {
-    const lettini = Array.from({ length: n }, (_, i) =>
-      `<rect x="${4 + i * 12}" y="20" width="9" height="22" rx="4" fill="none"
-             stroke="currentColor" stroke-width="2"/>`
+    const cy = -17;
+    const r = 19.4;
+    const spicchi = [];
+    for (let i = 0; i < 12; i++) {
+      const t0 = ((2 * Math.PI * i) / 12) - Math.PI / 2;
+      const t1 = ((2 * Math.PI * (i + 1)) / 12) - Math.PI / 2;
+      const x0 = (r * Math.cos(t0)).toFixed(2);
+      const y0 = (cy + r * Math.sin(t0)).toFixed(2);
+      const x1 = (r * Math.cos(t1)).toFixed(2);
+      const y1 = (cy + r * Math.sin(t1)).toFixed(2);
+      spicchi.push(
+        `<path d="M 0 ${cy} L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z" ` +
+        `fill="${i % 2 === 0 ? "currentColor" : "#ffffff"}"/>`
+      );
+    }
+    const lettini = POSTI_LETTINI[n].map((x) =>
+      `<rect x="${x - 5.5}" y="-2" width="11" height="32" rx="5.5" fill="#e4e0d8"/>` +
+      `<rect x="${x - 3.8}" y="-0.3" width="7.6" height="28.6" rx="4" fill="#2d4f8f"/>` +
+      `<rect x="${x - 3.8}" y="8" width="7.6" height="1.3" fill="#ffffff" opacity="0.5"/>`
     ).join("");
-    return `<svg viewBox="0 0 46 46" width="46" height="46" aria-hidden="true">
-      ${lettini}
-      <path d="M8 16a15 15 0 0 1 30 0z" fill="currentColor" opacity="0.9"/>
-      <path d="M23 16v22" stroke="currentColor" stroke-width="2"/></svg>`;
+    const palo = n
+      ? `<line x1="0" y1="${cy}" x2="0" y2="4" stroke="#2a2522" stroke-width="1.6" opacity="0.35"/>`
+      : "";
+    return `<svg viewBox="-46 -44 92 88" width="54" height="54" aria-hidden="true">
+      <filter id="om-pac" x="-60%" y="-60%" width="220%" height="220%">
+        <feDropShadow dx="1.3" dy="2.2" stdDeviation="1.9"
+                      flood-color="#3a1f16" flood-opacity="0.4"/>
+      </filter>
+      <g filter="url(#om-pac)">${lettini}${palo}
+        <circle cy="${cy}" r="${r + 0.9}" fill="#ffffff"/>${spicchi.join("")}
+        <circle cy="${cy}" r="${r}" fill="none" stroke="#ffffff" stroke-width="1.3"/>
+        <circle cy="${cy}" r="2.5" fill="#2a2522" opacity="0.8"/>
+      </g></svg>`;
   }
 
   // --- Le scelte fatte -----------------------------------------------------

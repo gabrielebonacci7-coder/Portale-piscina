@@ -11,42 +11,67 @@
 */
 
 /* ---------- Tema chiaro (predefinito) ---------- */
+/* I caratteri del portale, serviti dal sito stesso: niente richiesta a terzi
+   e niente schermata senza testo mentre arrivano. Fraunces per i titoli e i
+   prezzi, Inter per tutto il resto. */
+@font-face {
+  font-family: "Fraunces";
+  src: url("/font/fraunces.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/font/inter.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* ---------- Lo stile "Lido" ----------
+   I colori non sono scelti a tavolino: vengono dalle foto della piscina. La
+   sabbia e' la carta su cui si appoggia tutto, il cotto e' il pavimento del
+   solarium e sta nell'intestazione, il turchese e' l'acqua della vasca e si
+   usa solo per quello che si tocca. Le superfici sono sollevate con ombre
+   morbide, come la piantina vista in rilievo. */
 :root {
-  --fondo: #eef4f7;
-  --superficie: #ffffff;
-  --superficie-2: #f4f9fb;
-  --inchiostro: #0d2b38;
-  --inchiostro-2: #34535f;
-  --tenue: #6b8895;
-  --linea: #d8e5ea;
-  --linea-forte: #bcd0d8;
+  --fondo: #f2ece1;
+  --superficie: #fffdf8;
+  --superficie-2: #f6f0e5;
+  --inchiostro: #3b2f28;
+  --inchiostro-2: #6d5c51;
+  --tenue: #968678;
+  --linea: #e9e0d1;
+  --linea-forte: #dacfbb;
 
-  --acqua: #0e7fb5;
-  --acqua-scura: #0a6392;
-  --acqua-chiara: #46b3dd;
+  --acqua: #0e93bb;
+  --acqua-scura: #0a7a9d;
+  --acqua-chiara: #5cc6dd;
   --su-acqua: #ffffff;
-  --acqua-velo: #dcf0f8;
+  --acqua-velo: #e2f2f8;
 
-  --sabbia: #f3e3c8;
-  --prato: #dfeadb;
-  --piastrella: #f7fafb;
+  --cotto: #a7705f;
+  --cotto-scuro: #8d5b4c;
+
+  --sabbia: #e8cf9a;
+  --prato: #d6e8c2;
+  --piastrella: #f6f1e8;
 
   /* I tre stati della mappa. */
-  --libera: #2fa36b;
-  --libera-velo: #dcf0e6;
-  --mezza: #e0a021;
-  --mezza-velo: #fbeed4;
-  --occupata: #cf5b4a;
-  --occupata-velo: #fadfda;
-  --spenta: #9fb0b8;
-  --spenta-velo: #e8edef;
+  --libera: #1f9d55;
+  --libera-velo: #e4f2e8;
+  --mezza: #e3a008;
+  --mezza-velo: #faeedb;
+  --occupata: #c8372a;
+  --occupata-velo: #f8e3e0;
+  --spenta: #b3a79a;
+  --spenta-velo: #ece6dd;
 
-  --ombra: 0 1px 2px rgba(13, 43, 56, 0.06), 0 6px 18px rgba(13, 43, 56, 0.07);
-  --ombra-alta: 0 10px 40px rgba(13, 43, 56, 0.2);
+  --ombra: 0 1px 2px rgba(74, 53, 44, 0.05), 0 10px 22px rgba(74, 53, 44, 0.09);
+  --ombra-alta: 0 -8px 40px rgba(59, 47, 40, 0.3);
 
-  --r-s: 10px;
-  --r-m: 14px;
-  --r-l: 22px;
+  --r-s: 12px;
+  --r-m: 18px;
+  --r-l: 26px;
 
   --sp-1: 4px;
   --sp-2: 8px;
@@ -55,48 +80,51 @@
   --sp-5: 24px;
   --sp-6: 36px;
 
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-dati: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-dati: "Inter", -apple-system, system-ui, sans-serif;
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
 
-  --barra-h: 60px;
-  --tab-h: 62px;
+  --barra-h: 64px;
+  --tab-h: 72px;
 }
 
 /* Il tema scuro va scritto due volte: per chi segue il sistema e per chi lo
    ha scelto a mano. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema="chiaro"]) {
-    --fondo: #071a22;
-    --superficie: #0f2a35;
-    --superficie-2: #143440;
-    --inchiostro: #e6f1f5;
-    --inchiostro-2: #b3cbd4;
-    --tenue: #7f9aa5;
-    --linea: #1e4453;
-    --linea-forte: #2b5a6c;
+    --fondo: #191411;
+    --superficie: #241d19;
+    --superficie-2: #2e2520;
+    --inchiostro: #f2e9df;
+    --inchiostro-2: #c7b6a8;
+    --tenue: #988674;
+    --linea: #352b25;
+    --linea-forte: #483b32;
 
-    --acqua: #3aa9dd;
-    --acqua-scura: #1b7ba8;
-    --acqua-chiara: #6ecbf0;
-    --su-acqua: #04222e;
-    --acqua-velo: #10394a;
+    --acqua: #2eb2d8;
+    --acqua-scura: #1890b4;
+    --acqua-chiara: #6fd3ea;
+    --su-acqua: #06222c;
+    --acqua-velo: #123742;
 
-    --sabbia: #4a4030;
-    --prato: #1c3830;
-    --piastrella: #17323d;
+    --cotto: #a7705f;
+    --cotto-scuro: #7c4e40;
 
-    --libera: #4cc78d;
-    --libera-velo: #10402f;
-    --mezza: #f0b849;
-    --mezza-velo: #40320f;
-    --occupata: #ec7c6b;
-    --occupata-velo: #46201b;
-    --spenta: #6b8794;
-    --spenta-velo: #1b3a46;
+    --sabbia: #5a4a30;
+    --prato: #2a3a24;
+    --piastrella: #2a221d;
 
-    --ombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
-    --ombra-alta: 0 10px 40px rgba(0, 0, 0, 0.55);
+    --libera: #46c583;
+    --libera-velo: #143626;
+    --mezza: #eeb54a;
+    --mezza-velo: #3b2e12;
+    --occupata: #e8705f;
+    --occupata-velo: #40201b;
+    --spenta: #7d7064;
+    --spenta-velo: #2c241f;
+
+    --ombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 24px rgba(0, 0, 0, 0.4);
+    --ombra-alta: 0 -8px 44px rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -396,7 +424,7 @@ button { font: inherit; color: inherit; }
 .posto.stato-occupata .tinta { fill: var(--occupata); }
 .posto.stato-spenta .tinta { fill: var(--spenta); }
 .posto.stato-occupata, .posto.stato-spenta { cursor: not-allowed; }
-.posto.non-scegliibile .corpo { opacity: 0.42; }
+.posto.non-scegliibile .corpo { opacity: 0.62; }
 .posto .etichetta {
   font-size: 11px;
   font-weight: 700;
@@ -796,61 +824,53 @@ button { font: inherit; color: inherit; }
 }
 
 /* ---------- La scenografia della mappa ----------
-   I colori stanno qui e non negli attributi dell'SVG, così la mappa segue il
-   tema come tutto il resto. Le grane (erba, acqua, pietra) sono immagini
-   ripetute, dichiarate dentro l'SVG. */
-.sc-prato { fill: url(#erba); }
-.sc-pavimento { fill: url(#pietra); }
-.sc-cordolo { fill: none; stroke: #ffffff; stroke-width: 3; opacity: 0.5; }
-.sc-acqua { fill: url(#acqua); }
-.sc-bordo-vasca { fill: #f4ecdd; stroke: #e0d3ba; stroke-width: 2; }
-.sc-sabbia { fill: #ecd9ae; }
-.sc-riga-campo { fill: none; stroke: #ffffff; stroke-width: 2; opacity: 0.65; }
-.sc-rete { stroke: #ffffff; stroke-width: 2; stroke-dasharray: 5 4; opacity: 0.85; }
-.sc-solarium {
-  fill: rgba(255, 255, 255, 0.42);
-  stroke: #ffffff;
-  stroke-width: 2;
-  stroke-dasharray: 8 6;
-}
-.sc-legno { fill: #b07a48; }
-.sc-asse { stroke: #96633a; stroke-width: 1.6; opacity: 0.7; }
-.sc-porta { fill: #6f4526; }
-.sc-metallo { stroke: #eef4f6; stroke-width: 2.4; fill: none; stroke-linecap: round; }
-.sc-metallo-pieno { fill: #eef4f6; }
-.sc-sedia { fill: #c8443a; }
-.sc-seggiolino { fill: #e8756a; }
-.sc-ombrellino { fill: #e2564a; }
-.sc-ombrellino-cuore { fill: #ffffff; opacity: 0.8; }
-.sc-palma { fill: #2f7d4f; opacity: 0.95; }
-.sc-palma.chiara { fill: #46a067; opacity: 0.9; }
-.sc-palma-cuore { fill: #8a5a2b; }
+   I colori stanno qui e non negli attributi dell'SVG, cosi' la mappa segue il
+   tema come tutto il resto. Sono le tinte vere della piscina: il cotto del
+   solarium, il turchese della vasca, il verde della siepe. */
+.sc-prato { fill: var(--prato); }
+.sc-siepe { fill: none; stroke: #3f7a4a; stroke-linecap: round; stroke-linejoin: round; }
+.sc-cotto { fill: #b17a69; }
+.sc-fuga { stroke: #ffffff; stroke-width: 1; opacity: 0.13; }
+.sc-bordo-vasca { fill: #f6f2ea; }
+.sc-acqua { fill: #19a8d0; }
+.sc-corsia { stroke: #ffd75e; stroke-width: 2.6; stroke-dasharray: 9 7; opacity: 0.9; }
+.sc-scaletta line { stroke: #f3f0e9; stroke-width: 3; stroke-linecap: round; }
+.sc-tetto { fill: #b4604a; }
+.sc-coppo { stroke: #8c4433; stroke-width: 1.4; opacity: 0.5; }
+.sc-servizio { fill: #e6ded0; }
+.sc-chioma { fill: #4e8c50; }
+.sc-chioma.chiara { fill: #6aa862; }
+.sc-salvagente { fill: #d9483a; }
+.sc-salvagente-cuore { fill: #ffffff; }
 
 .sc-testo {
   fill: #ffffff;
-  font-size: 17px;
+  font-family: var(--font);
+  font-size: 18px;
   font-weight: 700;
+  letter-spacing: 0.08em;
   text-anchor: middle;
   paint-order: stroke;
-  stroke: rgba(20, 50, 60, 0.35);
+  stroke: rgba(16, 60, 76, 0.3);
   stroke-width: 3;
   stroke-linejoin: round;
 }
-.sc-testo.minuta { font-size: 13px; }
+.sc-testo.minuta { font-size: 14px; }
 .sc-testo.scura {
-  fill: #4a3a24;
-  stroke: rgba(255, 255, 255, 0.75);
+  fill: #4a3328;
+  stroke: rgba(255, 255, 255, 0.7);
   stroke-width: 2.5;
 }
 
-/* Le postazioni. Il colore dello stato arriva dalle classi `.stato-*` più
-   sotto e si posa su due cose sole: l'alone e i lettini. */
-.posto .telo { fill: #f8f2e6; stroke: #ded0b6; stroke-width: 1; }
-.posto .spicchio { stroke: #e6dac4; stroke-width: 0.9; }
-.posto .puntale { fill: #c9b48f; }
-.posto .lettino { stroke: rgba(40, 30, 15, 0.35); stroke-width: 1; }
-.posto .cuscino { fill: #ffffff; opacity: 0.75; }
-.posto .alone { opacity: 0.32; }
+/* Le postazioni: un parasole a spicchi visto dall'alto. Gli spicchi pari
+   prendono il colore dello stato, gli altri restano bianchi — cosi' da
+   lontano la mappa si legge, e da vicino somiglia ai parasoli veri. */
+.posto .telo-fondo { fill: #ffffff; }
+.posto .spicchio.chiaro { fill: #ffffff; }
+.posto .telo-bordo { fill: none; stroke: #ffffff; stroke-width: 1.6; }
+.posto .puntale { fill: #2a2522; opacity: 0.8; }
+.posto .telaio { fill: #e4e0d8; }
+.posto .poggiatesta { fill: #ffffff; opacity: 0.55; }
 
 /* L'omino piccolo, accanto a un testo: stesso ritaglio, in miniatura. */
 .omino-mini {
@@ -873,3 +893,115 @@ button { font: inherit; color: inherit; }
   display: block;
 }
 
+
+
+/* ---------- Lo stile Lido, sulle parti costruite ----------
+   Titoli e prezzi in Fraunces, interfaccia in Inter, superfici sollevate e
+   turchese solo su quello che si tocca. */
+h1, h2, h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-variation-settings: "SOFT" 40, "WONK" 1, "opsz" 24;
+  letter-spacing: -0.012em;
+}
+h1 { font-size: 1.72rem; }
+h2 { font-size: 1.24rem; }
+h3 { font-size: 1.04rem; }
+
+.barra {
+  background: linear-gradient(176deg, #b07a67, #9c6453);
+  color: #fff8f1;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.07), 0 8px 18px rgba(74, 53, 44, 0.18);
+}
+/* L'ombrellino dell'intestazione dentro la sua piastrella chiara. */
+.barra .marchio > span:first-child {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.barra .titolo { font-family: var(--display); font-size: 1.16rem; font-weight: 600; }
+.barra .sottotitolo { opacity: 0.85; }
+
+.tab a { font-size: 0.68rem; }
+.scheda { border: 0; border-radius: var(--r-m); box-shadow: var(--ombra); }
+.occhiello { color: var(--cotto); letter-spacing: 0.1em; }
+
+.bottone {
+  min-height: 50px;
+  border-radius: var(--r-s);
+  font-weight: 650;
+  background: linear-gradient(176deg, #13a0c9, #0a7a9d);
+  box-shadow: 0 1px 2px rgba(10, 122, 157, 0.3), 0 8px 18px rgba(10, 122, 157, 0.3);
+}
+.bottone.secondario {
+  background: var(--superficie);
+  border-color: transparent;
+  color: var(--inchiostro);
+  box-shadow: inset 0 0 0 1.4px var(--linea-forte);
+}
+.bottone.fantasma { background: transparent; box-shadow: none; }
+.bottone.piccolo { min-height: 38px; }
+
+.segmentato { background: var(--superficie-2); border: 0; border-radius: var(--r-s); padding: 4px; }
+.segmentato button { border-radius: 11px; }
+.segmentato button[aria-pressed="true"] {
+  background: var(--superficie);
+  color: var(--inchiostro);
+  box-shadow: 0 1px 2px rgba(74, 53, 44, 0.1), 0 4px 10px rgba(74, 53, 44, 0.1);
+}
+
+.pacchetto { border: 0; background: var(--superficie-2); border-radius: 15px; }
+.pacchetto[aria-pressed="true"] {
+  background: var(--acqua-velo);
+  box-shadow: inset 0 0 0 1.6px var(--acqua);
+}
+.pacchetto .prezzo {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.dati, .cifra, .riga-conto, .tabella td.cifra { font-variant-numeric: tabular-nums; }
+.tabella td.cifra { font-family: var(--display); font-weight: 600; font-size: 0.98rem; }
+.riga-conto.totale {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  border-top: 1.6px solid var(--linea-forte);
+}
+
+.campo input, .campo select, .campo textarea {
+  background: var(--superficie-2);
+  border-color: transparent;
+  border-radius: var(--r-s);
+  min-height: 50px;
+}
+
+.foglio { border-radius: var(--r-l) var(--r-l) 0 0; }
+.mappa-guscio { border: 0; border-radius: var(--r-m); box-shadow: var(--ombra); }
+.mappa-scorri { background: var(--prato); }
+.mappa-comandi button {
+  border: 0;
+  background: var(--superficie);
+  border-radius: 12px;
+  box-shadow: var(--ombra);
+}
+.gettone { border: 0; border-radius: 999px; background: var(--acqua-velo); color: var(--acqua-scura); }
+
+/* Anche le superfici che non disegniamo noi fanno parte del disegno:
+   la selezione, il cursore, la barra di scorrimento, l'anello del fuoco. */
+::selection { background: #cfe9f3; color: var(--inchiostro); }
+input, textarea, select { caret-color: var(--acqua); }
+* { scrollbar-color: var(--linea-forte) transparent; scrollbar-width: thin; }
+:focus-visible { outline: 2px solid var(--acqua); outline-offset: 2px; }
+
+/* Il disegno del pacchetto prende il verde del "libero": una postazione la
+   si sceglie solo quando è libera, e così il disegno dice la stessa cosa
+   della mappa. */
+.pacchetto .disegno { color: var(--libera); flex: 0 0 54px; line-height: 0; }

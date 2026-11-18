@@ -106,7 +106,7 @@ def avvia_servizi() -> list[subprocess.Popen]:
 def in_mp4(webm: Path, mp4: Path) -> None:
     import imageio_ffmpeg
 
-    subprocess.run(
+    esito = subprocess.run(
         [imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-i", str(webm),
          # crf basso: lo sfondo è una sfumatura scura, e comprimendola troppo si
          # vede a strisce.
@@ -114,8 +114,12 @@ def in_mp4(webm: Path, mp4: Path) -> None:
          "-pix_fmt", "yuv420p",       # senza, molti lettori non lo aprono
          "-movflags", "+faststart",   # parte subito anche mentre si scarica
          "-r", "30", str(mp4)],
-        check=True, capture_output=True,
+        capture_output=True, text=True,
     )
+    if esito.returncode:
+        # Senza il messaggio di ffmpeg, qui si resta con un numero in mano.
+        coda = "\n".join(esito.stderr.strip().splitlines()[-12:])
+        raise RuntimeError(f"ffmpeg non è riuscito a convertire il video:\n{coda}")
 
 
 def scrivi_copione(percorso: Path) -> None:
@@ -188,16 +192,16 @@ def gira(pagina) -> None:
     )
 
     # --- 3. La mappa, e cosa dicono i colori ---
-    didascalia("La mappa", "Il solarium visto dall'alto: in verde quello che è libero.", 2.2)
+    didascalia("La mappa", "Il solarium visto dall'alto: in verde gli ombrelloni liberi.", 2.4)
 
     # --- 4. Anche mezza giornata ---
-    didascalia("Mezza giornata", "Giornata intera, solo mattina o solo pomeriggio.", 1.0)
+    didascalia("Quanto resti", "Tutto il giorno, 9–19. Oppure solo mattina o solo pomeriggio.", 1.2)
     tocca(app.locator(".segmentato button").nth(1), 1.7)
     tocca(app.locator(".segmentato button").nth(0), 1.0)
 
     # --- 5. I prezzi, scritti ---
     tocca(app.locator('.tab a[href="#/prezzi"]'), 0.6)
-    didascalia("Prezzi chiari", "Tutti i pacchetti e le tariffe, sempre sott'occhio.", 1.1)
+    didascalia("I prezzi", "Ombrellone 5 €. Con due lettini 12 €. Sono quelli del cartello.", 1.4)
     for _ in range(3):
         pagina.mouse.move(LARGO / 2, 900)
         pagina.mouse.wheel(0, 280)
@@ -206,21 +210,21 @@ def gira(pagina) -> None:
 
     # --- 6. Due tocchi: il posto è scelto ---
     tocca(app.locator('.tab a[href="#/prenota"]'), 0.8)
-    didascalia("Due tocchi", "Scegli ombrellone e lettini esattamente dove vuoi tu.", 1.1)
+    didascalia("Il posto", "Tocchi l'ombrellone che vuoi e dici quanti lettini ti servono.", 1.3)
     tocca(app.locator('[data-codice="A9"]'), 1.0)
     tocca(app.locator(".foglio .pacchetto").nth(3), 0.7)   # ombrellone + 3 lettini
     tocca(app.locator(".foglio .bottone.largo").first, 1.2)
 
     # --- 7. Si conferma, e si paga in cassa ---
     tocca(app.locator(".scheda .bottone.largo").last, 0.8)
-    didascalia("Un minuto", "Lasci un contatto, e paghi in cassa quando arrivi.", 0.9)
+    didascalia("Chi sei", "Nome e telefono. Non si paga online: si paga in cassa.", 1.1)
     scrivi(app.locator('input[name="nome"]'), "Marco Rossi")
     scrivi(app.locator('input[name="telefono"]'), "333 1234567")
     scrivi(app.locator('input[name="email"]'), "marco.rossi@example.com", 0.6)
     tocca(app.locator('.foglio button[type="submit"]'), 2.0)
 
     # --- 8. L'omino ringrazia, poi arriva il codice ---
-    didascalia("Fatto", "La postazione è tua. Il codice serve solo in cassa.", 0.9)
+    didascalia("Fatto", "La postazione è tua. Alla cassa basta il codice.", 1.0)
     tocca(app.locator(".benvenuto .avanti"), 0.8)
     tocca(app.locator(".benvenuto .avanti"), 2.2)
 

@@ -27,12 +27,12 @@ def stato(db, giorno, codice):
     return next(p for p in crud.mappa_del_giorno(db, giorno) if p["codice"] == codice)
 
 
-def test_piantina_ha_cinquanta_ombrelloni(db):
+def test_piantina_ha_trentotto_ombrelloni_e_otto_lettini(db):
     postazioni = crud.mappa_del_giorno(db, oggi())
     ombrelloni = [p for p in postazioni if p["tipo"] == "ombrellone"]
     lettini = [p for p in postazioni if p["tipo"] == "lettino"]
-    assert len(ombrelloni) == 50
-    assert len(lettini) == 12
+    assert len(ombrelloni) == 38
+    assert len(lettini) == 8
     # Tutte libere: nessuno ha ancora prenotato niente.
     assert all(p["libera_mattina"] and p["libera_pomeriggio"] for p in postazioni)
 
@@ -143,7 +143,7 @@ def test_postazione_inesistente(db):
 
 
 def test_si_ritrova_con_codice_e_telefono_scritto_in_altro_modo(db):
-    prenotazione = prenota(db, ["E6"])
+    prenotazione = prenota(db, ["C6"])
     trovata = crud.per_codice_e_telefono(db, prenotazione.codice.lower(), "+39 333 12 34 567")
     assert trovata is not None and trovata.id == prenotazione.id
     assert crud.per_codice_e_telefono(db, prenotazione.codice, "333 0000000") is None

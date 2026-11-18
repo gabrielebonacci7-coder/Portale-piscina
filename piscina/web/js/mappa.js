@@ -56,118 +56,124 @@ export function perche(p) {
 }
 
 // --- Definizioni riusabili -------------------------------------------------
-function grana(id, file, misura) {
-  return svg("pattern", { id, width: misura, height: misura, patternUnits: "userSpaceOnUse" }, [
-    svg("image", { href: `/immagini/${file}`, width: misura, height: misura }),
-  ]);
-}
-
 function definizioni() {
   return svg("defs", {}, [
-    grana("erba", "texture-erba.webp", 150),
-    grana("acqua", "texture-acqua.webp", 190),
-    grana("pietra", "texture-pavimento.webp", 95),
-
-    // Il bordo della vasca è più scuro: dà la profondità dell'acqua.
-    svg("radialGradient", { id: "fondale", cx: "0.5", cy: "0.5", r: "0.72" }, [
-      svg("stop", { offset: "0.55", "stop-color": "#000", "stop-opacity": "0" }),
-      svg("stop", { offset: "1", "stop-color": "#02405c", "stop-opacity": "0.45" }),
+    // La cupola del parasole: la luce viene da sopra a sinistra, come a mezzogiorno.
+    svg("radialGradient", { id: "cupola", cx: "0.36", cy: "0.28", r: "0.8" }, [
+      svg("stop", { offset: "0", "stop-color": "#fff", "stop-opacity": "0.5" }),
+      svg("stop", { offset: "0.55", "stop-color": "#fff", "stop-opacity": "0" }),
+      svg("stop", { offset: "1", "stop-color": "#16242f", "stop-opacity": "0.22" }),
     ]),
-    // Il sole in alto a sinistra, come nelle foto dall'alto di mezzogiorno.
-    svg("filter", { id: "ombra", x: "-40%", y: "-40%", width: "200%", height: "200%" }, [
+    // Il fondo della vasca: più scuro dove è profonda.
+    svg("linearGradient", { id: "fondale", x1: "0", y1: "0", x2: "0", y2: "1" }, [
+      svg("stop", { offset: "0", "stop-color": "#9ff0ff", "stop-opacity": "0.42" }),
+      svg("stop", { offset: "0.45", "stop-color": "#fff", "stop-opacity": "0" }),
+      svg("stop", { offset: "1", "stop-color": "#00435f", "stop-opacity": "0.42" }),
+    ]),
+    svg("filter", { id: "ombra", x: "-60%", y: "-60%", width: "220%", height: "220%" }, [
       svg("feDropShadow", {
-        dx: "2.5", dy: "4", stdDeviation: "2.5",
-        "flood-color": "#2a2010", "flood-opacity": "0.32",
+        dx: "2", dy: "3.4", stdDeviation: "2.6",
+        "flood-color": "#3a1f16", "flood-opacity": "0.42",
       }),
     ]),
     svg("filter", { id: "ombra-grande", x: "-30%", y: "-30%", width: "180%", height: "180%" }, [
       svg("feDropShadow", {
-        dx: "4", dy: "7", stdDeviation: "6",
-        "flood-color": "#2a2010", "flood-opacity": "0.28",
+        dx: "5", dy: "9", stdDeviation: "7",
+        "flood-color": "#3a1f16", "flood-opacity": "0.26",
       }),
     ]),
   ]);
 }
 
 // --- Scenografia -----------------------------------------------------------
-function vasca(e) {
-  const scaletta = [];
-  // Una scaletta sul lato lungo: due corrimano e i gradini.
-  const sx = e.x + e.w * 0.5 - 16;
-  const sy = e.y + e.h;
-  for (const dx of [0, 26]) {
-    scaletta.push(svg("path", {
-      classe: "sc-metallo",
-      d: `M${sx + dx} ${sy - 26} q0 -14 6 -18`,
-    }));
+/** Il pavimento di cotto, col suo reticolo di piastrelle. */
+function pavimento(e) {
+  const punti = e.punti.map((p) => p.join(",")).join(" ");
+  const xs = e.punti.map((p) => p[0]);
+  const ys = e.punti.map((p) => p[1]);
+  const [x0, x1] = [Math.min(...xs), Math.max(...xs)];
+  const [y0, y1] = [Math.min(...ys), Math.max(...ys)];
+
+  const fughe = [];
+  const passo = 22; // 1,10 m: la piastrella vera del solarium
+  for (let x = x0; x <= x1; x += passo) {
+    fughe.push(svg("line", { classe: "sc-fuga", x1: x, y1: y0, x2: x, y2: y1 }));
   }
-  for (let i = 0; i < 3; i++) {
-    scaletta.push(svg("line", {
-      classe: "sc-metallo", x1: sx, y1: sy - 22 + i * 7, x2: sx + 26, y2: sy - 22 + i * 7,
-    }));
+  for (let y = y0; y <= y1; y += passo) {
+    fughe.push(svg("line", { classe: "sc-fuga", x1: x0, y1: y, x2: x1, y2: y }));
   }
 
-  return svg("g", { filter: "url(#ombra-grande)" }, [
-    // Il bordo in pietra chiara attorno alla vasca.
+  return svg("g", {}, [
+    svg("defs", {}, [svg("clipPath", { id: "ritaglio-cotto" }, [svg("polygon", { points: punti })])]),
+    svg("polygon", { classe: "sc-cotto", points: punti, filter: "url(#ombra-grande)" }),
+    svg("g", { "clip-path": "url(#ritaglio-cotto)" }, fughe),
+  ]);
+}
+
+/** Una vasca: bordo di travertino, acqua, corsie, scaletta. */
+function vasca(e) {
+  const pezzi = [
     svg("rect", {
       classe: "sc-bordo-vasca",
-      x: e.x - 9, y: e.y - 9, width: e.w + 18, height: e.h + 18, rx: 24,
+      x: e.x - 11, y: e.y - 11, width: e.w + 22, height: e.h + 22, rx: 14,
     }),
-    svg("rect", { classe: "sc-acqua", x: e.x, y: e.y, width: e.w, height: e.h, rx: 16 }),
+    svg("rect", { classe: "sc-acqua", x: e.x, y: e.y, width: e.w, height: e.h, rx: 8 }),
     svg("rect", {
-      fill: "url(#fondale)", x: e.x, y: e.y, width: e.w, height: e.h, rx: 16,
+      fill: "url(#fondale)", x: e.x, y: e.y, width: e.w, height: e.h, rx: 8,
     }),
-    ...scaletta,
-    svg("text", {
-      classe: "sc-testo", x: e.x + e.w / 2, y: e.y + e.h / 2 + 6, testo: e.etichetta,
-    }),
-  ]);
-}
+  ];
 
-function palma(e) {
-  const cx = e.x + e.w / 2;
-  const cy = e.y + e.h / 2;
-  const r = e.w / 2;
-
-  // Ogni fronda è un'ellisse allungata che parte dal centro. Con le punte a
-  // triangolo veniva fuori una stella marina; così si legge palma anche
-  // quando è grande dieci pixel.
-  const fronda = (gradi, lunghezza, classe) =>
-    svg("g", { transform: `translate(${cx} ${cy}) rotate(${gradi})` }, [
-      svg("ellipse", {
-        classe,
-        cx: lunghezza / 2,
-        cy: 0,
-        rx: lunghezza / 2,
-        ry: lunghezza * 0.19,
-      }),
-    ]);
-
-  const fronde = [];
-  for (let i = 0; i < 6; i++) {
-    const gradi = (i / 6) * 360;
-    fronde.push(fronda(gradi, r, "sc-palma"));
-    fronde.push(fronda(gradi + 30, r * 0.7, "sc-palma chiara"));
+  // Le corsie, con i galleggianti gialli come nella vasca vera.
+  if (e.corsie) {
+    for (let i = 1; i < e.corsie; i++) {
+      const y = e.y + (e.h * i) / e.corsie;
+      pezzi.push(svg("line", {
+        classe: "sc-corsia", x1: e.x + 8, y1: y, x2: e.x + e.w - 8, y2: y,
+      }));
+    }
   }
 
-  return svg("g", { filter: "url(#ombra)" }, [
-    ...fronde,
-    svg("circle", { classe: "sc-palma-cuore", cx, cy, r: r * 0.16 }),
-  ]);
+  // Una scaletta sul lato corto, verso l'ingresso.
+  const sx = e.x + e.w - 30;
+  const sy = e.y + e.h;
+  pezzi.push(svg("g", { classe: "sc-scaletta" }, [
+    svg("line", { x1: sx, y1: sy, x2: sx, y2: sy + 11 }),
+    svg("line", { x1: sx + 16, y1: sy, x2: sx + 16, y2: sy + 11 }),
+    svg("line", { x1: sx, y1: sy + 6, x2: sx + 16, y2: sy + 6 }),
+  ]));
+
+  pezzi.push(svg("text", {
+    classe: "sc-testo", x: e.x + e.w / 2, y: e.y + e.h / 2 + 6, testo: e.etichetta,
+  }));
+  return svg("g", { filter: "url(#ombra-grande)" }, pezzi);
 }
 
-function edificioLegno(e, dettagli = []) {
-  const assi = [];
-  for (let y = e.y + 12; y < e.y + e.h - 6; y += 12) {
-    assi.push(svg("line", { classe: "sc-asse", x1: e.x + 5, y1: y, x2: e.x + e.w - 5, y2: y }));
+/** Spogliatoi, bar, cassa, docce: un corpo di fabbrica col tetto di coppi. */
+function edificio(e) {
+  const pezzi = [
+    svg("rect", {
+      classe: e.tetto ? "sc-tetto" : "sc-servizio",
+      x: e.x, y: e.y, width: e.w, height: e.h, rx: 7,
+    }),
+  ];
+  if (e.tetto) {
+    for (let x = e.x + 18; x < e.x + e.w - 6; x += 18) {
+      pezzi.push(svg("line", { classe: "sc-coppo", x1: x, y1: e.y + 4, x2: x, y2: e.y + e.h - 4 }));
+    }
   }
+  if (e.etichetta) {
+    pezzi.push(svg("text", {
+      classe: "sc-testo scura", x: e.x + e.w / 2, y: e.y + e.h / 2 + 5, testo: e.etichetta,
+    }));
+  }
+  return svg("g", { filter: "url(#ombra)" }, pezzi);
+}
+
+function albero(e) {
   return svg("g", { filter: "url(#ombra)" }, [
-    svg("rect", { classe: "sc-legno", x: e.x, y: e.y, width: e.w, height: e.h, rx: 10 }),
-    ...assi,
-    ...dettagli,
-    svg("text", {
-      classe: "sc-testo minuta scura",
-      x: e.x + e.w / 2, y: e.y + e.h / 2 + 4, testo: e.etichetta,
+    svg("circle", { classe: "sc-chioma", cx: e.x, cy: e.y, r: e.r }),
+    svg("circle", {
+      classe: "sc-chioma chiara", cx: e.x - e.r * 0.28, cy: e.y - e.r * 0.28, r: e.r * 0.62,
     }),
   ]);
 }
@@ -175,71 +181,25 @@ function edificioLegno(e, dettagli = []) {
 function scenografia(elementi) {
   const pezzi = [];
   for (const e of elementi) {
-    if (e.tipo === "recinto") {
-      pezzi.push(svg("g", { filter: "url(#ombra-grande)" }, [
-        svg("rect", { classe: "sc-pavimento", x: e.x, y: e.y, width: e.w, height: e.h, rx: 26 }),
-        svg("rect", {
-          classe: "sc-cordolo", x: e.x + 4, y: e.y + 4, width: e.w - 8, height: e.h - 8, rx: 22,
-        }),
-      ]));
+    if (e.tipo === "siepe") {
+      pezzi.push(svg("polyline", {
+        classe: "sc-siepe",
+        points: e.punti.map((p) => p.join(",")).join(" "),
+        "stroke-width": e.spessore,
+      }));
+    } else if (e.tipo === "pavimento") {
+      pezzi.push(pavimento(e));
     } else if (e.tipo === "vasca") {
       pezzi.push(vasca(e));
-    } else if (e.tipo === "palma") {
-      pezzi.push(palma(e));
-    } else if (e.tipo === "volley") {
-      pezzi.push(svg("g", { filter: "url(#ombra)" }, [
-        svg("rect", { classe: "sc-sabbia", x: e.x, y: e.y, width: e.w, height: e.h, rx: 8 }),
-        svg("rect", {
-          classe: "sc-riga-campo",
-          x: e.x + 10, y: e.y + 8, width: e.w - 20, height: e.h - 16, rx: 4,
-        }),
-        svg("line", {
-          classe: "sc-rete", x1: e.x + e.w / 2, y1: e.y + 6, x2: e.x + e.w / 2, y2: e.y + e.h - 6,
-        }),
-        svg("text", {
-          classe: "sc-testo minuta scura", x: e.x + e.w / 2, y: e.y + e.h / 2 + 4, testo: e.etichetta,
-        }),
-      ]));
-    } else if (e.tipo === "solarium") {
-      pezzi.push(svg("g", {}, [
-        svg("rect", { classe: "sc-solarium", x: e.x, y: e.y, width: e.w, height: e.h, rx: 14 }),
-        svg("text", {
-          classe: "sc-testo minuta scura", x: e.x + e.w / 2, y: e.y + 19, testo: e.etichetta,
-        }),
-      ]));
+    } else if (e.tipo === "edificio") {
+      pezzi.push(edificio(e));
+    } else if (e.tipo === "albero") {
+      pezzi.push(albero(e));
     } else if (e.tipo === "bagnino") {
-      // La sedia alta con il suo ombrellino rosso, come in piscina.
-      const cx = e.x + e.w / 2;
+      // Il salvagente del bagnino: dice dov'è il punto di primo soccorso.
       pezzi.push(svg("g", { filter: "url(#ombra)" }, [
-        // Il seggiolone con il suo parasole rosso, come si vede dall'alto.
-        svg("rect", {
-          classe: "sc-sedia",
-          x: cx - 9, y: e.y + 18, width: 18, height: e.h - 20, rx: 5,
-        }),
-        svg("rect", {
-          classe: "sc-seggiolino",
-          x: cx - 5, y: e.y + 24, width: 10, height: e.h - 34, rx: 3,
-        }),
-        svg("ellipse", { classe: "sc-ombrellino", cx, cy: e.y + 14, rx: 19, ry: 15 }),
-        svg("circle", { classe: "sc-ombrellino-cuore", cx, cy: e.y + 14, r: 2.6 }),
-        svg("text", {
-          classe: "sc-testo minuta scura", x: cx, y: e.y - 8, testo: e.etichetta,
-        }),
-      ]));
-    } else if (e.tipo === "doccia") {
-      pezzi.push(edificioLegno(e, [
-        svg("circle", { classe: "sc-metallo-pieno", cx: e.x + e.w / 2, cy: e.y + 20, r: 6 }),
-        svg("line", {
-          classe: "sc-metallo",
-          x1: e.x + e.w / 2, y1: e.y + 26, x2: e.x + e.w / 2, y2: e.y + 40,
-        }),
-      ]));
-    } else if (e.tipo === "cassa") {
-      pezzi.push(edificioLegno(e, [
-        svg("rect", {
-          classe: "sc-porta",
-          x: e.x + e.w - 16, y: e.y + e.h / 2 - 24, width: 16, height: 48, rx: 4,
-        }),
+        svg("circle", { classe: "sc-salvagente", cx: e.x, cy: e.y, r: e.r }),
+        svg("circle", { classe: "sc-salvagente-cuore", cx: e.x, cy: e.y, r: e.r * 0.44 }),
       ]));
     }
   }
@@ -247,68 +207,57 @@ function scenografia(elementi) {
 }
 
 // --- Le postazioni ---------------------------------------------------------
-/** Un lettino visto dall'alto: telaio, materassino, cuscino. */
-function lettino(x, y, largo, alto) {
-  return svg("g", {}, [
-    svg("rect", {
-      classe: "tinta lettino", x, y, width: largo, height: alto, rx: largo * 0.42,
-    }),
-    svg("rect", {
-      classe: "cuscino",
-      x: x + largo * 0.18, y: y + alto * 0.08,
-      width: largo * 0.64, height: alto * 0.22, rx: largo * 0.2,
-    }),
-  ]);
-}
+const RAGGIO_TELO = 22;   // 1,10 m: un parasole aperto misura poco più di due metri
 
-/** Un ombrellone visto dall'alto: il telo a spicchi color panna.
-
-    Sta un po' più in alto del centro, e i lettini gli stanno sotto: messo
-    esattamente sopra li coprirebbe, e da lontano la postazione sembrerebbe
-    un bottone e basta. */
-const OMBRELLONE_Y = -8;
-const RAGGIO_TELO = 11;
-
-function ombrellone() {
-  const spicchi = [];
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2;
-    spicchi.push(svg("line", {
-      classe: "spicchio",
-      x1: 0, y1: OMBRELLONE_Y,
-      x2: Math.cos(a) * RAGGIO_TELO, y2: OMBRELLONE_Y + Math.sin(a) * RAGGIO_TELO,
+/** Il telo a spicchi, come i parasoli bianchi e blu della piscina: qui gli
+    spicchi pari prendono il colore dello stato, così da lontano la mappa si
+    legge senza dover ingrandire. */
+function telo(r) {
+  const n = 12;
+  const pezzi = [];
+  for (let i = 0; i < n; i++) {
+    const t0 = ((2 * Math.PI * i) / n) - Math.PI / 2;
+    const t1 = ((2 * Math.PI * (i + 1)) / n) - Math.PI / 2;
+    const x0 = (r * Math.cos(t0)).toFixed(2);
+    const y0 = (r * Math.sin(t0)).toFixed(2);
+    const x1 = (r * Math.cos(t1)).toFixed(2);
+    const y1 = (r * Math.sin(t1)).toFixed(2);
+    pezzi.push(svg("path", {
+      classe: i % 2 === 0 ? "spicchio tinta" : "spicchio chiaro",
+      d: `M 0 0 L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z`,
     }));
   }
+  return pezzi;
+}
+
+function ombrellone() {
   return svg("g", {}, [
-    svg("circle", { classe: "telo", cx: 0, cy: OMBRELLONE_Y, r: RAGGIO_TELO }),
-    ...spicchi,
-    svg("circle", { classe: "puntale", cx: 0, cy: OMBRELLONE_Y, r: 2.4 }),
+    svg("circle", { classe: "telo-fondo", cx: 0, cy: 0, r: RAGGIO_TELO + 1.4 }),
+    ...telo(RAGGIO_TELO),
+    svg("circle", { fill: "url(#cupola)", cx: 0, cy: 0, r: RAGGIO_TELO }),
+    svg("circle", { classe: "telo-bordo", cx: 0, cy: 0, r: RAGGIO_TELO }),
+    svg("circle", { classe: "puntale", cx: 0, cy: 0, r: 3 }),
   ]);
 }
 
-function disegnaPostazione(p, { fascia, scelte, rotazioni, lettiniDisegnati }) {
+/** Un lettino visto dall'alto: telaio chiaro, telo, poggiatesta. */
+function lettino() {
+  return svg("g", {}, [
+    svg("rect", { classe: "telaio", x: -8, y: -20, width: 16, height: 40, rx: 6 }),
+    svg("rect", { classe: "tinta tela", x: -6, y: -18, width: 12, height: 36, rx: 4.4 }),
+    svg("rect", { classe: "poggiatesta", x: -6, y: -9, width: 12, height: 2.4 }),
+  ]);
+}
+
+function disegnaPostazione(p, { fascia, scelte }) {
   const stato = statoDi(p);
   const scelta = scelte.has(p.codice);
   const utile = scegliibile(p, fascia);
-  const rotazione = rotazioni[p.fila] || 0;
+  const raggio = p.tipo === "lettino" ? 21 : RAGGIO_TELO + 2;
 
-  const pezzi = [];
-  if (p.tipo === "lettino") {
-    pezzi.push(lettino(-8, -13, 16, 26));
-  } else {
-    // I due lettini affiancati, e l'ombrellone che li ripara da sopra.
-    const posti = Math.min(lettiniDisegnati, 2);
-    for (let i = 0; i < posti; i++) {
-      pezzi.push(lettino(i === 0 ? -10.5 : 1.5, -2, 9, 23));
-    }
-    pezzi.push(ombrellone());
-  }
-
-  const corpo = svg("g", {
-    classe: "corpo",
-    transform: `rotate(${rotazione})`,
-    filter: "url(#ombra)",
-  }, pezzi);
+  const corpo = svg("g", { classe: "corpo", filter: "url(#ombra)" }, [
+    p.tipo === "lettino" ? lettino() : ombrellone(),
+  ]);
 
   return svg(
     "g",
@@ -320,14 +269,9 @@ function disegnaPostazione(p, { fascia, scelte, rotazioni, lettiniDisegnati }) {
       "aria-label": `${p.codice}: ${perche(p)}`,
     },
     [
-      // L'alone: da lontano è l'unica cosa che si vede, ed è quella che dice
-      // se il posto è libero.
-      svg("circle", { classe: "alone tinta", cx: 0, cy: p.tipo === "lettino" ? 0 : 3, r: 18 }),
       corpo,
-      svg("circle", { classe: "anello", cx: 0, cy: p.tipo === "lettino" ? 0 : 3, r: 19 }),
-      rotazione || p.tipo === "lettino"
-        ? svg("text", { classe: "etichetta a-lato", x: 21, y: 4, testo: p.codice })
-        : svg("text", { classe: "etichetta", x: 0, y: 32, testo: p.codice }),
+      svg("circle", { classe: "anello", cx: 0, cy: 0, r: raggio }),
+      svg("text", { classe: "etichetta", x: 0, y: raggio + 15, testo: p.codice }),
     ]
   );
 }
